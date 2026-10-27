@@ -5,7 +5,7 @@ developer: "INDIE/24"
 developerUrl: "/about/"
 releaseYear: 2026
 genres: ["shooter", "arcade", "retro"]
-platforms: ["web"]
+platforms: ["web", "android"]
 featuredDate: "2026-10-19"
 coverImage: "../../assets/games/signal-strike/cover.png"
 coverAlt: "Signal Strike title screen: a pixel spaceship firing at alien drones on a pale green LCD-style screen"
@@ -17,6 +17,11 @@ screenshots:
   - src: "../../assets/games/signal-strike/screenshot-3.png"
     alt: "The final boss fight in the dark blue Night colour scheme, with the ship firing a beam"
 playUrl: "/play/signal-strike/"
+downloadUrl: "https://github.com/RizwanATC/indiegamewebsite/releases/download/android-latest/signal-strike.apk"
+downloadType: "apk"
+downloadSource: "official"
+apkVersion: "1.0.0"
+apkSha256: "05d2fc8ded8061471bae036b256ed4b9b3098381fedc4739074bcba22b7af7a5"
 playerAspect: "16/9"
 controls:
   - input: "Arrow keys / WASD"
@@ -71,5 +76,6 @@ score is saved on your device.
 
 ### On Android
 
-An Android app that runs the exact same game, full-screen and offline, is
-being built. The download will appear on this page once it's ready.
+The Android app runs the exact same game, full-screen and offline. Use the
+download button on this page. Android will ask you to allow installs from this
+source the first time, because the app isn't from the Play Store.
