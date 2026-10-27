@@ -1,0 +1,61 @@
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: #1d2b1a;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+#screen {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+canvas {
+  display: block;
+  image-rendering: pixelated;
+  outline: none;
+}
+
+/* Touch controls: only shown after the first touch. Movement is a drag anywhere. */
+#touch {
+  display: none;
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+body.touch #touch {
+  display: block;
+}
+#touch button {
+  position: absolute;
+  pointer-events: auto;
+  border: 2px solid rgb(255 246 194 / 0.75);
+  background: rgb(29 43 26 / 0.6);
+  color: #fff6c2;
+  font: 700 12px/1 ui-monospace, Menlo, Consolas, monospace;
+  touch-action: none;
+}
+#touch button.down {
+  background: rgb(255 246 194 / 0.55);
+  color: #1d2b1a;
+}
+#btn-special {
+  right: max(14px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+}
+#btn-pause {
+  top: max(10px, env(safe-area-inset-top));
+  right: max(10px, env(safe-area-inset-right));
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}

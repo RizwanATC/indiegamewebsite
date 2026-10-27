@@ -8,12 +8,23 @@ plugins {
 // place by a build signed with a different key.
 def ks = System.getenv('SIGNING_KEYSTORE_PATH')
 
+// One project, one APK per game: gradle assembleRelease -Pgame=signal-strike
+// The game folder under public/play/ is bundled as the app's assets.
+def GAMES = [
+    'slime-siege'  : [id: 'com.indie24.slimesiege',   label: 'Slime Siege',   orientation: 'sensorPortrait'],
+    'signal-strike': [id: 'com.indie24.signalstrike', label: 'Signal Strike', orientation: 'sensorLandscape'],
+]
+def game = (project.findProperty('game') ?: 'slime-siege').toString()
+def cfg = GAMES[game]
+if (cfg == null) throw new GradleException("Unknown game '${game}'. Pick one of: ${GAMES.keySet().join(', ')}")
+
 android {
-    namespace 'com.indie24.signalstrike'
+    namespace 'com.indie24.game'
     compileSdk 35
 
     defaultConfig {
-        applicationId 'com.indie24.signalstrike'
+        applicationId cfg.id
+        manifestPlaceholders = [appLabel: cfg.label, orientation: cfg.orientation]
         minSdk 24
         targetSdk 35
         versionCode Integer.parseInt(System.getenv('VERSION_CODE') ?: '1')
@@ -41,7 +52,8 @@ android {
     // The game itself is the exact same HTML/JS the website serves.
     sourceSets {
         main {
-            assets.srcDirs += ['../../public/play/signal-strike']
+            assets.srcDirs += ["../../public/play/${game}"]
+            res.srcDirs += ["src/${game}/res"]
         }
     }
 

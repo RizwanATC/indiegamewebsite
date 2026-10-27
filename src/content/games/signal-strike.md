@@ -1,12 +1,12 @@
 ---
 title: "Signal Strike"
-shortDescription: "A side-scrolling space shooter with a green-screen phone look. Blast through three stages and their bosses in your browser or on Android."
+shortDescription: "A side-scrolling space shooter with a green-screen phone look. Blast through three stages and their bosses right in your browser."
 developer: "INDIE/24"
 developerUrl: "/about/"
 releaseYear: 2026
 genres: ["shooter", "arcade", "retro"]
-platforms: ["web", "android"]
-featuredDate: "2026-10-27"
+platforms: ["web"]
+featuredDate: "2026-10-19"
 coverImage: "../../assets/games/signal-strike/cover.png"
 coverAlt: "Signal Strike title screen: a pixel spaceship firing at alien drones on a pale green LCD-style screen"
 screenshots:
@@ -18,10 +18,6 @@ screenshots:
     alt: "The final boss fight in the dark blue Night colour scheme, with the ship firing a beam"
 playUrl: "/play/signal-strike/"
 playerAspect: "16/9"
-downloadUrl: "https://github.com/RizwanATC/indiegamewebsite/releases/download/signal-strike-latest/signal-strike.apk"
-downloadType: "apk"
-downloadSource: "official"
-apkVersion: "1.0.0"
 controls:
   - input: "Arrow keys / WASD"
     action: "Fly"
@@ -30,7 +26,7 @@ controls:
   - input: "X / K / Shift"
     action: "Special weapon"
   - input: "Touch: drag left side"
-    action: "Fly (phones and the Android app)"
+    action: "Fly (phones and tablets)"
   - input: "Touch: FIRE and SP buttons"
     action: "Fire and special weapon"
   - input: "Gamepad"
@@ -44,8 +40,8 @@ estimatedPlaytime: "5–15 minutes per run"
 
 **Signal Strike** is INDIE/24's own first game, made as a love letter to the
 side-scrolling shooters that lived on old monochrome mobile phones. It's an
-original game written from scratch for this site: you can play it right here
-or install it on Android.
+original game written from scratch for this site, and you can play it right
+here.
 
 Your ship holds the left of the screen while waves of drones, darts, gunships
 and floating mines pour in from the right. Survive a stage and its boss shows
@@ -75,5 +71,5 @@ score is saved on your device.
 
 ### On Android
 
-The Android app runs the exact same game, full-screen and offline, with
-on-screen controls. It needs no permissions and collects no data.
+An Android app that runs the exact same game, full-screen and offline, is
+being built. The download will appear on this page once it's ready.

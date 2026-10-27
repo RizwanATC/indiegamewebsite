@@ -1,6 +1,9 @@
-# Builds the Signal Strike Android app (a WebView around the same game files
-# the website serves) and publishes the APK as a GitHub Release asset:
-#   https://github.com/<owner>/<repo>/releases/download/signal-strike-latest/signal-strike.apk
+# Builds the Android apps (a WebView around the same game files the website
+# serves), one APK per game, and publishes them on the GitHub Release
+# "android-latest":
+#   https://github.com/<owner>/<repo>/releases/download/android-latest/slime-siege.apk
+#   https://github.com/<owner>/<repo>/releases/download/android-latest/signal-strike.apk
+# The repository must be public for visitors to download them.
 #
 # Optional signing secrets (recommended, so updates install over old versions):
 #   SIGNING_KEYSTORE_BASE64, SIGNING_STORE_PASSWORD, SIGNING_KEY_ALIAS, SIGNING_KEY_PASSWORD
@@ -11,6 +14,7 @@ on:
     branches: [main]
     paths:
       - 'android/**'
+      - 'public/play/slime-siege/**'
       - 'public/play/signal-strike/**'
       - '.github/workflows/android-apk.yml'
   workflow_dispatch:
@@ -18,12 +22,12 @@ on:
 permissions:
   contents: write
 
+env:
+  TAG: android-latest
+
 concurrency:
   group: android-apk
   cancel-in-progress: true
-
-env:
-  TAG: signal-strike-latest
 
 jobs:
   build:
@@ -48,43 +52,40 @@ jobs:
             echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
             echo "SIGNING_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
           else
-            echo "::warning::No signing secrets set; the APK is signed with a temporary debug key."
+            echo "::warning::No signing secrets set; the APKs are signed with a temporary debug key."
           fi
 
-      - name: Build release APK
+      - name: Build release APKs
         env:
           VERSION_CODE: ${{ github.run_number }}
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
-        run: gradle -p android assembleRelease --no-daemon --stacktrace
-
-      - name: Collect APK
-        id: apk
         run: |
-          cp android/app/build/outputs/apk/release/app-release.apk signal-strike.apk
-          SHA=$(sha256sum signal-strike.apk | cut -d' ' -f1)
-          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
-          echo "size=$(du -k signal-strike.apk | cut -f1)" >> "$GITHUB_OUTPUT"
-          echo "APK SHA-256: $SHA" >> "$GITHUB_STEP_SUMMARY"
+          mkdir -p apk
+          for game in slime-siege signal-strike; do
+            gradle -p android clean assembleRelease -Pgame=$game --no-daemon --stacktrace
+            cp android/app/build/outputs/apk/release/app-release.apk apk/$game.apk
+            echo "$game.apk SHA-256: $(sha256sum apk/$game.apk | cut -d' ' -f1) ($(du -k apk/$game.apk | cut -f1) KB)" >> "$GITHUB_STEP_SUMMARY"
+          done
 
       - uses: actions/upload-artifact@v4
         with:
-          name: signal-strike-apk
-          path: signal-strike.apk
+          name: apks
+          path: apk/*.apk
 
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          NOTES="Signal Strike for Android, build ${{ github.run_number }} from ${GITHUB_SHA::7}.
+          NOTES="INDIE/24 Android apps, build ${{ github.run_number }} from ${GITHUB_SHA::7}.
 
-          SHA-256: \`${{ steps.apk.outputs.sha }}\` (${{ steps.apk.outputs.size }} KB)
+          $(cd apk && sha256sum *.apk)
 
-          Install: download signal-strike.apk on your phone, open it, and allow installs from your browser when Android asks."
+          Install: download the APK on your phone, open it, and allow installs from your browser when Android asks."
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release edit "$TAG" --title "Signal Strike (Android)" --notes "$NOTES"
+            gh release edit "$TAG" --title "INDIE/24 games for Android" --notes "$NOTES"
           else
-            gh release create "$TAG" --title "Signal Strike (Android)" --notes "$NOTES" --latest=false --target "$GITHUB_SHA"
+            gh release create "$TAG" --title "INDIE/24 games for Android" --notes "$NOTES" --latest=false --target "$GITHUB_SHA"
           fi
-          gh release upload "$TAG" signal-strike.apk --clobber
+          gh release upload "$TAG" apk/*.apk --clobber

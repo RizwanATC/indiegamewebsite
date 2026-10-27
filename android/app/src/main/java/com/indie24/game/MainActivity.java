@@ -1,4 +1,4 @@
-package com.indie24.signalstrike;
+package com.indie24.game;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -15,7 +15,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 /**
- * Hosts the Signal Strike web game in a full-screen WebView.
+ * Hosts one INDIE/24 web game (picked at build time) in a full-screen WebView.
  * The game files are bundled in the APK's assets, so it works offline.
  */
 public class MainActivity extends Activity {
@@ -32,7 +32,7 @@ public class MainActivity extends Activity {
         }
 
         webView = new WebView(this);
-        webView.setBackgroundColor(Color.rgb(11, 15, 10));
+        webView.setBackgroundColor(Color.BLACK);
         WebSettings s = webView.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true); // high score and settings

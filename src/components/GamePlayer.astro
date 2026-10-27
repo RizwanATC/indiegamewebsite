@@ -18,6 +18,8 @@ const { game } = Astro.props;
 const d = game.data;
 const mode = playMode(game);
 const [w, h] = d.playerAspect.split('/').map(Number);
+// Tall games (phone-style, portrait) sit in a phone-shaped frame instead of a wide stage.
+const portrait = h > w;
 const source = mode.kind === 'none' ? '' : isExternal(mode.url) ? hostname(mode.url) : 'INDIE/24 (hosted with permission)';
 ---
 
@@ -27,7 +29,7 @@ const source = mode.kind === 'none' ? '' : isExternal(mode.url) ? hostname(mode.
       <h2 id="play-heading" class="visually-hidden">
         Play {d.title}
       </h2>
-      <div class="player" data-player data-src={mode.url} data-hosted={mode.hosted ? 'true' : 'false'} data-title={d.title} style={`--ratio: ${w} / ${h}`}>
+      <div class:list={['player', { phone: portrait }]} data-player data-src={mode.url} data-hosted={mode.hosted ? 'true' : 'false'} data-title={d.title} style={`--ratio: ${w} / ${h}`}>
         <div class="stage" data-stage>
           <div class="poster" data-poster>
             <Image src={d.coverImage} alt="" widths={[640, 1280]} sizes="(min-width: 1200px) 1100px, 100vw" class="pixelated" loading="lazy" />
@@ -109,14 +111,77 @@ const source = mode.kind === 'none' ? '' : isExternal(mode.url) ? hostname(mode.
     max-height: 80vh;
     width: 100%;
   }
+  /* Portrait games: a phone-shaped bezel, centred, sized to fit the viewport height. */
+  .player.phone {
+    width: min(100%, 400px, calc(min(76vh, 740px) * var(--ratio)));
+    margin-inline: auto;
+    padding: 22px 10px 26px;
+    border: 2px solid var(--border-strong);
+    border-radius: 36px;
+    background: #17132b;
+    box-shadow:
+      0 0 0 6px #0f0c1e,
+      10px 10px 0 4px #2e1065;
+  }
+  .player.phone::before,
+  .player.phone::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    translate: -50% 0;
+    border-radius: 999px;
+    background: #2c2650;
+  }
+  .player.phone::before {
+    top: 8px;
+    width: 56px;
+    height: 6px;
+  }
+  .player.phone::after {
+    bottom: 9px;
+    width: 96px;
+    height: 5px;
+  }
+  .player.phone .stage {
+    max-height: none;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #000;
+  }
+  .player-section:has(.phone) .toolbar {
+    justify-content: center;
+  }
+  @media (max-width: 480px) {
+    .player.phone {
+      width: min(100%, calc(80vh * var(--ratio)));
+      padding: 0;
+      border-radius: var(--radius-lg);
+      box-shadow: 6px 6px 0 0 #2e1065;
+    }
+    .player.phone::before,
+    .player.phone::after {
+      display: none;
+    }
+    .player.phone .stage {
+      border-radius: 0;
+    }
+  }
   .player:fullscreen {
+    width: 100%;
+    padding: 0;
+    background: #000;
     border: 0;
     border-radius: 0;
     box-shadow: none;
     display: grid;
     place-items: center;
   }
+  .player:fullscreen::before,
+  .player:fullscreen::after {
+    display: none;
+  }
   .player:fullscreen .stage {
+    border-radius: 0;
     max-height: 100vh;
     max-width: calc(100vh * var(--ratio, 16 / 9));
     height: auto;

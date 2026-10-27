@@ -146,21 +146,22 @@ Otherwise the page shows a **Play Game** button that opens the game in a new tab
 
 The player is click-to-load: nothing loads until the visitor presses Play. It shows a loading state, an error state (missing hosted files, or a 20-second timeout for external games, since cross-origin failures can't be detected directly), a Fullscreen button when the browser supports it, and an "Open in new tab" link.
 
-## Signal Strike (our own game)
+## Our own games: Slime Siege and Signal Strike
 
-`public/play/signal-strike/` is INDIE/24's own shooter, played on the site at `/play/signal-strike/`. The Android app in `android/` is a tiny WebView wrapper that bundles those same files, so there is only one copy of the game.
+INDIE/24 ships two games it made itself, played on the site at `/play/slime-siege/` (portrait) and `/play/signal-strike/` (landscape). The Android project in `android/` is a tiny WebView wrapper that bundles one game's folder from `public/play/`, so there is only one copy of each game.
 
-- **Build the APK:** `.github/workflows/android-apk.yml` builds it on every push that touches the game or `android/`, and publishes it to the GitHub Release `signal-strike-latest` as `signal-strike.apk`. Run it manually from the Actions tab with "Run workflow".
-- **Download link:** the game's page links to that release asset. The repository (or a separate releases repository) must be **public** for visitors to download it.
-- **Signing:** without secrets, each build is signed with a throwaway debug key, so players must uninstall before installing a newer build. To fix that, create a keystore once (`keytool -genkeypair -v -keystore release.jks -alias signalstrike -keyalg RSA -keysize 4096 -validity 10000`) and add these repository secrets: `SIGNING_KEYSTORE_BASE64` (`base64 -w0 release.jks`), `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS`, `SIGNING_KEY_PASSWORD`. Keep the keystore backed up: losing it means you can't ship updates under the same signature.
-- **Build locally:** install Android Studio (or the SDK + JDK 17 + Gradle 8.11), then `gradle -p android assembleRelease`.
-- **Icons:** `node scripts/generate-signal-strike-icons.mjs`.
+- **Portrait games:** set `playerAspect: "9/16"` and the game page shows the player inside a phone-shaped frame, with tall screenshot thumbnails.
+- **Art:** every Slime Siege sprite is original and drawn from code by `scripts/generate-slime-siege-art.mjs`. Edit that script and re-run it to change the art; don't hand-edit the PNGs.
+- **Build the APKs:** `.github/workflows/android-apk.yml` runs on every push that touches a game or `android/`. It builds `slime-siege.apk` and `signal-strike.apk` and uploads both to the GitHub Release `android-latest`. Run it manually from the Actions tab with "Run workflow". The repository must be **public** for visitors to download them. Once a file exists, set `downloadUrl` to its release URL, `downloadType: "apk"` and `platforms: ["web", "android"]` in the game's Markdown file.
+- **Signing:** without secrets, each build is signed with a throwaway debug key, so players must uninstall before installing a newer build. To fix that, create a keystore once (`keytool -genkeypair -v -keystore release.jks -alias indie24 -keyalg RSA -keysize 4096 -validity 10000`) and add these repository secrets: `SIGNING_KEYSTORE_BASE64` (`base64 -w0 release.jks`), `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS`, `SIGNING_KEY_PASSWORD`. Keep the keystore backed up: losing it means you can't ship updates under the same signature.
+- **Build locally:** install Android Studio (or the SDK + JDK 17 + Gradle 8.11), then `gradle -p android assembleRelease -Pgame=slime-siege` (or `-Pgame=signal-strike`). Each game's app id, name, orientation and icon are set in `android/app/build.gradle` and `android/app/src/<game>/res/`.
+- **Icons:** `node scripts/generate-slime-siege-icons.mjs` (after the art script) and `node scripts/generate-signal-strike-icons.mjs`.
 
 ## Android APKs
 
 - Prefer the developer's official page or store listing (`downloadType: page` or `store`).
 - Only use `downloadSource: authorized-mirror` with the developer's **written permission**, and keep that permission on file.
-- **Don't put APKs in `public/`.** Cloudflare Pages has a 25 MiB file limit and `.apk` is in `.gitignore`. Use a release on the developer's GitHub, or object storage such as Cloudflare R2, and link to it.
+- **Don't put APKs in `public/`.** `.apk` is in `.gitignore` and static hosts limit file sizes (Cloudflare Pages: 25 MiB). Use a release on the developer's GitHub, or object storage such as Cloudflare R2, and link to it.
 - APK downloads always show a safety note that says we have **not** verified the file. Don't claim a file is safe unless you've actually verified it.
 - `apkSha256` is shown only as the checksum the developer published, so players can compare.
 

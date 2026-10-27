@@ -19,7 +19,7 @@ for (const [x, y] of [[12, 7], [13, 7], [14, 8], [3, 2], [11, 3], [7, 13], [13, 
 
 const sizes = { mdpi: 48, hdpi: 72, xhdpi: 96, xxhdpi: 144, xxxhdpi: 192 };
 for (const [density, size] of Object.entries(sizes)) {
-  const dir = path.join(ROOT, `android/app/src/main/res/mipmap-${density}`);
+  const dir = path.join(ROOT, `android/app/src/signal-strike/res/mipmap-${density}`);
   await mkdir(dir, { recursive: true });
   await sharp(px, { raw: { width: N, height: N, channels: 3 } })
     .resize(size, size, { kernel: 'nearest' })
