@@ -1,6 +1,6 @@
 # Rebuilds the site once a day so the Game of the Day and newly scheduled
-# games go live on time. It calls a Cloudflare Pages deploy hook, which is
-# free. Setup: see README, "Daily rebuild".
+# games go live on time. It calls your host's deploy hook (Vercel or
+# Cloudflare Pages), which is free. Setup: see README, "Daily rebuild".
 name: Daily rebuild
 
 on:
@@ -16,12 +16,12 @@ jobs:
   trigger:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Cloudflare Pages deploy hook
+      - name: Trigger deploy hook
         env:
-          HOOK: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK_URL }}
+          HOOK: ${{ secrets.DEPLOY_HOOK_URL }}
         run: |
           if [ -z "$HOOK" ]; then
-            echo "CLOUDFLARE_DEPLOY_HOOK_URL secret is not set; skipping."
+            echo "DEPLOY_HOOK_URL secret is not set; skipping."
             exit 0
           fi
           curl -fsS -X POST "$HOOK"

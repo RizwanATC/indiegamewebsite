@@ -2,7 +2,7 @@
 
 A static indie game discovery site. Every day one game is featured; every past pick stays in a searchable archive. Visitors can play supported games in the browser, follow official download links, and read original write-ups.
 
-Built with [Astro](https://astro.build) 7 and Content Collections. No database, no accounts, no paid services. Hosted for free on Cloudflare Pages.
+Built with [Astro](https://astro.build) 7 and Content Collections. No database, no accounts, no paid services. Hosted for free on Vercel (Cloudflare Pages also works; config for both is included).
 
 ## Contents
 
@@ -12,6 +12,7 @@ Built with [Astro](https://astro.build) 7 and Content Collections. No database, 
 - [How the Game of the Day works](#how-the-game-of-the-day-works)
 - [Browser games](#browser-games)
 - [Android APKs](#android-apks)
+- [Deploying to Vercel](#deploying-to-vercel)
 - [Deploying to Cloudflare Pages](#deploying-to-cloudflare-pages)
 - [Daily rebuild](#daily-rebuild)
 - [Configuration](#configuration)
@@ -46,7 +47,7 @@ BUILD_DATE=2026-12-01 npm run build && npm run preview
 
 ```
 public/
-  _headers              Cloudflare Pages security headers (CSP etc.)
+  _headers              Cloudflare Pages security headers (CSP etc.; vercel.json mirrors them)
   _redirects            Cloudflare Pages redirects
   play/<slug>/          Browser games hosted on this site (with permission)
   favicon.svg, icons, og-default.png
@@ -155,6 +156,15 @@ The player is click-to-load: nothing loads until the visitor presses Play. It sh
 
 Hero and card buttons link to the game page's download section first, so players always see the source and the warning before downloading.
 
+## Deploying to Vercel
+
+The repository is connected to a Vercel project, so every push to `main` deploys production and every pull request gets a preview URL.
+
+- Settings come from `vercel.json`: Astro preset, `npm run build`, output `dist`, trailing slashes, redirects and the same security headers as `public/_headers`. **If you change the CSP, change it in both files.**
+- Node version comes from `engines` in `package.json` (Node 24 is used).
+- The site URL is taken from Vercel's `VERCEL_PROJECT_PRODUCTION_URL`. When you add a custom domain, set `SITE_URL` (e.g. `https://indie24.com`) under **Project → Settings → Environment Variables** and redeploy.
+- Vercel shows its comment toolbar on preview deployments. The strict CSP blocks it, which is harmless; turn the toolbar off in project settings if the console warnings bother you.
+
 ## Deploying to Cloudflare Pages
 
 1. Push this repository to GitHub.
@@ -170,8 +180,10 @@ Hero and card buttons link to the game page's download section first, so players
 
 ## Daily rebuild
 
-1. Cloudflare dashboard → your Pages project → **Settings → Builds → Deploy hooks** → add a hook for the production branch and copy its URL.
-2. GitHub → repository **Settings → Secrets and variables → Actions** → add secret `CLOUDFLARE_DEPLOY_HOOK_URL` with that URL.
+1. Create a deploy hook for the production branch and copy its URL:
+   - Vercel: **Project → Settings → Git → Deploy Hooks**
+   - Cloudflare Pages: **Project → Settings → Builds → Deploy hooks**
+2. GitHub → repository **Settings → Secrets and variables → Actions** → add secret `DEPLOY_HOOK_URL` with that URL.
 3. `.github/workflows/daily-rebuild.yml` calls it at 00:05 UTC every day. If you change `SITE.timezone`, adjust the cron so it runs just after midnight in that timezone.
 
 `.github/workflows/ci.yml` runs the production build on every pull request.

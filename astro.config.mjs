@@ -3,9 +3,12 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 // Your public URL. Used for canonical links, Open Graph tags and the sitemap.
-// Set SITE_URL in Cloudflare Pages (Settings → Environment variables) once you
-// have a custom domain; until then the default *.pages.dev URL is used.
-const site = process.env.SITE_URL || 'https://indie24.pages.dev';
+// Order: SITE_URL env var (set it when you add a custom domain), then the
+// production URL Vercel provides at build time, then a fallback.
+const site =
+  process.env.SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`) ||
+  'https://indiegamewebsite.vercel.app';
 
 export default defineConfig({
   site,
