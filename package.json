@@ -1,0 +1,28 @@
+{
+  "name": "indie24",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "art": "node scripts/generate-sample-art.mjs",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource/press-start-2p": "^5.3.0",
+    "astro": "^7.4.2",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@types/node": "^24.19.2",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=22.23.4"
+  }
+}

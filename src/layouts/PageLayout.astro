@@ -1,0 +1,23 @@
+---
+/** Simple text page: about, contact, privacy, etc. */
+import BaseLayout from './BaseLayout.astro';
+interface Props {
+  title: string;
+  description: string;
+  eyebrow?: string;
+  noindex?: boolean;
+}
+const { title, description, eyebrow, noindex } = Astro.props;
+---
+
+<BaseLayout title={title} description={description} noindex={noindex}>
+  <article class="section">
+    <div class="container">
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+      <h1>{title}</h1>
+      <div class="prose">
+        <slot />
+      </div>
+    </div>
+  </article>
+</BaseLayout>

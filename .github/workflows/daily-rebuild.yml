@@ -1,0 +1,27 @@
+# Rebuilds the site once a day so the Game of the Day and newly scheduled
+# games go live on time. It calls a Cloudflare Pages deploy hook, which is
+# free. Setup: see README, "Daily rebuild".
+name: Daily rebuild
+
+on:
+  schedule:
+    # 00:05 UTC every day. If SITE.timezone is not UTC, change this to just
+    # after midnight in your timezone (cron here is always UTC).
+    - cron: '5 0 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Cloudflare Pages deploy hook
+        env:
+          HOOK: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "CLOUDFLARE_DEPLOY_HOOK_URL secret is not set; skipping."
+            exit 0
+          fi
+          curl -fsS -X POST "$HOOK"

@@ -1,0 +1,71 @@
+---
+/**
+ * Placeholder for a future display ad. Renders NOTHING unless ADS.enabled is
+ * true in src/config.ts, so the live site carries no ad markup today.
+ *
+ * When you add an ad network later:
+ *  1. Put the network's markup inside the `enabled` branch below.
+ *  2. Add its domains to the CSP in public/_headers.
+ *  3. Update the privacy policy (src/pages/privacy.astro) and add a consent
+ *     banner if your visitors' laws require one.
+ *
+ * Ad slots always sit between content sections, never inside game
+ * descriptions, players or download panels.
+ */
+import { ADS } from '../config';
+
+interface Props {
+  /** Where the slot is, e.g. "home-mid" or "game-sidebar". Useful for ad-unit mapping. */
+  id: string;
+  size?: 'banner' | 'rectangle';
+}
+const { id, size = 'banner' } = Astro.props;
+const devPreview = import.meta.env.DEV && ADS.showDevPlaceholders;
+---
+
+{
+  ADS.enabled ? (
+    <aside class:list={['ad', size]} aria-label="Advertisement" data-ad-slot={id}>
+      <span class="ad-label">Advertisement</span>
+      {/* Ad network markup goes here. */}
+    </aside>
+  ) : (
+    devPreview && (
+      <aside class:list={['ad', 'preview', size]} aria-hidden="true">
+        Ad slot “{id}” (dev preview only)
+      </aside>
+    )
+  )
+}
+
+<style>
+  .ad {
+    position: relative;
+    display: grid;
+    place-items: center;
+    margin: 32px auto;
+    max-width: 728px;
+    min-height: 90px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-raised);
+  }
+  .rectangle {
+    max-width: 300px;
+    min-height: 250px;
+  }
+  .ad-label {
+    position: absolute;
+    top: 4px;
+    left: 8px;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .preview {
+    border-style: dashed;
+    color: var(--text-faint);
+    font-size: 0.8rem;
+  }
+</style>

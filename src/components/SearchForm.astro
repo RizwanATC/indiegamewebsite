@@ -1,0 +1,34 @@
+---
+import Icon from './Icon.astro';
+interface Props {
+  id?: string;
+  value?: string;
+}
+const { id = 'q', value } = Astro.props;
+---
+
+<form class="search" action="/games/" method="get" role="search">
+  <label for={id} class="visually-hidden">Search games by title</label>
+  <Icon name="search" size={18} class="icon-search" />
+  <input id={id} class="input" type="search" name="q" value={value} placeholder="Search by title…" autocomplete="off" enterkeyhint="search" />
+  <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+<style>
+  .search {
+    position: relative;
+    display: flex;
+    gap: 8px;
+    max-width: 560px;
+  }
+  .search .input {
+    padding-left: 44px;
+  }
+  .search :global(.icon-search) {
+    position: absolute;
+    left: 16px;
+    top: 15px;
+    color: var(--text-faint);
+    pointer-events: none;
+  }
+</style>

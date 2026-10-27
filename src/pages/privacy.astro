@@ -1,0 +1,66 @@
+---
+/**
+ * PRIVACY POLICY TEMPLATE
+ * This page describes what the site does TODAY: no analytics, no cookies,
+ * no ads, no accounts. If you add any of those, update this page before
+ * (not after) you ship them. This template is not legal advice.
+ */
+import PageLayout from '../layouts/PageLayout.astro';
+import { SITE } from '../config';
+const lastUpdated = '27 October 2026';
+---
+
+<PageLayout title="Privacy Policy" eyebrow="Plain language" description={`How ${SITE.name} handles your data: no accounts, no analytics, no advertising cookies.`}>
+  <p class="muted">Last updated: {lastUpdated}</p>
+
+  <p>
+    This policy explains what happens to your information when you visit {SITE.name}. The short version: we don't run analytics, we don't set
+    cookies, we don't show ads, and there are no user accounts.
+  </p>
+
+  <h2>Information we don't collect</h2>
+  <ul>
+    <li>We don't use analytics or tracking scripts.</li>
+    <li>We don't set cookies.</li>
+    <li>We don't show advertising and don't share data with ad networks.</li>
+    <li>There are no accounts, sign-ups or comment forms.</li>
+  </ul>
+
+  <h2>Hosting</h2>
+  <p>
+    The site is a set of static files served by Cloudflare Pages. Like any web host, Cloudflare processes technical data such as your IP address
+    and browser details to deliver pages and protect the service from abuse. See
+    <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">Cloudflare's privacy policy</a> for details. Fonts and images are served from
+    our own site, not from third-party font services.
+  </p>
+
+  <h2>Playing games</h2>
+  <p>
+    Embedded games only load after you press <strong>Play Now</strong>. Games hosted on {SITE.name} may save things like your high score in your
+    browser's local storage; that data stays on your device and you can clear it in your browser settings. When a game is hosted by another website,
+    pressing Play loads it from that website, and that site's own privacy policy applies.
+  </p>
+
+  <h2>Links to other sites</h2>
+  <p>
+    Game pages link to developers' websites, stores and download pages. We don't control those sites. Their privacy policies apply once you leave
+    {SITE.name}.
+  </p>
+
+  <h2>Emailing us</h2>
+  <p>
+    If you email us (for example through the contact or report pages), we receive your email address and whatever you write. We use it only to
+    reply and to handle your request, and we don't add you to any mailing list.
+  </p>
+
+  <h2>Children</h2>
+  <p>{SITE.name} doesn't knowingly collect personal information from anyone, including children.</p>
+
+  <h2>Changes</h2>
+  <p>
+    If we ever add analytics, advertising or anything else that affects your privacy, we'll update this page first and change the date at the top.
+  </p>
+
+  <h2>Contact</h2>
+  <p>Questions about privacy: <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>.</p>
+</PageLayout>

@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GameCard from '../../components/GameCard.astro';
+import GenreNav from '../../components/GenreNav.astro';
+import { SITE } from '../../config';
+import { allGenres, genreLabel, getVisibleGames, type Game } from '../../lib/games';
+
+export async function getStaticPaths() {
+  const games = await getVisibleGames();
+  const genres = allGenres(games);
+  return genres.map(({ genre }) => ({
+    params: { genre },
+    props: { games: games.filter((g) => g.data.genres.includes(genre)), genres },
+  }));
+}
+
+interface Props {
+  games: Game[];
+  genres: { genre: string; count: number }[];
+}
+const { genre } = Astro.params;
+const { games, genres } = Astro.props;
+const label = genreLabel(genre!);
+---
+
+<BaseLayout title={`${label} games`} description={`${games.length} ${label.toLowerCase()} indie ${games.length === 1 ? 'game' : 'games'} featured on ${SITE.name}.`}>
+  <section class="section">
+    <div class="container">
+      <nav aria-label="Breadcrumb" class="crumbs">
+        <a href="/games/">All games</a> <span aria-hidden="true">/</span> <span aria-current="page">{label}</span>
+      </nav>
+      <p class="eyebrow">Genre</p>
+      <h1>{label} games</h1>
+      <p class="muted">{games.length} {games.length === 1 ? 'game' : 'games'}, newest first.</p>
+      <div class="nav"><GenreNav genres={genres} current={genre} label="Other genres" /></div>
+      <ul class="game-grid">
+        {
+          games.map((game) => (
+            <li>
+              <GameCard game={game} headingLevel="h2" />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .crumbs {
+    margin-bottom: 20px;
+    font-size: 0.875rem;
+    color: var(--text-faint);
+  }
+  .crumbs span[aria-hidden] {
+    margin-inline: 6px;
+    color: var(--accent);
+  }
+  .nav {
+    margin: 24px 0 32px;
+  }
+</style>

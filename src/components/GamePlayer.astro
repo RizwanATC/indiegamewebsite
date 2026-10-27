@@ -1,0 +1,319 @@
+---
+/**
+ * Click-to-load browser game player.
+ *
+ * The iframe is only created after the player presses Play, so the game page
+ * stays fast and no third-party content loads without consent. External
+ * games are embedded only when playMode() allows it (see lib/games.ts);
+ * otherwise this component renders an "open externally" panel instead.
+ */
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import { hostname, isExternal, playMode, type Game } from '../lib/games';
+
+interface Props {
+  game: Game;
+}
+const { game } = Astro.props;
+const d = game.data;
+const mode = playMode(game);
+const [w, h] = d.playerAspect.split('/').map(Number);
+const source = mode.kind === 'none' ? '' : isExternal(mode.url) ? hostname(mode.url) : 'INDIE/24 (hosted with permission)';
+---
+
+{
+  mode.kind === 'embed' && (
+    <section id="play" class="player-section" aria-labelledby="play-heading">
+      <h2 id="play-heading" class="visually-hidden">
+        Play {d.title}
+      </h2>
+      <div class="player" data-player data-src={mode.url} data-hosted={mode.hosted ? 'true' : 'false'} data-title={d.title} style={`--ratio: ${w} / ${h}`}>
+        <div class="stage" data-stage>
+          <div class="poster" data-poster>
+            <Image src={d.coverImage} alt="" widths={[640, 1280]} sizes="(min-width: 1200px) 1100px, 100vw" class="pixelated" loading="lazy" />
+            <div class="poster-ui">
+              <button type="button" class="btn btn-primary start" data-start>
+                <Icon name="play" size={20} /> Play Now
+              </button>
+              <p class="hint">Runs in your browser. Nothing to install.</p>
+            </div>
+          </div>
+          <div class="state" data-loading hidden role="status">
+            <span class="spinner" aria-hidden="true" />
+            <span>Loading {d.title}…</span>
+          </div>
+          <div class="state state-error" data-error hidden role="alert">
+            <Icon name="warning" size={24} />
+            <p data-error-text>The game could not be loaded here.</p>
+            <a class="btn btn-sm" href={mode.url} target="_blank" rel="noopener">
+              Open the game in a new tab <Icon name="external" size={12} />
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <p class="source">
+          <span class="muted">Source:</span> {source}
+        </p>
+        <div class="tools">
+          <button type="button" class="btn btn-sm btn-ghost" data-fullscreen hidden>
+            <Icon name="fullscreen" /> Fullscreen
+          </button>
+          <a class="btn btn-sm btn-ghost" href={mode.url} target="_blank" rel="noopener">
+            <Icon name="external" /> Open in new tab
+          </a>
+        </div>
+      </div>
+      <noscript>
+        <p class="notice">
+          The embedded player needs JavaScript. You can still&nbsp;<a href={mode.url}>open the game directly</a>.
+        </p>
+      </noscript>
+    </section>
+  )
+}
+{
+  mode.kind === 'external' && (
+    <section id="play" class="player-section" aria-labelledby="play-heading">
+      <div class="external panel">
+        <div>
+          <h2 id="play-heading">Play {d.title} in your browser</h2>
+          <p class="muted">
+            This game is hosted on <strong>{isExternal(mode.url) ? hostname(mode.url) : 'a separate page'}</strong>, which doesn't allow it to be embedded here. It opens in a new tab.
+          </p>
+        </div>
+        <a class="btn btn-primary" href={mode.url} target="_blank" rel="noopener">
+          <Icon name="play" /> Play Game <Icon name="external" size={12} />
+          <span class="visually-hidden">(opens in a new tab)</span>
+        </a>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .player-section {
+    scroll-margin-top: 80px;
+  }
+  .player {
+    position: relative;
+    border: 2px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: #000;
+    box-shadow: 8px 8px 0 0 #2e1065;
+  }
+  .stage {
+    position: relative;
+    aspect-ratio: var(--ratio, 16 / 9);
+    max-height: 80vh;
+    width: 100%;
+  }
+  .player:fullscreen {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    display: grid;
+    place-items: center;
+  }
+  .player:fullscreen .stage {
+    max-height: 100vh;
+    max-width: calc(100vh * var(--ratio, 16 / 9));
+    height: auto;
+  }
+  .stage :global(iframe) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #000;
+  }
+  .poster {
+    position: absolute;
+    inset: 0;
+  }
+  .poster :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.45) saturate(0.9);
+  }
+  .poster-ui {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+  .start {
+    min-height: 56px;
+    padding-inline: 28px;
+    font-size: 1.05rem;
+  }
+  .hint {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #d6d0ea;
+  }
+  .state {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 12px;
+    padding: 16px;
+    text-align: center;
+    background: rgb(12 10 22 / 0.92);
+    color: var(--text-muted);
+  }
+  .state[hidden] {
+    display: none;
+  }
+  .state-error {
+    color: var(--warn);
+  }
+  .state-error p {
+    margin: 0;
+    color: var(--text);
+    max-width: 40ch;
+  }
+  .spinner {
+    width: 24px;
+    height: 24px;
+    background: var(--accent);
+    animation: blink 0.9s steps(2, jump-none) infinite;
+    box-shadow:
+      28px 0 0 var(--accent-strong),
+      56px 0 0 var(--accent);
+    translate: -28px 0;
+  }
+  @keyframes blink {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.25;
+    }
+  }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    margin-top: 12px;
+  }
+  .source {
+    margin: 0;
+    font-size: 0.85rem;
+  }
+  .tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tools [hidden] {
+    display: none;
+  }
+  .external {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .external h2 {
+    font-size: 1.2rem;
+  }
+  .external p {
+    margin: 0;
+  }
+</style>
+
+<script>
+  const LOAD_TIMEOUT_MS = 20000;
+
+  function initPlayer(player: HTMLElement) {
+    const src = player.dataset.src!;
+    const hosted = player.dataset.hosted === 'true';
+    const stage = player.querySelector<HTMLElement>('[data-stage]')!;
+    const poster = player.querySelector<HTMLElement>('[data-poster]')!;
+    const loading = player.querySelector<HTMLElement>('[data-loading]')!;
+    const error = player.querySelector<HTMLElement>('[data-error]')!;
+    const errorText = player.querySelector<HTMLElement>('[data-error-text]')!;
+    const section = player.closest('section')!;
+    const fsButton = section.querySelector<HTMLButtonElement>('[data-fullscreen]')!;
+    let started = false;
+
+    const showError = (message: string) => {
+      loading.hidden = true;
+      errorText.textContent = message;
+      error.hidden = false;
+    };
+
+    async function start() {
+      if (started) return;
+      started = true;
+      poster.hidden = true;
+      loading.hidden = false;
+
+      // For games hosted on this site we can check the file exists first.
+      // Cross-origin games can't be checked without CORS, so we rely on a timeout.
+      if (hosted) {
+        try {
+          const res = await fetch(src, { method: 'HEAD', cache: 'no-store' });
+          if (!res.ok) return showError(`The game files are missing (HTTP ${res.status}). Please report this so we can fix it.`);
+        } catch {
+          return showError('The game could not be reached. Check your connection and try again.');
+        }
+      }
+
+      const frame = document.createElement('iframe');
+      frame.src = src;
+      frame.title = `${player.dataset.title} (game)`;
+      frame.allow = 'fullscreen; gamepad; autoplay';
+      frame.allowFullscreen = true;
+      frame.referrerPolicy = 'strict-origin-when-cross-origin';
+      if (!hosted) frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms');
+
+      const timer = window.setTimeout(
+        () => showError('This is taking longer than expected. The game may block embedding or be offline. You can try opening it in a new tab.'),
+        LOAD_TIMEOUT_MS,
+      );
+      frame.addEventListener('load', () => {
+        window.clearTimeout(timer);
+        loading.hidden = true;
+        if (document.fullscreenEnabled) fsButton.hidden = false;
+        frame.focus();
+      });
+      stage.append(frame);
+    }
+
+    player.querySelector('[data-start]')!.addEventListener('click', start);
+    document.querySelectorAll('[data-play-trigger]').forEach((el) =>
+      el.addEventListener('click', () => {
+        start();
+      }),
+    );
+
+    fsButton.addEventListener('click', () => {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else player.requestFullscreen().catch(() => showError('Your browser blocked fullscreen for this game.'));
+    });
+    document.addEventListener('fullscreenchange', () => {
+      const on = document.fullscreenElement === player;
+      fsButton.setAttribute('aria-pressed', String(on));
+    });
+
+    // Arriving from a "Play Now" button elsewhere (…/#play) counts as pressing Play.
+    if (location.hash === '#play') start();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-player]').forEach(initPlayer);
+</script>

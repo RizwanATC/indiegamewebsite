@@ -1,0 +1,44 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import { SITE } from '../config';
+---
+
+<PageLayout title="About" eyebrow="Our mission" description={`${SITE.name} helps players discover one interesting indie game from around the world every day.`}>
+  <p class="lead">
+    {SITE.name} exists for one reason: to help players discover interesting indie games from around the world, one game a day.
+  </p>
+
+  <p>
+    Thousands of small games are released every year by solo developers, students and tiny studios. Many of them are wonderful, and most of them
+    are never seen by the people who would love them. Store front pages reward big budgets. We'd rather reward good ideas.
+  </p>
+
+  <h2>How it works</h2>
+  <ul>
+    <li><strong>One game a day.</strong> Each day we feature a single game, so it gets proper attention instead of being one tile in a wall of hundreds.</li>
+    <li><strong>Play first.</strong> When a game has a browser version that the developer allows us to show, you can play it right here.</li>
+    <li><strong>Official sources.</strong> Downloads point to the developer's own page or store listing. We only host a file ourselves when the developer has given us written permission.</li>
+    <li><strong>Our own words.</strong> Game descriptions are written for {SITE.name}. We don't publish ratings, reviews or popularity numbers we haven't earned.</li>
+    <li><strong>The archive stays.</strong> Every featured game remains in the <a href="/games/">archive</a>, searchable by title, genre and platform.</li>
+  </ul>
+
+  <h2>For developers</h2>
+  <p>
+    Made something you'd like us to look at? Send us a link through the <a href="/contact/">contact page</a>. Being featured is free. If we ever add
+    paid placements, they will always be clearly labelled as sponsored and kept separate from our daily pick.
+  </p>
+  <p>If you'd like your game changed or removed from {SITE.name}, <a href="/report/">let us know</a> and we'll take care of it.</p>
+
+  <h2>Keeping the lights on</h2>
+  <p>
+    {SITE.name} is a small, independent project. In the future we may add clearly marked advertising, affiliate links or sponsored features to cover
+    hosting and time. The site will always be fully usable without them, and editorial picks will never be for sale.
+  </p>
+</PageLayout>
+
+<style>
+  .lead {
+    font-size: 1.2rem;
+    color: var(--text);
+  }
+</style>

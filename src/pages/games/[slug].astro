@@ -1,0 +1,467 @@
+---
+import { Image, getImage } from 'astro:assets';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GameActions from '../../components/GameActions.astro';
+import GameCard from '../../components/GameCard.astro';
+import GameLabels from '../../components/GameLabels.astro';
+import GamePlayer from '../../components/GamePlayer.astro';
+import DownloadPanel from '../../components/DownloadPanel.astro';
+import ScreenshotGallery from '../../components/ScreenshotGallery.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Icon from '../../components/Icon.astro';
+import { SITE } from '../../config';
+import { formatDate, gameSlug, gameUrl, genreLabel, getVisibleGames, hostname, isExternal, platformLabel, relatedGames, type Game } from '../../lib/games';
+
+export async function getStaticPaths() {
+  const games = await getVisibleGames();
+  return games.map((game) => ({ params: { slug: gameSlug(game) }, props: { game, games } }));
+}
+
+interface Props {
+  game: Game;
+  games: Game[];
+}
+const { game, games } = Astro.props;
+const d = game.data;
+const { Content } = await render(game);
+const related = relatedGames(game, games);
+const og = await getImage({ src: d.coverImage, width: 1200, format: 'png' });
+const pageUrl = new URL(gameUrl(game), Astro.site).href;
+
+const links = [
+  d.officialUrl && { label: 'Official game page', url: d.officialUrl },
+  d.developerUrl && { label: `${d.developer} (developer)`, url: d.developerUrl },
+].filter(Boolean) as { label: string; url: string }[];
+
+const breadcrumbs = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Games', item: new URL('/games/', Astro.site).href },
+    { '@type': 'ListItem', position: 2, name: d.title, item: pageUrl },
+  ],
+};
+// Structured data describes real games only. Sample entries are fictional,
+// so we don't publish VideoGame markup for them. No ratings or reviews are
+// included because we don't collect any.
+const videoGame = !d.sample && {
+  '@context': 'https://schema.org',
+  '@type': 'VideoGame',
+  name: d.title,
+  url: pageUrl,
+  description: d.shortDescription,
+  image: new URL(og.src, Astro.site).href,
+  genre: d.genres.map(genreLabel),
+  gamePlatform: d.platforms.map(platformLabel),
+  ...(d.releaseYear && { datePublished: String(d.releaseYear) }),
+  author: { '@type': 'Organization', name: d.developer, ...(d.developerUrl && isExternal(d.developerUrl) && { url: d.developerUrl }) },
+  ...(d.officialUrl && isExternal(d.officialUrl) && { sameAs: d.officialUrl }),
+};
+---
+
+<BaseLayout
+  title={`${d.title}${d.sample ? ' (sample)' : ''}`}
+  description={d.shortDescription}
+  image={og.src}
+  imageAlt={d.coverAlt}
+  type="article"
+  jsonLd={videoGame ? [videoGame, breadcrumbs] : [breadcrumbs]}
+>
+  <article class="game">
+    <header class="hero">
+      <div class="container">
+        <nav aria-label="Breadcrumb" class="crumbs">
+          <ol>
+            <li><a href="/games/">Games</a></li>
+            <li aria-current="page">{d.title}</li>
+          </ol>
+        </nav>
+
+        <div class="hero-grid">
+          <div class="hero-art">
+            <Image
+              src={d.coverImage}
+              alt={d.coverAlt}
+              widths={[640, 960, 1280]}
+              sizes="(min-width: 1000px) 560px, 100vw"
+              loading="eager"
+              fetchpriority="high"
+              class="pixelated"
+            />
+          </div>
+          <div class="hero-info">
+            <div class="labels"><GameLabels game={game} /></div>
+            <h1>{d.title}</h1>
+            <p class="by">by <strong>{d.developer}</strong></p>
+            <p class="lede">{d.shortDescription}</p>
+            <ul class="badge-list tags" aria-label="Genres and platforms">
+              {
+                d.genres.map((g) => (
+                  <li>
+                    <a class="badge badge-accent" href={`/genres/${g}/`}>
+                      {genreLabel(g)}
+                    </a>
+                  </li>
+                ))
+              }
+              {d.platforms.map((p) => <li class="badge">{platformLabel(p)}</li>)}
+            </ul>
+            <GameActions game={game} context="detail" />
+            {!d.playUrl && <p class="no-play muted">No browser version is available for this game.</p>}
+          </div>
+        </div>
+
+        {
+          d.sample && (
+            <div class="notice notice-warn sample-note">
+              <Icon name="warning" size={20} />
+              <p>
+                <strong>Sample entry.</strong> This is a fictional placeholder written to demonstrate how INDIE/24 works. It is not a real commercial
+                game, and the developer name is a placeholder.
+              </p>
+            </div>
+          )
+        }
+      </div>
+    </header>
+
+    {
+      d.playUrl && (
+        <div class="container block">
+          <GamePlayer game={game} />
+        </div>
+      )
+    }
+
+    <div class="container body-grid">
+      <div class="main">
+        <section aria-labelledby="about-heading" class="block">
+          <h2 id="about-heading">About this game</h2>
+          <div class="prose"><Content /></div>
+        </section>
+
+        {
+          d.screenshots.length > 0 && (
+            <section aria-labelledby="shots-heading" class="block">
+              <h2 id="shots-heading">Screenshots</h2>
+              <ScreenshotGallery title={d.title} screenshots={d.screenshots} />
+            </section>
+          )
+        }
+
+        {
+          d.controls.length > 0 && (
+            <section aria-labelledby="controls-heading" class="block">
+              <h2 id="controls-heading">How to play</h2>
+              <table class="controls">
+                <caption class="visually-hidden">Controls for {d.title}</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Input</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {d.controls.map((c) => (
+                    <tr>
+                      <td>
+                        <kbd>{c.input}</kbd>
+                      </td>
+                      <td>{c.action}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
+          )
+        }
+      </div>
+
+      <aside class="side" aria-label="Game details">
+        <section class="panel" aria-labelledby="facts-heading">
+          <h2 id="facts-heading" class="side-h">Details</h2>
+          <dl class="facts">
+            <div><dt>Developer</dt><dd>{d.developer}</dd></div>
+            {d.releaseYear && <div><dt>Released</dt><dd>{d.releaseYear}</dd></div>}
+            <div><dt>Genre</dt><dd>{d.genres.map(genreLabel).join(', ')}</dd></div>
+            <div><dt>Platforms</dt><dd>{d.platforms.map(platformLabel).join(', ')}</dd></div>
+            {
+              d.estimatedPlaytime && (
+                <div>
+                  <dt>Playtime</dt>
+                  <dd>{d.estimatedPlaytime}</dd>
+                </div>
+              )
+            }
+            <div>
+              <dt>Featured on INDIE/24</dt>
+              <dd><time datetime={d.featuredDate}>{formatDate(d.featuredDate, 'long')}</time></dd>
+            </div>
+          </dl>
+        </section>
+
+        <DownloadPanel game={game} />
+
+        {
+          links.length > 0 && (
+            <section class="panel" aria-labelledby="links-heading">
+              <h2 id="links-heading" class="side-h">Official links</h2>
+              <ul class="links">
+                {links.map((l) => (
+                  <li>
+                    <a href={l.url} target="_blank" rel="noopener">
+                      <span>{l.label}</span>
+                      <span class="host">
+                        {isExternal(l.url) ? hostname(l.url) : SITE.name}
+                        <Icon name="external" size={12} />
+                      </span>
+                      <span class="visually-hidden">(opens in a new tab)</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <p class="fine">External sites are run by the developer or store, not by INDIE/24.</p>
+            </section>
+          )
+        }
+
+        <AdSlot id="game-sidebar" size="rectangle" />
+
+        <p class="report">
+          Broken link or something wrong? <a href={`/report/?game=${gameSlug(game)}`}>Report this game</a>
+        </p>
+      </aside>
+    </div>
+
+    {
+      related.length > 0 && (
+        <section class="section related" aria-labelledby="related-heading">
+          <div class="container">
+            <div class="section-head">
+              <h2 id="related-heading">You might also like</h2>
+            </div>
+            <ul class="game-grid">
+              {related.map((g) => (
+                <li>
+                  <GameCard game={g} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )
+    }
+  </article>
+</BaseLayout>
+
+<style>
+  .hero {
+    padding-block: 24px 32px;
+    border-bottom: 1px solid var(--border);
+    background: radial-gradient(60% 90% at 80% 0%, rgb(124 58 237 / 0.14), transparent 70%);
+  }
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 20px;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+    color: var(--text-faint);
+  }
+  .crumbs li + li::before {
+    content: '/';
+    margin-right: 8px;
+    color: var(--accent);
+  }
+  .crumbs a {
+    color: var(--text-muted);
+  }
+  .hero-grid {
+    display: grid;
+    gap: 28px;
+    align-items: center;
+  }
+  @media (min-width: 1000px) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 48px;
+    }
+  }
+  .hero-art {
+    aspect-ratio: 16 / 9;
+    border: 2px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 8px 8px 0 0 #2e1065;
+    background: var(--surface);
+  }
+  .hero-art :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .labels {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .labels:empty {
+    display: none;
+  }
+  .by {
+    margin-bottom: 12px;
+    color: var(--text-muted);
+  }
+  .by strong {
+    color: var(--text);
+  }
+  .lede {
+    font-size: 1.1rem;
+    color: #d9d4ec;
+  }
+  .tags {
+    margin-bottom: 24px;
+  }
+  a.badge {
+    text-decoration: none;
+  }
+  a.badge:hover {
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .no-play {
+    margin: 12px 0 0;
+    font-size: 0.875rem;
+  }
+  .sample-note {
+    margin-top: 28px;
+  }
+  .sample-note :global(svg) {
+    flex: none;
+    color: var(--warn);
+    margin-top: 3px;
+  }
+  .sample-note p {
+    margin: 0;
+  }
+  .block {
+    margin-top: 40px;
+  }
+  .block > h2 {
+    margin-bottom: 16px;
+  }
+  .body-grid {
+    display: grid;
+    gap: 40px;
+  }
+  @media (min-width: 1000px) {
+    .body-grid {
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 56px;
+    }
+  }
+  .side {
+    display: grid;
+    gap: 20px;
+    align-content: start;
+    margin-top: 40px;
+  }
+  .side-h {
+    font-size: 1rem;
+    margin-bottom: 12px;
+  }
+  .facts {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+  }
+  .facts dt {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .facts dd {
+    margin: 0;
+  }
+  .controls {
+    width: 100%;
+    max-width: 560px;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  .controls th {
+    text-align: left;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    padding: 0 12px 8px 0;
+  }
+  .controls td {
+    padding: 10px 12px 10px 0;
+    border-top: 1px solid var(--border);
+    vertical-align: top;
+  }
+  kbd {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid var(--border-strong);
+    border-bottom-width: 3px;
+    border-radius: 4px;
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+  .links {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .links a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.925rem;
+    transition: border-color 0.15s, background-color 0.15s;
+  }
+  .links a:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .host {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 400;
+    font-size: 0.8rem;
+    color: var(--text-faint);
+  }
+  .fine,
+  .report {
+    margin: 12px 0 0;
+    font-size: 0.8rem;
+    color: var(--text-faint);
+  }
+  .report {
+    margin: 0;
+  }
+  .related {
+    margin-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+</style>

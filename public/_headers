@@ -1,0 +1,24 @@
+# Cloudflare Pages response headers.
+# https://developers.cloudflare.com/pages/configuration/headers/
+#
+# frame-src: add the origin of every external game you embed (and list the
+# same origins in EMBED_ALLOWED_ORIGINS in src/config.ts). Example:
+#   frame-src 'self' https://html-classic.itch.zone;
+# If you add ads or analytics later, their domains must be added here too.
+#
+# 'wasm-unsafe-eval', blob: workers and blob: media are allowed so that
+# authorized HTML5 builds hosted under /play/ (Godot, Unity, Defold, etc.)
+# can run. Inline scripts are NOT allowed anywhere, including /play/.
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/play/*
+  Cache-Control: public, max-age=3600

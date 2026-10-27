@@ -1,0 +1,76 @@
+---
+/**
+ * Primary call-to-action buttons for a game.
+ *
+ * - "Play Now" only appears when the game has a playUrl. Embeddable games
+ *   jump to the on-page player; everything else opens the official page in a
+ *   new tab.
+ * - The download button only appears when downloadUrl is set. On cards and
+ *   the home hero it links to the game page's download section first, so the
+ *   player always sees where the file comes from and the safety note.
+ */
+import Icon from './Icon.astro';
+import { gameUrl, hostname, isExternal, playMode, type Game } from '../lib/games';
+
+interface Props {
+  game: Game;
+  context: 'hero' | 'detail';
+}
+const { game, context } = Astro.props;
+const d = game.data;
+const play = playMode(game);
+const detail = gameUrl(game);
+
+const downloadLabel = d.downloadType === 'apk' ? 'Download APK' : d.downloadType === 'store' ? 'Get it on the store' : 'Official download';
+---
+
+<div class="actions">
+  {
+    play.kind === 'embed' && (
+      <a class="btn btn-primary" href={context === 'hero' ? `${detail}#play` : '#play'} data-play-trigger={context === 'detail' ? '' : undefined}>
+        <Icon name="play" /> Play Now
+      </a>
+    )
+  }
+  {
+    play.kind === 'external' && (
+      <a class="btn btn-primary" href={play.url} target="_blank" rel="noopener">
+        <Icon name="play" /> Play Now
+        <span class="host">{isExternal(play.url) ? `on ${hostname(play.url)}` : ''}</span>
+        <Icon name="external" size={12} />
+        <span class="visually-hidden">(opens in a new tab)</span>
+      </a>
+    )
+  }
+  {
+    d.downloadUrl && (
+      <a class="btn" href={context === 'hero' ? `${detail}#download` : '#download'}>
+        <Icon name="download" /> {downloadLabel}
+      </a>
+    )
+  }
+  {
+    context === 'hero' && (
+      <a class="btn btn-ghost" href={detail}>
+        Game details <Icon name="arrow" />
+      </a>
+    )
+  }
+</div>
+
+<style>
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .host {
+    font-weight: 500;
+    opacity: 0.8;
+  }
+  @media (max-width: 479px) {
+    .actions > :global(.btn) {
+      flex: 1 1 100%;
+    }
+  }
+</style>

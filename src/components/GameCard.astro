@@ -1,0 +1,151 @@
+---
+import { Image } from 'astro:assets';
+import GameLabels from './GameLabels.astro';
+import Icon from './Icon.astro';
+import { formatDate, gameUrl, genreLabel, platformLabel, type Game } from '../lib/games';
+
+interface Props {
+  game: Game;
+  headingLevel?: 'h2' | 'h3';
+  eager?: boolean;
+}
+const { game, headingLevel: H = 'h3', eager = false } = Astro.props;
+const d = game.data;
+const playable = Boolean(d.playUrl);
+---
+
+<article
+  class="card"
+  data-game-card
+  data-title={d.title.toLowerCase()}
+  data-genres={d.genres.join(' ')}
+  data-platforms={d.platforms.join(' ')}
+  data-date={d.featuredDate}
+>
+  <div class="media">
+    <Image
+      src={d.coverImage}
+      alt={d.coverAlt}
+      widths={[400, 640, 800]}
+      sizes="(min-width: 1200px) 380px, (min-width: 640px) 45vw, 100vw"
+      class="pixelated"
+      loading={eager ? 'eager' : 'lazy'}
+    />
+    <div class="overlay">
+      {playable && (
+        <span class="badge badge-accent">
+          <Icon name="play" size={12} /> Play in browser
+        </span>
+      )}
+      <GameLabels game={game} />
+    </div>
+  </div>
+  <div class="body">
+    <p class="date"><time datetime={d.featuredDate}>{formatDate(d.featuredDate)}</time></p>
+    <H class="title"><a href={gameUrl(game)} class="stretched">{d.title}</a></H>
+    <p class="desc">{d.shortDescription}</p>
+    <ul class="badge-list meta" aria-label="Genres and platforms">
+      {d.genres.map((g) => <li class="badge">{genreLabel(g)}</li>)}
+      {d.platforms.map((p) => <li class="badge platform">{platformLabel(p)}</li>)}
+    </ul>
+  </div>
+</article>
+
+<style>
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg-raised);
+    overflow: hidden;
+    transition:
+      transform 0.2s var(--ease),
+      box-shadow 0.2s var(--ease),
+      border-color 0.2s;
+  }
+  .card:hover,
+  .card:focus-within {
+    transform: translate(-3px, -3px);
+    border-color: var(--accent);
+    box-shadow: 6px 6px 0 0 #2e1065;
+  }
+  .media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s var(--ease);
+  }
+  .card:hover .media :global(img) {
+    transform: scale(1.04);
+  }
+  .overlay {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .overlay :global(.badge) {
+    background: rgb(12 10 22 / 0.85);
+  }
+  .body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 16px 18px 18px;
+  }
+  .date {
+    margin: 0 0 6px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-faint);
+  }
+  .title {
+    font-size: 1.125rem;
+    margin: 0 0 8px;
+  }
+  .title a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  /* Whole card is clickable, but only the title is the link in the a11y tree. */
+  .stretched::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .stretched:focus-visible {
+    outline: none;
+  }
+  .card:has(.stretched:focus-visible) {
+    outline: 2px solid var(--accent-strong);
+    outline-offset: 3px;
+  }
+  .desc {
+    margin: 0 0 14px;
+    font-size: 0.925rem;
+    color: var(--text-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .meta {
+    margin-top: auto;
+  }
+  .platform {
+    border-style: dashed;
+  }
+</style>

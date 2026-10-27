@@ -1,0 +1,34 @@
+---
+import { genreLabel } from '../lib/games';
+interface Props {
+  genres: { genre: string; count: number }[];
+  current?: string;
+  label?: string;
+}
+const { genres, current, label = 'Genres' } = Astro.props;
+---
+
+<nav aria-label={label} class="genre-nav">
+  <ul>
+    {
+      genres.map(({ genre, count }) => (
+        <li>
+          <a class="chip" href={`/genres/${genre}/`} aria-current={genre === current ? 'page' : undefined}>
+            {genreLabel(genre)} <span class="count">{count}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>

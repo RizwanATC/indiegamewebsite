@@ -1,0 +1,40 @@
+---
+import { SITE } from '../config';
+interface Props {
+  size?: 'sm' | 'lg';
+}
+const { size = 'sm' } = Astro.props;
+---
+
+<a href="/" class:list={['logo', `logo-${size}`]} aria-label={`${SITE.name} home`}>
+  <span class="logo-word" aria-hidden="true">INDIE<span class="slash">/</span>24</span>
+</a>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .logo-word {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    text-shadow: 2px 2px 0 var(--accent-ink);
+    padding-top: 2px;
+  }
+  .logo-lg .logo-word {
+    font-size: clamp(1.4rem, 5vw, 2.2rem);
+    text-shadow: 3px 3px 0 #2e1065;
+  }
+  .slash {
+    color: var(--accent);
+    display: inline-block;
+    transition: transform 0.25s var(--ease);
+  }
+  .logo:hover .slash {
+    transform: rotate(-12deg) translateY(-1px);
+  }
+</style>

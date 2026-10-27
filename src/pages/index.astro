@@ -1,0 +1,120 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FeaturedGame from '../components/FeaturedGame.astro';
+import GameCard from '../components/GameCard.astro';
+import GenreNav from '../components/GenreNav.astro';
+import SearchForm from '../components/SearchForm.astro';
+import AdSlot from '../components/AdSlot.astro';
+import Icon from '../components/Icon.astro';
+import { SITE } from '../config';
+import { allGenres, allPlatforms, getVisibleGames, pickDailyGame, platformLabel } from '../lib/games';
+
+const games = await getVisibleGames();
+const pick = pickDailyGame(games);
+const recent = games.filter((g) => g.id !== pick?.game.id).slice(0, SITE.recentCount);
+const genres = allGenres(games);
+const platforms = allPlatforms(games);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE.name,
+  url: new URL('/', Astro.site).href,
+  description: SITE.description,
+};
+---
+
+<BaseLayout jsonLd={jsonLd}>
+  <FeaturedGame pick={pick} />
+
+  <section class="section browse" aria-labelledby="browse-heading">
+    <div class="container">
+      <div class="browse-grid">
+        <div>
+          <p class="eyebrow">Browse games</p>
+          <h2 id="browse-heading">Find your next favourite</h2>
+          <p class="muted">Every game we've ever featured, searchable by title and sortable by genre and platform.</p>
+          <SearchForm id="home-q" />
+        </div>
+        <div class="filters">
+          <h3 class="label">By genre</h3>
+          <GenreNav genres={genres} />
+          <h3 class="label">By platform</h3>
+          <ul class="platforms">
+            {
+              platforms.map((p) => (
+                <li>
+                  <a class="chip" href={`/games/?platform=${p}`}>
+                    {platformLabel(p)}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container"><AdSlot id="home-mid" /></div>
+
+  <section class="section recent" aria-labelledby="recent-heading">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Previously featured</p>
+          <h2 id="recent-heading">Recent picks</h2>
+        </div>
+        <a class="btn btn-sm btn-ghost" href="/games/">View all games <Icon name="arrow" /></a>
+      </div>
+      {
+        recent.length > 0 ? (
+          <ul class="game-grid">
+            {recent.map((game) => (
+              <li>
+                <GameCard game={game} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="muted">Past picks will appear here once a few days have gone by.</p>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .browse {
+    border-bottom: 1px solid var(--border);
+  }
+  .browse-grid {
+    display: grid;
+    gap: 32px;
+  }
+  @media (min-width: 900px) {
+    .browse-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 56px;
+    }
+  }
+  .filters {
+    display: grid;
+    gap: 12px;
+    align-content: start;
+  }
+  .filters .label {
+    margin: 8px 0 0;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.75rem;
+  }
+  .platforms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>

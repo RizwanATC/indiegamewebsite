@@ -1,0 +1,79 @@
+---
+import Logo from './Logo.astro';
+import { SITE } from '../config';
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container inner">
+    <div class="brand">
+      <Logo />
+      <p class="muted">{SITE.tagline}. A small, independent showcase for games made by small, independent teams.</p>
+    </div>
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="/games/">All games</a></li>
+        <li><a href="/about/">About</a></li>
+        <li><a href="/contact/">Contact</a></li>
+        <li><a href="/privacy/">Privacy Policy</a></li>
+        <li><a href="/report/">Report a Game</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="container legal">
+    <p>© {year} {SITE.name}. Game names, artwork and trademarks belong to their respective developers.</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 48px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-raised);
+  }
+  .inner {
+    display: grid;
+    gap: 24px;
+    padding-block: 40px 24px;
+  }
+  .brand p {
+    margin: 14px 0 0;
+    max-width: 44ch;
+    font-size: 0.925rem;
+  }
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  ul a {
+    display: inline-block;
+    padding: 8px 0;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.925rem;
+    text-decoration: none;
+  }
+  ul a:hover {
+    color: var(--text);
+    text-decoration: underline;
+  }
+  .legal {
+    padding-block: 16px 32px;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--text-faint);
+  }
+  .legal p {
+    margin: 0;
+  }
+  @media (min-width: 760px) {
+    .inner {
+      grid-template-columns: 1fr auto;
+      align-items: start;
+    }
+  }
+</style>

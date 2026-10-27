@@ -1,0 +1,108 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import { SITE } from '../config';
+import { gameSlug, getVisibleGames } from '../lib/games';
+
+const games = await getVisibleGames();
+const REASONS = [
+  { value: 'broken', label: 'Broken link or game won’t load' },
+  { value: 'copyright', label: 'Copyright or trademark concern' },
+  { value: 'unsafe', label: 'Unsafe download or malicious content' },
+  { value: 'inaccurate', label: 'Wrong or outdated information' },
+  { value: 'other', label: 'Something else' },
+];
+const mail = (subject: string) => `mailto:${SITE.reportEmail}?subject=${encodeURIComponent(subject)}`;
+---
+
+<PageLayout title="Report a Game" eyebrow="Help us keep things right" description={`Report a broken link, a copyright concern or unsafe content on ${SITE.name}.`}>
+  <p>
+    If something on {SITE.name} is broken, wrong, infringes your rights or looks unsafe, please tell us. Reports go to
+    <a href={`mailto:${SITE.reportEmail}`}><strong>{SITE.reportEmail}</strong></a>.
+  </p>
+
+  <div class="notice notice-warn">
+    <p>
+      <strong>Unsafe download?</strong> Don't install it. Report it below with the game's page address. When a report concerns malware or a
+      copyright claim, we take the link down first and investigate after.
+    </p>
+  </div>
+
+  <form class="report panel" data-report-form>
+    <div class="field">
+      <label for="r-game">Which game?</label>
+      <select id="r-game" name="game" class="select">
+        <option value="">Not about a specific game</option>
+        {games.map((g) => <option value={gameSlug(g)}>{g.data.title}</option>)}
+      </select>
+    </div>
+    <div class="field">
+      <label for="r-reason">What's the problem?</label>
+      <select id="r-reason" name="reason" class="select" required>
+        {REASONS.map((r) => <option value={r.value}>{r.label}</option>)}
+      </select>
+    </div>
+    <div class="field">
+      <label for="r-details">Details</label>
+      <textarea id="r-details" name="details" class="textarea" required placeholder="What happened, which link, and (for copyright) which work you own."></textarea>
+    </div>
+    <p class="fine muted">
+      Pressing the button opens your email app with this report filled in. Nothing is sent until you send that email, and nothing is stored on this
+      site.
+    </p>
+    <button type="submit" class="btn btn-primary">Open email to send report</button>
+  </form>
+
+  <h2>Or email us directly</h2>
+  <ul>
+    <li><a href={mail('Report: broken link')}>Broken link or game won't load</a></li>
+    <li><a href={mail('Report: copyright concern')}>Copyright or trademark concern</a>: please include proof that you own the work, and the page address.</li>
+    <li><a href={mail('Report: unsafe content')}>Unsafe download or malicious content</a></li>
+  </ul>
+
+  <h2>What happens next</h2>
+  <p>
+    We read every report. Unsafe downloads and valid copyright claims are removed as soon as we see them. For other issues we'll fix the page or reply
+    to explain what we found.
+  </p>
+</PageLayout>
+
+<style>
+  .report {
+    display: grid;
+    gap: 16px;
+    margin: 28px 0 8px;
+  }
+  .fine {
+    margin: 0;
+    font-size: 0.85rem;
+  }
+  .report .btn {
+    justify-self: start;
+  }
+  .notice {
+    margin-top: 20px;
+  }
+</style>
+
+<script>
+  import { SITE } from '../config';
+
+  const form = document.querySelector<HTMLFormElement>('[data-report-form]')!;
+  const game = form.elements.namedItem('game') as HTMLSelectElement;
+  const reason = form.elements.namedItem('reason') as HTMLSelectElement;
+  const details = form.elements.namedItem('details') as HTMLTextAreaElement;
+
+  const preset = new URLSearchParams(location.search).get('game');
+  if (preset && [...game.options].some((o) => o.value === preset)) game.value = preset;
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const gameName = game.value ? game.selectedOptions[0].text : 'General';
+    const pageUrl = game.value ? new URL(`/games/${game.value}/`, location.origin).href : '';
+    const subject = `Report: ${reason.selectedOptions[0].text} (${gameName})`;
+    const lines = [`Reason: ${reason.selectedOptions[0].text}`, `Game: ${gameName}`];
+    if (pageUrl) lines.push(`Page: ${pageUrl}`);
+    const body = [...lines, '', details.value].join('\n');
+    location.href = `mailto:${SITE.reportEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  });
+</script>

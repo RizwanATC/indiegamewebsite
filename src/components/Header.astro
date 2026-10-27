@@ -1,0 +1,124 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+
+const path = Astro.url.pathname;
+const nav = [
+  { href: '/', label: 'Today', match: (p: string) => p === '/' },
+  { href: '/games/', label: 'All games', match: (p: string) => p.startsWith('/games') || p.startsWith('/genres') },
+  { href: '/about/', label: 'About', match: (p: string) => p.startsWith('/about') },
+];
+---
+
+<header class="site-header">
+  <div class="container bar">
+    <Logo />
+    <nav aria-label="Main">
+      <ul>
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={item.match(path) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <form class="header-search" action="/games/" method="get" role="search">
+      <label for="header-q" class="visually-hidden">Search games</label>
+      <Icon name="search" class="search-icon" />
+      <input id="header-q" class="input" type="search" name="q" placeholder="Search games" autocomplete="off" />
+    </form>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgb(12 10 22 / 0.88);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 12px 24px;
+    min-height: 64px;
+    flex-wrap: wrap;
+    padding-block: 8px;
+  }
+  nav {
+    margin-left: auto;
+  }
+  nav ul {
+    display: flex;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 10px;
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.925rem;
+    text-decoration: none;
+    position: relative;
+  }
+  nav a:hover {
+    color: var(--text);
+    background: var(--surface);
+  }
+  nav a[aria-current='page'] {
+    color: var(--text);
+  }
+  nav a[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 6px;
+    height: 2px;
+    background: var(--accent);
+  }
+  .header-search {
+    position: relative;
+    display: none;
+    width: 220px;
+  }
+  .header-search .input {
+    min-height: 40px;
+    padding: 6px 12px 6px 36px;
+    font-size: 0.9rem;
+  }
+  .header-search :global(.search-icon) {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    translate: 0 -50%;
+    color: var(--text-faint);
+    pointer-events: none;
+  }
+  @media (min-width: 860px) {
+    .header-search {
+      display: block;
+    }
+    nav {
+      margin-left: auto;
+    }
+  }
+  @media (max-width: 420px) {
+    nav a {
+      padding: 0 8px;
+      font-size: 0.875rem;
+    }
+  }
+</style>

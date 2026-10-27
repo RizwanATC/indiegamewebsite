@@ -1,0 +1,27 @@
+---
+/**
+ * Use for any link that earns a commission. It is always visibly labelled
+ * and uses rel="sponsored" as search engines require. Do not use it for
+ * normal official links. Not used anywhere yet.
+ */
+import Icon from './Icon.astro';
+interface Props {
+  href: string;
+  class?: string;
+}
+const { href, class: className } = Astro.props;
+---
+
+<a href={href} class={className} target="_blank" rel="sponsored noopener">
+  <slot />
+  <Icon name="external" size={12} />
+  <span class="affiliate-note">(affiliate link)</span>
+</a>
+
+<style>
+  .affiliate-note {
+    font-size: 0.75em;
+    opacity: 0.75;
+    margin-left: 4px;
+  }
+</style>

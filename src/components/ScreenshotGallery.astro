@@ -1,0 +1,165 @@
+---
+/**
+ * Screenshot grid with a keyboard-accessible lightbox (native <dialog>).
+ * Without JavaScript each thumbnail is a plain link to the full image.
+ */
+import { Image, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  title: string;
+  screenshots: { src: ImageMetadata; alt: string }[];
+}
+const { title, screenshots } = Astro.props;
+const full = await Promise.all(screenshots.map((s) => getImage({ src: s.src, width: Math.min(1600, s.src.width), format: 'webp' })));
+---
+
+<div class="gallery" data-gallery>
+  <ul>
+    {
+      screenshots.map((s, i) => (
+        <li>
+          <a href={full[i].src} data-index={i} data-full={full[i].src} data-alt={s.alt} aria-label={`View screenshot ${i + 1} of ${screenshots.length}: ${s.alt}`}>
+            <Image src={s.src} alt={s.alt} widths={[320, 480, 640]} sizes="(min-width: 1000px) 260px, (min-width: 600px) 45vw, 100vw" class="pixelated" />
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <dialog class="lightbox" aria-label={`${title} screenshots`}>
+    <figure>
+      <img src="" alt="" class="pixelated" data-lightbox-img />
+      <figcaption data-lightbox-caption></figcaption>
+    </figure>
+    <div class="lb-controls">
+      <button type="button" class="btn btn-sm" data-prev>
+        <span aria-hidden="true">←</span> Previous
+      </button>
+      <span class="counter" data-counter aria-live="polite"></span>
+      <button type="button" class="btn btn-sm" data-next>
+        Next <span aria-hidden="true">→</span>
+      </button>
+    </div>
+    <button type="button" class="close btn btn-sm btn-ghost" data-close aria-label="Close screenshots">
+      <Icon name="close" />
+    </button>
+  </dialog>
+</div>
+
+<style>
+  ul {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  li a {
+    display: block;
+    aspect-ratio: 16 / 9;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition:
+      border-color 0.15s,
+      transform 0.2s var(--ease);
+  }
+  li a:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  li :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .lightbox {
+    width: min(1200px, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    padding: 16px;
+    border: 2px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    background: var(--bg-raised);
+    color: var(--text);
+  }
+  .lightbox::backdrop {
+    background: rgb(5 4 12 / 0.85);
+  }
+  figure {
+    margin: 0;
+  }
+  figure img {
+    width: 100%;
+    max-height: calc(100vh - 180px);
+    object-fit: contain;
+    background: #000;
+    border-radius: var(--radius);
+  }
+  figcaption {
+    margin-top: 10px;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+  .lb-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .counter {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-faint);
+  }
+  .close {
+    position: absolute;
+    top: 22px;
+    right: 22px;
+    background: rgb(12 10 22 / 0.8);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((gallery) => {
+    const dialog = gallery.querySelector('dialog')!;
+    const img = dialog.querySelector<HTMLImageElement>('[data-lightbox-img]')!;
+    const caption = dialog.querySelector<HTMLElement>('[data-lightbox-caption]')!;
+    const counter = dialog.querySelector<HTMLElement>('[data-counter]')!;
+    const links = [...gallery.querySelectorAll<HTMLAnchorElement>('a[data-index]')];
+    let current = 0;
+
+    const show = (i: number) => {
+      current = (i + links.length) % links.length;
+      const link = links[current];
+      img.src = link.dataset.full!;
+      img.alt = link.dataset.alt!;
+      caption.textContent = link.dataset.alt!;
+      counter.textContent = `${current + 1} / ${links.length}`;
+    };
+
+    links.forEach((link, i) =>
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        show(i);
+        dialog.showModal();
+      }),
+    );
+    dialog.querySelector('[data-prev]')!.addEventListener('click', () => show(current - 1));
+    dialog.querySelector('[data-next]')!.addEventListener('click', () => show(current + 1));
+    dialog.querySelector('[data-close]')!.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') show(current - 1);
+      if (e.key === 'ArrowRight') show(current + 1);
+    });
+    // Click on the backdrop closes.
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+    dialog.addEventListener('close', () => links[current]?.focus());
+    if (links.length < 2) dialog.querySelector<HTMLElement>('.lb-controls')!.hidden = true;
+  });
+</script>

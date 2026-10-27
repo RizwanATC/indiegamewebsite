@@ -1,0 +1,265 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GameCard from '../../components/GameCard.astro';
+import Icon from '../../components/Icon.astro';
+import { SITE } from '../../config';
+import { allGenres, allPlatforms, genreLabel, getVisibleGames, platformLabel } from '../../lib/games';
+
+const games = await getVisibleGames();
+const genres = allGenres(games);
+const platforms = allPlatforms(games);
+---
+
+<BaseLayout title="All games" description={`Browse all ${games.length} indie games featured on ${SITE.name}. Search by title and filter by genre and platform.`}>
+  <section class="section archive">
+    <div class="container">
+      <p class="eyebrow">The archive</p>
+      <h1>All games</h1>
+      <p class="muted intro">Every game featured on {SITE.name}, newest first.</p>
+
+      <form class="filters panel" data-filters action="/games/" method="get" role="search" aria-label="Filter games">
+        <div class="field grow">
+          <label for="f-q">Search by title</label>
+          <div class="search-wrap">
+            <Icon name="search" size={18} class="icon-search" />
+            <input id="f-q" class="input" type="search" name="q" placeholder="e.g. Lantern" autocomplete="off" enterkeyhint="search" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-genre">Genre</label>
+          <select id="f-genre" class="select" name="genre">
+            <option value="">All genres</option>
+            {genres.map(({ genre, count }) => <option value={genre}>{genreLabel(genre)} ({count})</option>)}
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-platform">Platform</label>
+          <select id="f-platform" class="select" name="platform">
+            <option value="">All platforms</option>
+            {platforms.map((p) => <option value={p}>{platformLabel(p)}</option>)}
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-sort">Sort</label>
+          <select id="f-sort" class="select" name="sort">
+            <option value="newest">Newest featured</option>
+            <option value="oldest">Oldest featured</option>
+          </select>
+        </div>
+        <noscript><button type="submit" class="btn">Apply</button></noscript>
+      </form>
+
+      <div class="result-bar">
+        <p class="count" data-count aria-live="polite">{games.length} {games.length === 1 ? 'game' : 'games'}</p>
+        <button type="button" class="btn btn-sm btn-ghost" data-reset hidden>Clear filters</button>
+      </div>
+
+      <ul class="game-grid" data-grid>
+        {
+          games.map((game, i) => (
+            <li data-item>
+              <GameCard game={game} headingLevel="h2" eager={i < 3} />
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="empty panel" data-empty hidden>
+        <h2>No games match those filters</h2>
+        <p class="muted">Try a shorter search or a different genre or platform.</p>
+        <button type="button" class="btn" data-reset>Clear filters</button>
+      </div>
+
+      <div class="more">
+        <button type="button" class="btn" data-more hidden>Load more games</button>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+
+<style>
+  .intro {
+    margin-bottom: 28px;
+  }
+  .filters {
+    display: grid;
+    gap: 16px 12px;
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 20px;
+  }
+  .grow,
+  .filters .field:last-of-type {
+    grid-column: 1 / -1;
+  }
+  @media (min-width: 640px) {
+    .filters {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .filters .field:last-of-type {
+      grid-column: auto;
+    }
+  }
+  @media (min-width: 1000px) {
+    .filters {
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      align-items: end;
+    }
+    .grow {
+      grid-column: auto;
+    }
+  }
+  .search-wrap {
+    position: relative;
+  }
+  .search-wrap .input {
+    padding-left: 44px;
+  }
+  .search-wrap :global(.icon-search) {
+    position: absolute;
+    left: 16px;
+    top: 15px;
+    color: var(--text-faint);
+    pointer-events: none;
+  }
+  .result-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 48px;
+    margin-bottom: 12px;
+  }
+  .count {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  [data-item][hidden],
+  [data-reset][hidden],
+  [data-more][hidden],
+  [data-empty][hidden] {
+    display: none;
+  }
+  .empty {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .empty h2 {
+    font-size: 1.2rem;
+  }
+  .more {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+  }
+</style>
+
+<script>
+  import { SITE } from '../../config';
+
+  const form = document.querySelector<HTMLFormElement>('[data-filters]')!;
+  const grid = document.querySelector<HTMLUListElement>('[data-grid]')!;
+  const items = [...grid.querySelectorAll<HTMLLIElement>('[data-item]')];
+  const countEl = document.querySelector<HTMLElement>('[data-count]')!;
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  const more = document.querySelector<HTMLButtonElement>('[data-more]')!;
+  const resets = document.querySelectorAll<HTMLButtonElement>('[data-reset]');
+  const q = form.elements.namedItem('q') as HTMLInputElement;
+  const genre = form.elements.namedItem('genre') as HTMLSelectElement;
+  const platform = form.elements.namedItem('platform') as HTMLSelectElement;
+  const sort = form.elements.namedItem('sort') as HTMLSelectElement;
+
+  const pageSize = SITE.archivePageSize;
+  let visibleLimit = pageSize;
+
+  const card = (li: HTMLLIElement) => li.querySelector<HTMLElement>('[data-game-card]')!.dataset;
+  const normalize = (s: string) =>
+    s
+      .toLowerCase()
+      .normalize('NFKD')
+      .replace(/[̀-ͯ]/g, '')
+      .trim();
+
+  // Restore state from the URL so filtered views can be shared and bookmarked.
+  const params = new URLSearchParams(location.search);
+  q.value = params.get('q') ?? '';
+  const setSelect = (el: HTMLSelectElement, value: string | null) => {
+    if (value && [...el.options].some((o) => o.value === value)) el.value = value;
+  };
+  setSelect(genre, params.get('genre'));
+  setSelect(platform, params.get('platform'));
+  setSelect(sort, params.get('sort'));
+
+  function apply({ resetPaging = true } = {}) {
+    if (resetPaging) visibleLimit = pageSize;
+    const term = normalize(q.value);
+    const words = term.split(/\s+/).filter(Boolean);
+
+    const ordered = [...items].sort((a, b) => {
+      const cmp = card(a).date!.localeCompare(card(b).date!);
+      return sort.value === 'oldest' ? cmp : -cmp;
+    });
+    grid.append(...ordered);
+
+    const matches = ordered.filter((li) => {
+      const d = card(li);
+      const title = normalize(d.title!);
+      if (words.length && !words.every((w) => title.includes(w))) return false;
+      if (genre.value && !d.genres!.split(' ').includes(genre.value)) return false;
+      if (platform.value && !d.platforms!.split(' ').includes(platform.value)) return false;
+      return true;
+    });
+    const shown = new Set(matches.slice(0, visibleLimit));
+    for (const li of items) li.hidden = !shown.has(li);
+
+    const n = matches.length;
+    countEl.textContent = `${n} ${n === 1 ? 'game' : 'games'}${n > shown.size ? `, showing ${shown.size}` : ''}`;
+    empty.hidden = n > 0;
+    more.hidden = n <= visibleLimit;
+    const filtered = Boolean(term || genre.value || platform.value);
+    resets.forEach((b) => {
+      if (b.closest('[data-empty]')) return;
+      b.hidden = !filtered;
+    });
+
+    const next = new URLSearchParams();
+    if (q.value.trim()) next.set('q', q.value.trim());
+    if (genre.value) next.set('genre', genre.value);
+    if (platform.value) next.set('platform', platform.value);
+    if (sort.value !== 'newest') next.set('sort', sort.value);
+    const qs = next.toString();
+    history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+  }
+
+  let debounce: number | undefined;
+  q.addEventListener('input', () => {
+    window.clearTimeout(debounce);
+    debounce = window.setTimeout(() => apply(), 120);
+  });
+  [genre, platform, sort].forEach((el) => el.addEventListener('change', () => apply()));
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    apply();
+  });
+  more.addEventListener('click', () => {
+    const firstNew = items.filter((li) => !li.hidden).length;
+    visibleLimit += pageSize;
+    apply({ resetPaging: false });
+    // Move focus to the first newly revealed card for keyboard users.
+    const visible = [...grid.querySelectorAll<HTMLLIElement>('[data-item]:not([hidden])')];
+    visible[firstNew]?.querySelector<HTMLAnchorElement>('a')?.focus();
+  });
+  resets.forEach((b) =>
+    b.addEventListener('click', () => {
+      form.reset();
+      q.value = '';
+      apply();
+      q.focus();
+    }),
+  );
+
+  apply();
+  if (params.get('q')) q.focus();
+</script>

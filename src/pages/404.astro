@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SearchForm from '../components/SearchForm.astro';
+---
+
+<BaseLayout title="Page not found" description="This page doesn't exist." noindex>
+  <section class="section">
+    <div class="container lost">
+      <p class="code" aria-hidden="true">404</p>
+      <h1>Game over. This page doesn't exist.</h1>
+      <p class="muted">The link may be old, or the game may have moved. Try a search, or head back to today's pick.</p>
+      <SearchForm id="nf-q" />
+      <div class="actions">
+        <a class="btn btn-primary" href="/">Today's game</a>
+        <a class="btn" href="/games/">All games</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .lost {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    padding-block: 32px;
+  }
+  .lost :global(form) {
+    width: 100%;
+    margin-block: 8px 24px;
+  }
+  .code {
+    margin: 0 0 16px;
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 14vw, 6rem);
+    line-height: 1;
+    color: var(--accent);
+    text-shadow: 6px 6px 0 #2e1065;
+    animation: flicker 3s steps(1) infinite;
+  }
+  @keyframes flicker {
+    0%,
+    92%,
+    100% {
+      opacity: 1;
+    }
+    94% {
+      opacity: 0.4;
+    }
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+</style>

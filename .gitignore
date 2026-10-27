@@ -1,0 +1,33 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment variables
+.env
+.env.*
+!.env.example
+
+# Cloudflare / Wrangler local state
+.wrangler/
+.dev.vars
+
+# never commit game binaries (see README, "Android APKs")
+*.apk
+*.aab
+*.xapk
+
+# editors & OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db

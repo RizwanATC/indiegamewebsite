@@ -1,0 +1,11 @@
+---
+/** Sample / Sponsored labels. Rendered wherever a game is shown so they are never hidden. */
+import type { Game } from '../lib/games';
+interface Props {
+  game: Game;
+}
+const { sample, sponsored } = Astro.props.game.data;
+---
+
+{sponsored && <span class="badge badge-sponsored" title="Paid placement">Sponsored</span>}
+{sample && <span class="badge badge-sample" title="Fictional placeholder entry, not a real game">Sample entry</span>}

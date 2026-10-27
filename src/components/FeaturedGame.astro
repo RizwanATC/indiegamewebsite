@@ -1,0 +1,214 @@
+---
+import { Image } from 'astro:assets';
+import GameActions from './GameActions.astro';
+import GameLabels from './GameLabels.astro';
+import { SITE } from '../config';
+import { formatDate, gameUrl, genreLabel, platformLabel, type DailyPick } from '../lib/games';
+
+interface Props {
+  pick: DailyPick | undefined;
+}
+const { pick } = Astro.props;
+const game = pick?.game;
+const d = game?.data;
+---
+
+<section class="featured" aria-labelledby="featured-heading">
+  <div class="container intro">
+    <h1 class="brand">
+      <span class="word" aria-hidden="true">INDIE<span class="slash">/</span>24</span>
+      <span class="visually-hidden">{SITE.name}:</span>
+      <span class="tagline">{SITE.tagline}</span>
+    </h1>
+  </div>
+  {
+    game && d ? (
+      <div class="container grid">
+        <a class="art" href={gameUrl(game)} tabindex="-1" aria-hidden="true">
+          <Image
+            src={d.coverImage}
+            alt=""
+            widths={[640, 960, 1280, 1600]}
+            sizes="(min-width: 1200px) 720px, (min-width: 900px) 58vw, 100vw"
+            loading="eager"
+            fetchpriority="high"
+            class="pixelated"
+          />
+          <span class="frame" />
+        </a>
+        <div class="info">
+          <p class="eyebrow">
+            {pick.isToday ? (
+              <>
+                Game of the Day · <time datetime={d.featuredDate}>{formatDate(d.featuredDate, 'long')}</time>
+              </>
+            ) : (
+              <>
+                Latest pick · <time datetime={d.featuredDate}>{formatDate(d.featuredDate, 'long')}</time>
+              </>
+            )}
+          </p>
+          <h2 id="featured-heading" class="title">
+            <a href={gameUrl(game)}>{d.title}</a>
+          </h2>
+          <p class="by">
+            by <strong>{d.developer}</strong>
+            {d.releaseYear && <span class="muted"> · {d.releaseYear}</span>}
+          </p>
+          <div class="labels">
+            <GameLabels game={game} />
+          </div>
+          <p class="lede">{d.shortDescription}</p>
+          <ul class="badge-list" aria-label="Genres and platforms">
+            {d.genres.map((g) => (
+              <li>
+                <a class="badge badge-accent" href={`/genres/${g}/`}>
+                  {genreLabel(g)}
+                </a>
+              </li>
+            ))}
+            {d.platforms.map((p) => (
+              <li class="badge">{platformLabel(p)}</li>
+            ))}
+          </ul>
+          <GameActions game={game} context="hero" />
+          {!pick.isToday && <p class="fallback muted">No new game is scheduled for today yet, so here is our most recent pick.</p>}
+        </div>
+      </div>
+    ) : (
+      <div class="container empty">
+        <p class="eyebrow">Game of the Day</p>
+        <h2 id="featured-heading">Nothing scheduled yet</h2>
+        <p class="muted">The first featured game is on its way. Check back soon, or browse the archive.</p>
+        <a class="btn" href="/games/">Browse games</a>
+      </div>
+    )
+  }
+</section>
+
+<style>
+  .featured {
+    padding-block: clamp(24px, 5vw, 56px) clamp(32px, 6vw, 64px);
+    border-bottom: 1px solid var(--border);
+    background:
+      radial-gradient(60% 80% at 20% 0%, rgb(124 58 237 / 0.16), transparent 70%),
+      var(--bg);
+  }
+  .intro {
+    margin-bottom: clamp(20px, 4vw, 40px);
+  }
+  .brand {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 18px;
+    margin: 0;
+  }
+  .word {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 6vw, 2.6rem);
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    text-shadow: 4px 4px 0 #2e1065;
+  }
+  .slash {
+    color: var(--accent);
+  }
+  .tagline {
+    font-size: clamp(1rem, 2.4vw, 1.25rem);
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+  .grid {
+    display: grid;
+    gap: clamp(24px, 4vw, 48px);
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .grid {
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    }
+  }
+  .art {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 2px solid var(--border-strong);
+    box-shadow: 8px 8px 0 0 #2e1065;
+    background: var(--surface);
+    transition:
+      transform 0.25s var(--ease),
+      box-shadow 0.25s var(--ease);
+  }
+  .art:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 11px 11px 0 0 #3b0f85;
+  }
+  .art :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .frame {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+    background: linear-gradient(to top, rgb(12 10 22 / 0.35), transparent 40%);
+  }
+  .title {
+    margin-bottom: 8px;
+    font-size: clamp(2rem, 5vw, 3.25rem);
+  }
+  .title a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  .title a:hover {
+    color: var(--accent-strong);
+  }
+  .by {
+    margin: 0 0 12px;
+    color: var(--text-muted);
+  }
+  .by strong {
+    color: var(--text);
+  }
+  .labels:empty {
+    display: none;
+  }
+  .labels {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .lede {
+    font-size: 1.1rem;
+    color: #d9d4ec;
+    max-width: 48ch;
+  }
+  .badge-list {
+    margin-bottom: 24px;
+  }
+  a.badge {
+    text-decoration: none;
+  }
+  a.badge:hover {
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .fallback {
+    margin: 16px 0 0;
+    font-size: 0.875rem;
+  }
+  .empty {
+    text-align: center;
+    padding-block: 48px;
+  }
+  .empty p {
+    max-width: 48ch;
+    margin-inline: auto;
+  }
+</style>

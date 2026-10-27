@@ -1,0 +1,131 @@
+---
+/**
+ * Download section. Renders nothing when the game has no downloadUrl.
+ * We never claim a file is safe: we only say where it comes from.
+ */
+import Icon from './Icon.astro';
+import { hostname, isExternal, type Game } from '../lib/games';
+
+interface Props {
+  game: Game;
+}
+const d = Astro.props.game.data;
+const url = d.downloadUrl;
+const isApk = d.downloadType === 'apk';
+const official = d.downloadSource === 'official';
+const host = url && isExternal(url) ? hostname(url) : 'this site';
+
+const typeLabel = { apk: 'Android APK file', store: 'Store listing', page: 'Official download page' }[d.downloadType];
+const buttonLabel = isApk ? 'Download APK' : d.downloadType === 'store' ? 'Open store page' : 'Go to official download';
+---
+
+{
+  url && (
+    <section id="download" class="download panel" aria-labelledby="download-heading">
+      <h2 id="download-heading">Download</h2>
+      <dl class="facts">
+        <div>
+          <dt>Type</dt>
+          <dd>{typeLabel}</dd>
+        </div>
+        <div>
+          <dt>Source</dt>
+          <dd>
+            {official ? (
+              <>
+                <span class="badge badge-accent">Official</span> Link to the developer's own channel on <strong>{host}</strong>
+              </>
+            ) : (
+              <>
+                <span class="badge">Mirror</span> Copy hosted by INDIE/24 with the developer's permission, served from <strong>{host}</strong>
+              </>
+            )}
+          </dd>
+        </div>
+        {d.apkVersion && (
+          <div>
+            <dt>Version</dt>
+            <dd>{d.apkVersion}</dd>
+          </div>
+        )}
+        {d.apkSha256 && (
+          <div>
+            <dt>SHA-256</dt>
+            <dd>
+              <code class="hash">{d.apkSha256.toLowerCase()}</code>
+              <span class="muted small">Published checksum. Compare it with the file you download.</span>
+            </dd>
+          </div>
+        )}
+      </dl>
+
+      {isApk && (
+        <div class="notice notice-warn">
+          <Icon name="warning" size={20} />
+          <div>
+            <p>
+              <strong>Installing an APK.</strong> Android will ask you to allow installs from this source. Only continue if you trust it. INDIE/24 has not
+              independently scanned or verified this file, so we can't guarantee it is safe. Keep Google Play Protect (or your antivirus) turned on.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <a class="btn btn-primary" href={url} target="_blank" rel="noopener" download={isApk && !isExternal(url) ? '' : undefined}>
+        <Icon name="download" /> {buttonLabel}
+        {isExternal(url) && <Icon name="external" size={12} />}
+        <span class="visually-hidden">(opens {host})</span>
+      </a>
+    </section>
+  )
+}
+
+<style>
+  .download {
+    display: grid;
+    gap: 16px;
+    scroll-margin-top: 80px;
+  }
+  .download h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+  .facts {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+  }
+  .facts div {
+    display: grid;
+    gap: 2px;
+  }
+  dt {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  dd {
+    margin: 0;
+    font-size: 0.925rem;
+  }
+  .hash {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    word-break: break-all;
+    color: var(--text);
+  }
+  .small {
+    font-size: 0.8rem;
+  }
+  .notice :global(svg) {
+    flex: none;
+    color: var(--warn);
+    margin-top: 2px;
+  }
+  .btn {
+    justify-self: start;
+  }
+</style>

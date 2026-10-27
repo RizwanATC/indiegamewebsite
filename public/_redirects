@@ -1,0 +1,3 @@
+# Cloudflare Pages redirects. https://developers.cloudflare.com/pages/configuration/redirects/
+/genres  /games/  301
+/genres/ /games/  301

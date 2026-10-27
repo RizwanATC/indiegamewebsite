@@ -1,0 +1,61 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import { SITE } from '../config';
+const mail = (subject: string) => `mailto:${SITE.contactEmail}?subject=${encodeURIComponent(subject)}`;
+---
+
+<PageLayout title="Contact" eyebrow="Say hello" description={`How to get in touch with ${SITE.name}: game suggestions, developer submissions and general questions.`}>
+  <p>
+    The simplest way to reach us is email: <a href={`mailto:${SITE.contactEmail}`}><strong>{SITE.contactEmail}</strong></a>. It's a small project run by
+    one person, so replies can take a few days.
+  </p>
+
+  <div class="options">
+    <a class="panel option" href={mail('Game suggestion')}>
+      <h2>Suggest a game</h2>
+      <p class="muted">Found something great? Send the title and a link to its official page.</p>
+    </a>
+    <a class="panel option" href={mail('Developer submission')}>
+      <h2>Submit your game</h2>
+      <p class="muted">Include a link to your game, whether it can be embedded in a browser, and where players can download it.</p>
+    </a>
+    <a class="panel option" href={mail('General question')}>
+      <h2>Anything else</h2>
+      <p class="muted">Questions, feedback or partnership ideas.</p>
+    </a>
+  </div>
+
+  <h2>Reporting a problem?</h2>
+  <p>
+    For broken links, copyright concerns or anything unsafe, please use the <a href="/report/">Report a Game</a> page so it reaches the right inbox
+    quickly.
+  </p>
+</PageLayout>
+
+<style>
+  .options {
+    display: grid;
+    gap: 12px;
+    margin: 28px 0;
+  }
+  .option {
+    display: block;
+    color: var(--text);
+    text-decoration: none;
+    transition:
+      border-color 0.15s,
+      transform 0.2s var(--ease);
+  }
+  .option:hover {
+    color: var(--text);
+    border-color: var(--accent);
+    transform: translateX(4px);
+  }
+  .option h2 {
+    margin: 0 0 4px;
+    font-size: 1.05rem;
+  }
+  .option p {
+    margin: 0;
+  }
+</style>
