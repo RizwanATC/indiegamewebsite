@@ -322,8 +322,15 @@ const source = mode.kind === 'none' ? '' : isExternal(mode.url) ? hostname(mode.
       error.hidden = false;
     };
 
-    async function start() {
+    async function start(fromTap = false) {
       if (started) return;
+      // On a phone, a portrait game plays best as the whole page rather than
+      // a small frame inside a scrolling one (Safari on iPhone is unreliable with that).
+      // Only on a real tap, so the Back button doesn't bounce straight into the game again.
+      if (hosted && player.classList.contains('phone') && matchMedia('(pointer: coarse) and (max-width: 600px)').matches) {
+        if (fromTap) location.href = src;
+        return;
+      }
       started = true;
       poster.hidden = true;
       loading.hidden = false;
@@ -359,10 +366,10 @@ const source = mode.kind === 'none' ? '' : isExternal(mode.url) ? hostname(mode.
       stage.append(frame);
     }
 
-    player.querySelector('[data-start]')!.addEventListener('click', start);
+    player.querySelector('[data-start]')!.addEventListener('click', () => start(true));
     document.querySelectorAll('[data-play-trigger]').forEach((el) =>
       el.addEventListener('click', () => {
-        start();
+        start(true);
       }),
     );
 

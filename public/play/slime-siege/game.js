@@ -135,8 +135,7 @@
   function tone(freq, ms, type = 'square', vol = 0.04, slide = 0) {
     if (!soundOn) return;
     try {
-      audio ??= new (window.AudioContext || window.webkitAudioContext)();
-      if (audio.state === 'suspended') audio.resume();
+      if (!audio || audio.state !== 'running') return;
       const t = audio.currentTime;
       const o = audio.createOscillator();
       const g = audio.createGain();
@@ -152,6 +151,17 @@
       /* audio unavailable */
     }
   }
+  // iOS Safari only lets audio start inside a tap or key press, so the
+  // context is created and resumed from the input handlers below.
+  function unlockAudio() {
+    try {
+      audio ??= new (window.AudioContext || window.webkitAudioContext)();
+      if (audio.state !== 'running') audio.resume().catch(() => {});
+    } catch {
+      /* audio unavailable */
+    }
+  }
+
   const sfx = {
     slash: () => tone(900, 50, 'triangle', 0.03, -500),
     squish: () => tone(220, 90, 'sine', 0.07, -120),
@@ -180,6 +190,7 @@
     ' ': 'fire', j: 'fire', J: 'fire', z: 'fire', Z: 'fire',
   };
   addEventListener('keydown', (e) => {
+    unlockAudio();
     const k = KEYMAP[e.key];
     if (k) {
       if (k === 'fire' && !input.fire) startPressed = true;
@@ -218,8 +229,13 @@
   // Touch: drag anywhere to move (relative, like most phone shooters).
   if (matchMedia('(pointer: coarse)').matches) document.body.classList.add('touch');
   addEventListener('pointerdown', (e) => {
+    unlockAudio();
     if (e.pointerType !== 'mouse') document.body.classList.add('touch');
-    if (e.target.closest('button')) return;
+    if (e.target instanceof Element && e.target.closest('button')) return;
+    if (state === 'paused') {
+      pausePressed = true;
+      return;
+    }
     if (state !== 'play') {
       startPressed = true;
       return;
@@ -243,12 +259,28 @@
   };
   addEventListener('pointerup', endDrag);
   addEventListener('pointercancel', endDrag);
+  // Backup for Safari on iPhone: a tap always starts the game, even if pointer
+  // events don't arrive (older iOS, or inside the site's embedded player).
+  // Blocking the default also stops the page behind from scrolling or zooming.
+  addEventListener(
+    'touchstart',
+    (e) => {
+      unlockAudio();
+      document.body.classList.add('touch');
+      if (e.target instanceof Element && e.target.closest('button')) return;
+      if (state !== 'play' && state !== 'paused') startPressed = true;
+      e.preventDefault();
+    },
+    { passive: false },
+  );
+  addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
   for (const [id, fn] of [
     ['btn-special', () => (specialPressed = true)],
     ['btn-pause', () => (pausePressed = true)],
   ]) {
     const el = document.getElementById(id);
     el?.addEventListener('pointerdown', (e) => {
+      unlockAudio();
       e.preventDefault();
       e.stopPropagation();
       fn();
