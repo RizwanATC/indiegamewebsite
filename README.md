@@ -146,16 +146,16 @@ Otherwise the page shows a **Play Game** button that opens the game in a new tab
 
 The player is click-to-load: nothing loads until the visitor presses Play. It shows a loading state, an error state (missing hosted files, or a 20-second timeout for external games, since cross-origin failures can't be detected directly), a Fullscreen button when the browser supports it, and an "Open in new tab" link.
 
-## Our own games: Slime Siege and Signal Strike
+## Our own game: Slime Siege
 
-INDIE/24 ships two games it made itself, played on the site at `/play/slime-siege/` (portrait) and `/play/signal-strike/` (landscape). The Android project in `android/` is a tiny WebView wrapper that bundles one game's folder from `public/play/`, so there is only one copy of each game.
+INDIE/24 ships one game it made itself, played on the site at `/play/slime-siege/` (portrait). The Android project in `android/` is a tiny WebView wrapper that bundles one game's folder from `public/play/`, so there is only one copy of each game. More games can be added to the `GAMES` map in `android/app/build.gradle`.
 
 - **Portrait games:** set `playerAspect: "9/16"` and the game page shows the player inside a phone-shaped frame, with tall screenshot thumbnails.
 - **Art:** every Slime Siege sprite is original and drawn from code by `scripts/generate-slime-siege-art.mjs`. Edit that script and re-run it to change the art; don't hand-edit the PNGs.
-- **Build the APKs:** `.github/workflows/android-apk.yml` runs on every push that touches a game or `android/`. It builds `slime-siege.apk` and `signal-strike.apk` and uploads both to the GitHub Release `android-latest`. Run it manually from the Actions tab with "Run workflow". The repository must be **public** for visitors to download them. Once a file exists, set `downloadUrl` to its release URL, `downloadType: "apk"` and `platforms: ["web", "android"]` in the game's Markdown file.
+- **Build the APKs:** `.github/workflows/android-apk.yml` runs on every push that touches a game or `android/`. It builds `slime-siege.apk` and uploads it to the GitHub Release `android-latest`. Run it manually from the Actions tab with "Run workflow". The repository must be **public** for visitors to download them. Once a file exists, set `downloadUrl` to its release URL, `downloadType: "apk"` and `platforms: ["web", "android"]` in the game's Markdown file.
 - **Signing:** without secrets, each build is signed with a throwaway debug key, so players must uninstall before installing a newer build. To fix that, create a keystore once (`keytool -genkeypair -v -keystore release.jks -alias indie24 -keyalg RSA -keysize 4096 -validity 10000`) and add these repository secrets: `SIGNING_KEYSTORE_BASE64` (`base64 -w0 release.jks`), `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS`, `SIGNING_KEY_PASSWORD`. Keep the keystore backed up: losing it means you can't ship updates under the same signature.
-- **Build locally:** install Android Studio (or the SDK + JDK 17 + Gradle 8.11), then `gradle -p android assembleRelease -Pgame=slime-siege` (or `-Pgame=signal-strike`). Each game's app id, name, orientation and icon are set in `android/app/build.gradle` and `android/app/src/<game>/res/`.
-- **Icons:** `node scripts/generate-slime-siege-icons.mjs` (after the art script) and `node scripts/generate-signal-strike-icons.mjs`.
+- **Build locally:** install Android Studio (or the SDK + JDK 17 + Gradle 8.11), then `gradle -p android assembleRelease -Pgame=slime-siege`. Each game's app id, name, orientation and icon are set in `android/app/build.gradle` and `android/app/src/<game>/res/`.
+- **Icons:** `node scripts/generate-slime-siege-icons.mjs` (after the art script).
 
 ## Android APKs
 

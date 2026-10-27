@@ -8,11 +8,10 @@ plugins {
 // place by a build signed with a different key.
 def ks = System.getenv('SIGNING_KEYSTORE_PATH')
 
-// One project, one APK per game: gradle assembleRelease -Pgame=signal-strike
+// One project, one APK per game: gradle assembleRelease -Pgame=slime-siege
 // The game folder under public/play/ is bundled as the app's assets.
 def GAMES = [
     'slime-siege'  : [id: 'com.indie24.slimesiege',   label: 'Slime Siege',   orientation: 'sensorPortrait'],
-    'signal-strike': [id: 'com.indie24.signalstrike', label: 'Signal Strike', orientation: 'sensorLandscape'],
 ]
 def game = (project.findProperty('game') ?: 'slime-siege').toString()
 def cfg = GAMES[game]

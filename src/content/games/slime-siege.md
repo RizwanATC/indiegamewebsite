@@ -36,8 +36,8 @@ controls:
 estimatedPlaytime: "5–15 minutes per run"
 ---
 
-**Slime Siege** is INDIE/24's second home-made game, and the first one built
-to be played upright like a phone game. It's an original game written for this
+**Slime Siege** is INDIE/24's first home-made game, built to be played
+upright like a phone game. It's an original game written for this
 site, with all of its pixel art drawn from scratch too.
 
 Your hero marches up a forest path while slimes hop down towards you and
