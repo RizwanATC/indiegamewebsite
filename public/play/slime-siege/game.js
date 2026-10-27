@@ -976,7 +976,7 @@
 
     if (state === 'intro') banner([{ text: `STAGE ${stage + 1 + loop * STAGES.length}`, scale: 2 }, { text: STAGES[stage].name, scale: 1, color: '#e8c07a' }]);
     else if (state === 'paused')
-      banner([{ text: 'PAUSED', scale: 2 }, { text: 'TAP II OR P TO RESUME', scale: 1 }, { text: 'M SOUND   F AUTO ATTACK', scale: 1, color: '#e8c07a' }]);
+      banner([{ text: 'PAUSED', scale: 2 }, { text: 'TAP OR PRESS P TO RESUME', scale: 1 }, { text: 'M SOUND   F AUTO ATTACK', scale: 1, color: '#e8c07a' }]);
     else if (state === 'clear' && t > 40) banner([{ text: 'STAGE CLEAR!', scale: 2 }, { text: `SCORE ${score}`, scale: 1, color: '#e8c07a' }]);
     else if (state === 'over') {
       banner([
