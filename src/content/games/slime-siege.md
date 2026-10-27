@@ -5,7 +5,7 @@ developer: "INDIE/24"
 developerUrl: "/about/"
 releaseYear: 2026
 genres: ["shooter", "arcade", "fantasy"]
-platforms: ["web"]
+platforms: ["web", "android"]
 featuredDate: "2026-10-27"
 coverImage: "../../assets/games/slime-siege/cover.png"
 coverAlt: "Three Slime Siege screens side by side: the title, a hero on a dirt path facing green slimes, and the Bone Lord boss fight"
@@ -17,6 +17,11 @@ screenshots:
   - src: "../../assets/games/slime-siege/screenshot-3.png"
     alt: "Boss fight: a giant skeleton called the Bone Lord with a health bar, while the hero throws sword slashes up the path"
 playUrl: "/play/slime-siege/"
+downloadUrl: "https://github.com/RizwanATC/indiegamewebsite/releases/download/android-latest/slime-siege.apk"
+downloadType: "apk"
+downloadSource: "official"
+apkVersion: "1.0.0"
+apkSha256: "147e24977e226355d9b3ef0b029586e551aa5e02b834cecd2ebcbc84121de733"
 playerAspect: "9/16"
 controls:
   - input: "Touch: drag anywhere"
@@ -65,8 +70,9 @@ saved on your device.
 
 ### On Android
 
-An Android app that runs the same game full-screen and offline is being built.
-The download will appear on this page once it's ready.
+The Android app runs the same game full-screen and offline. Use the download
+button on this page. Android will ask you to allow installs from this source the
+first time, because the app isn't from the Play Store.
 
 ### Credits
 
