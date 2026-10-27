@@ -278,7 +278,6 @@ const source = mode.kind === 'none' ? '' : isExternal(mode.url) ? hostname(mode.
       frame.src = src;
       frame.title = `${player.dataset.title} (game)`;
       frame.allow = 'fullscreen; gamepad; autoplay';
-      frame.allowFullscreen = true;
       frame.referrerPolicy = 'strict-origin-when-cross-origin';
       if (!hosted) frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms');
 

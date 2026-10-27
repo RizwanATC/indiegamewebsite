@@ -1,0 +1,52 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Release signing comes from environment variables (set by the GitHub
+// Action from repository secrets). Without them the release APK is signed
+// with the throwaway debug key, which installs fine but can't be updated in
+// place by a build signed with a different key.
+def ks = System.getenv('SIGNING_KEYSTORE_PATH')
+
+android {
+    namespace 'com.indie24.signalstrike'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.indie24.signalstrike'
+        minSdk 24
+        targetSdk 35
+        versionCode Integer.parseInt(System.getenv('VERSION_CODE') ?: '1')
+        versionName '1.0.0'
+    }
+
+    signingConfigs {
+        release {
+            if (ks) {
+                storeFile file(ks)
+                storePassword System.getenv('SIGNING_STORE_PASSWORD')
+                keyAlias System.getenv('SIGNING_KEY_ALIAS')
+                keyPassword System.getenv('SIGNING_KEY_PASSWORD')
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig ks ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+
+    // The game itself is the exact same HTML/JS the website serves.
+    sourceSets {
+        main {
+            assets.srcDirs += ['../../public/play/signal-strike']
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

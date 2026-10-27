@@ -146,6 +146,16 @@ Otherwise the page shows a **Play Game** button that opens the game in a new tab
 
 The player is click-to-load: nothing loads until the visitor presses Play. It shows a loading state, an error state (missing hosted files, or a 20-second timeout for external games, since cross-origin failures can't be detected directly), a Fullscreen button when the browser supports it, and an "Open in new tab" link.
 
+## Signal Strike (our own game)
+
+`public/play/signal-strike/` is INDIE/24's own shooter, played on the site at `/play/signal-strike/`. The Android app in `android/` is a tiny WebView wrapper that bundles those same files, so there is only one copy of the game.
+
+- **Build the APK:** `.github/workflows/android-apk.yml` builds it on every push that touches the game or `android/`, and publishes it to the GitHub Release `signal-strike-latest` as `signal-strike.apk`. Run it manually from the Actions tab with "Run workflow".
+- **Download link:** the game's page links to that release asset. The repository (or a separate releases repository) must be **public** for visitors to download it.
+- **Signing:** without secrets, each build is signed with a throwaway debug key, so players must uninstall before installing a newer build. To fix that, create a keystore once (`keytool -genkeypair -v -keystore release.jks -alias signalstrike -keyalg RSA -keysize 4096 -validity 10000`) and add these repository secrets: `SIGNING_KEYSTORE_BASE64` (`base64 -w0 release.jks`), `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS`, `SIGNING_KEY_PASSWORD`. Keep the keystore backed up: losing it means you can't ship updates under the same signature.
+- **Build locally:** install Android Studio (or the SDK + JDK 17 + Gradle 8.11), then `gradle -p android assembleRelease`.
+- **Icons:** `node scripts/generate-signal-strike-icons.mjs`.
+
 ## Android APKs
 
 - Prefer the developer's official page or store listing (`downloadType: page` or `store`).
