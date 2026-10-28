@@ -174,6 +174,292 @@
     clear: () => [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => tone(f, 120, 'triangle', 0.06), i * 120)),
   };
 
+  // ---------------------------------------------------------------- music --
+  // Chiptune songs written as note data and played on the same audio context
+  // as the sound effects, so there are no audio files to download. Each song
+  // is bars of 16 sixteenth-note steps: a note name starts a note, '-' holds
+  // it, '.' is a rest. Bass and arpeggio follow the chord of each bar (two
+  // chords in one string split the bar in half).
+  const SONGS = {
+    title: {
+      bpm: 100,
+      chords: ['F', 'Dm', 'Bb', 'C'],
+      lead: [
+        'C5 - - - A4 - F4 - A4 - C5 - F5 - - -',
+        'E5 - D5 - - - A4 - - - D5 - F5 - - -',
+        'D5 - - - Bb4 - D5 - F5 - - - D5 - - -',
+        'E5 - - - C5 - - - G4 - - - . . . .',
+      ],
+      bass: 'R - - - 5 - - - R - - - 5 - - -',
+      drums: 'k . . . h . . . k . . . h . . .',
+      arp: true,
+    },
+    // Green Meadow: bright and bouncy.
+    stage0: {
+      bpm: 132,
+      chords: ['C', 'Am', 'F', 'G', 'C', 'Am', 'F G', 'C'],
+      lead: [
+        'E5 - G5 - C6 - G5 - E5 - D5 - C5 - - -',
+        'A4 - C5 - E5 - D5 C5 - - A4 - C5 - - -',
+        'F5 - A5 - G5 - F5 - E5 - F5 - A5 - - -',
+        'G5 - - - F5 E5 D5 - B4 - D5 - G5 - - -',
+        'E5 - G5 - C6 - D6 - E6 - D6 - C6 - - -',
+        'A5 - G5 - E5 - C5 - D5 - E5 - C5 - - -',
+        'F5 - E5 - D5 - C5 - D5 - - - B4 - - -',
+        'C5 - - - G4 - - - C5 - - - . . . .',
+      ],
+      bass: 'R . R . 5 . R . R . R . 5 . 8 .',
+      drums: 'k . h . s . h . k . h k s . h .',
+    },
+    // Old Farm: a little hoedown.
+    stage1: {
+      bpm: 150,
+      chords: ['G', 'G', 'C', 'G', 'G', 'D', 'G D', 'G'],
+      lead: [
+        'G4 - B4 - D5 - B4 - G4 - B4 - D5 - G5 -',
+        'E5 - D5 - B4 - G4 - A4 - B4 - A4 - - -',
+        'C5 - E5 - G5 - E5 - C5 - E5 - G5 - E5 -',
+        'D5 - B4 - G4 - B4 - D5 - - - . . . .',
+        'G5 - G5 - E5 - D5 - B4 - D5 - E5 - D5 -',
+        'F#5 - E5 - D5 - A4 - D5 - E5 - F#5 - A5 -',
+        'G5 - F#5 - E5 - D5 - C5 - B4 - A4 - F#4 -',
+        'G4 - - - B4 - - - G4 - - - . . . .',
+      ],
+      bass: 'R . . . 5 . . . R . . . 5 . . .',
+      drums: 'k . h . s . h . k . h . s . h h',
+    },
+    // Haunted Wood: slow and spooky, in a minor key.
+    stage2: {
+      bpm: 112,
+      chords: ['Am', 'F', 'Dm', 'E', 'Am', 'F', 'Dm', 'E'],
+      lead: [
+        'A4 - - - C5 - - - E5 - - - D#5 - E5 -',
+        'F5 - - - E5 - - - C5 - - - A4 - - -',
+        'D5 - - - F5 - - - A5 - - - G#5 - A5 -',
+        'B5 - - - G#5 - - - E5 - - - . . . .',
+        'A5 - G5 - E5 - - - C5 - D5 - E5 - - -',
+        'F5 - E5 - C5 - - - A4 - B4 - C5 - - -',
+        'D5 - C5 - A4 - - - F4 - G4 - A4 - - -',
+        'G#4 - - - B4 - - - E5 - - - - - - -',
+      ],
+      bass: 'R - - - R - - - R - - - 5 - R -',
+      drums: 'k . . . . . h . s . . . . . h .',
+      arp: true,
+      leadVol: 0.75,
+    },
+    // Every boss: fast and driving.
+    boss: {
+      bpm: 168,
+      chords: ['Em', 'Em', 'C', 'D', 'Em', 'Em', 'C', 'B'],
+      lead: [
+        'E5 - E5 - G5 - E5 - A5 - G5 - E5 - D5 -',
+        'E5 - - - B4 - - - D5 - E5 - - - . .',
+        'C5 - E5 - G5 - C6 - B5 - G5 - E5 - C5 -',
+        'D5 - F#5 - A5 - D6 - C6 - A5 - F#5 - D5 -',
+        'B5 - B5 - A5 - G5 - A5 - G5 - F#5 - E5 -',
+        'G5 - - - F#5 - - - E5 - - - B4 - - -',
+        'C6 - B5 - A5 - G5 - E5 - G5 - A5 - C6 -',
+        'B5 - - - D#5 - - - F#5 - - - B4 - - -',
+      ],
+      bass: 'R . R . 8 . R . R . R . 8 . R .',
+      drums: 'k . h . s . h . k . k . s . h h',
+      arp: true,
+    },
+    clear: {
+      bpm: 150,
+      once: true,
+      chords: ['C', 'G C'],
+      lead: ['C5 - E5 - G5 - C6 - - - G5 - C6 - - -', '- - - - . . . . . . . . . . . .'],
+      bass: 'R - - - - - - - R - - - . . . .',
+    },
+    over: {
+      bpm: 84,
+      once: true,
+      chords: ['Am', 'E Am'],
+      lead: ['E5 - - - D5 - - - C5 - - - B4 - - -', 'A4 - - - - - - - - - - - . . . .'],
+      bass: 'R - - - - - - - R - - - - - - -',
+    },
+  };
+
+  const NOTE = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+  function freqOf(name) {
+    const m = /^([A-G])([#b]?)(\d)$/.exec(name);
+    const semi = NOTE[m[1]] + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0) + (+m[3] + 1) * 12;
+    return 440 * 2 ** ((semi - 69) / 12);
+  }
+  function chordOf(name) {
+    const m = /^([A-G][#b]?)(m?)$/.exec(name);
+    const root = freqOf(m[1] + '2');
+    return { root, third: root * 2 ** ((m[2] ? 3 : 4) / 12), fifth: root * 2 ** (7 / 12) };
+  }
+  // Turn a step string into [{ step, len, value }] so holds become lengths.
+  function parseSteps(str, offset = 0) {
+    const out = [];
+    str.split(/\s+/).forEach((tok, i) => {
+      if (tok === '-') {
+        if (out.length && out[out.length - 1].end === i + offset) out[out.length - 1].len++, out[out.length - 1].end++;
+      } else if (tok !== '.') out.push({ step: i + offset, len: 1, end: i + offset + 1, value: tok });
+    });
+    return out;
+  }
+  for (const song of Object.values(SONGS)) {
+    song.steps = song.lead.length * 16;
+    song.leadNotes = parseSteps(song.lead.join(' ')).map((n) => ({ ...n, freq: freqOf(n.value) }));
+    song.chordAt = song.chords.flatMap((c) => {
+      const parts = c.split(' ').map(chordOf);
+      return Array.from({ length: 16 }, (_, i) => parts[Math.floor((i * parts.length) / 16)]);
+    });
+    song.bassNotes = [];
+    song.drumHits = [];
+    for (let bar = 0; bar < song.lead.length; bar++) {
+      song.bassNotes.push(...parseSteps(song.bass, bar * 16));
+      if (song.drums) song.drumHits.push(...parseSteps(song.drums, bar * 16));
+    }
+  }
+
+  const music = (() => {
+    let out = null;
+    let pulse = null;
+    let noise = null;
+    let song = null;
+    let current;
+    let step = 0;
+    let nextAt = 0;
+    let level = -1;
+
+    function setup() {
+      out = audio.createGain();
+      out.gain.value = 0;
+      out.connect(audio.destination);
+      // A 25% pulse wave gives the lead its classic handheld-console sound.
+      const n = 32;
+      const real = new Float32Array(n);
+      const imag = new Float32Array(n);
+      for (let i = 1; i < n; i++) imag[i] = (2 / (i * Math.PI)) * Math.sin(i * Math.PI * 0.25);
+      pulse = audio.createPeriodicWave(real, imag);
+      noise = audio.createBuffer(1, audio.sampleRate / 2, audio.sampleRate);
+      const d = noise.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+
+    function voice(freq, at, dur, wave, vol) {
+      const o = audio.createOscillator();
+      const g = audio.createGain();
+      if (wave === 'pulse') o.setPeriodicWave(pulse);
+      else o.type = wave;
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0, at);
+      g.gain.linearRampToValueAtTime(vol, at + 0.005);
+      g.gain.setTargetAtTime(vol * 0.6, at + 0.02, 0.08);
+      g.gain.setTargetAtTime(0, at + dur * 0.85, 0.02);
+      o.connect(g).connect(out);
+      o.start(at);
+      o.stop(at + dur + 0.1);
+    }
+
+    function drum(kind, at) {
+      const g = audio.createGain();
+      g.connect(out);
+      if (kind === 'k') {
+        const o = audio.createOscillator();
+        o.frequency.setValueAtTime(150, at);
+        o.frequency.exponentialRampToValueAtTime(40, at + 0.12);
+        g.gain.setValueAtTime(0.5, at);
+        g.gain.exponentialRampToValueAtTime(0.001, at + 0.15);
+        o.connect(g);
+        o.start(at);
+        o.stop(at + 0.16);
+        return;
+      }
+      const src = audio.createBufferSource();
+      const f = audio.createBiquadFilter();
+      src.buffer = noise;
+      f.type = 'highpass';
+      f.frequency.value = kind === 's' ? 1500 : 7000;
+      const len = kind === 's' ? 0.12 : 0.04;
+      g.gain.setValueAtTime(kind === 's' ? 0.25 : 0.1, at);
+      g.gain.exponentialRampToValueAtTime(0.001, at + len);
+      src.connect(f).connect(g);
+      src.start(at, Math.random() * 0.3);
+      src.stop(at + len + 0.01);
+    }
+
+    function playStep(s, at, sixteenth) {
+      for (const n of song.leadNotes) if (n.step === s) voice(n.freq, at, n.len * sixteenth, 'pulse', 0.09 * (song.leadVol ?? 1));
+      const ch = song.chordAt[s];
+      for (const n of song.bassNotes) {
+        if (n.step !== s) continue;
+        const f = { R: ch.root, 3: ch.third, 5: ch.fifth, 8: ch.root * 2 }[n.value];
+        voice(f, at, n.len * sixteenth, 'triangle', 0.22);
+      }
+      if (song.arp) {
+        const tones = [ch.root, ch.third, ch.fifth, ch.root * 2];
+        voice(tones[s % 4] * 4, at, sixteenth * 0.9, 'square', 0.025);
+      }
+      for (const d of song.drumHits) if (d.step === s) drum(d.value, at);
+    }
+
+    function schedule() {
+      if (!song) return;
+      const sixteenth = 15 / song.bpm;
+      // Background tabs throttle timers; skip ahead instead of bunching notes.
+      if (nextAt < audio.currentTime) nextAt = audio.currentTime + 0.05;
+      while (nextAt < audio.currentTime + 0.15) {
+        if (step >= song.steps) {
+          if (song.once) {
+            song = null;
+            return;
+          }
+          step = 0;
+        }
+        playStep(step, nextAt, sixteenth);
+        step++;
+        nextAt += sixteenth;
+      }
+    }
+
+    return {
+      // Called every frame with the song the game wants and the volume.
+      update(name, vol) {
+        try {
+          if (!audio || audio.state !== 'running') return;
+          if (!out) setup();
+          if (vol !== level) {
+            level = vol;
+            out.gain.setTargetAtTime(vol * 0.5, audio.currentTime, 0.05);
+          }
+          if (name !== current) {
+            current = name;
+            song = SONGS[name] ?? null;
+            step = 0;
+            nextAt = audio.currentTime + 0.05;
+          }
+          if (vol > 0) schedule();
+        } catch {
+          /* audio unavailable */
+        }
+      },
+    };
+  })();
+
+  function wantedSong() {
+    switch (state) {
+      case 'title':
+        return 'title';
+      case 'intro':
+      case 'play':
+      case 'paused':
+        if (boss) return boss.dying ? null : 'boss';
+        return 'stage' + stage;
+      case 'clear':
+        return 'clear';
+      case 'over':
+        return 'over';
+      default:
+        return null;
+    }
+  }
+
   // ---------------------------------------------------------------- input --
   const input = { up: false, down: false, left: false, right: false, fire: false };
   let autoFire = store.get('auto', true);
@@ -1028,6 +1314,7 @@
       acc -= STEP;
     }
     render();
+    music.update(wantedSong(), !soundOn || document.hidden ? 0 : state === 'paused' ? 0.35 : 1);
     requestAnimationFrame(frame);
   }
   scroll = 0;
@@ -1050,6 +1337,7 @@
     get lives() { return lives; },
     get stage() { return stage; },
     get boss() { return boss && { key: boss.key, hp: boss.hp }; },
+    get song() { return wantedSong(); },
     get foes() { return foes?.length ?? 0; },
     skipToBoss(s = stage) { stage = s; stageTime = 1e9; foes = []; foeShots = []; boss = null; },
   };
