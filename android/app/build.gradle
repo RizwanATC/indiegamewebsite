@@ -17,6 +17,14 @@ def game = (project.findProperty('game') ?: 'slime-siege').toString()
 def cfg = GAMES[game]
 if (cfg == null) throw new GradleException("Unknown game '${game}'. Pick one of: ${GAMES.keySet().join(', ')}")
 
+// The app version lives in public/play/<game>/version.json, which the website
+// also serves so installed apps can tell when a newer APK is out. game.js must
+// carry the same VERSION or the update check would misfire.
+def versionFile = file("../../public/play/${game}/version.json")
+def ver = new groovy.json.JsonSlurper().parse(versionFile)
+if (!file("../../public/play/${game}/game.js").text.contains("const VERSION = '${ver.version}'"))
+    throw new GradleException("game.js VERSION does not match ${versionFile} (${ver.version})")
+
 android {
     namespace 'com.indie24.game'
     compileSdk 35
@@ -26,8 +34,8 @@ android {
         manifestPlaceholders = [appLabel: cfg.label, orientation: cfg.orientation]
         minSdk 24
         targetSdk 35
-        versionCode Integer.parseInt(System.getenv('VERSION_CODE') ?: '1')
-        versionName '1.0.0'
+        versionCode ver.code as int
+        versionName ver.version
     }
 
     signingConfigs {

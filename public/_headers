@@ -22,3 +22,7 @@
 
 /play/*
   Cache-Control: public, max-age=0, must-revalidate
+
+# Installed Android apps read this to find newer APKs.
+/play/*/version.json
+  Access-Control-Allow-Origin: *

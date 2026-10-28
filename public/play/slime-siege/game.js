@@ -174,6 +174,32 @@
     clear: () => [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => tone(f, 120, 'triangle', 0.06), i * 120)),
   };
 
+  // -------------------------------------------------------------- version --
+  // Bump VERSION together with version.json (and upload the new APK) for each
+  // Android release. The app runs from file:// and asks the website for the
+  // latest version.json, so it can offer the newer APK on the title screen.
+  const VERSION = '1.1.0';
+  const VERSION_URL = 'https://indiegamewebsite.vercel.app/play/slime-siege/version.json';
+  let newVersion = null; // { version, apk } once a newer APK is known
+  function isNewer(a, b) {
+    const x = a.split('.').map(Number);
+    const y = b.split('.').map(Number);
+    for (let i = 0; i < 3; i++) if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) > (y[i] || 0);
+    return false;
+  }
+  if (location.protocol === 'file:') {
+    fetch(VERSION_URL, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((v) => {
+        if (v && typeof v.version === 'string' && /^https:\/\//.test(v.apk ?? '') && isNewer(v.version, VERSION)) newVersion = v;
+      })
+      .catch(() => {
+        /* offline: just play */
+      });
+  }
+  // The app opens https links in the phone's browser, which downloads the APK.
+  const openUpdate = () => (location.href = newVersion.apk);
+
   // ---------------------------------------------------------------- music --
   // Chiptune songs written as note data and played on the same audio context
   // as the sound effects, so there are no audio files to download. Each song
@@ -521,6 +547,13 @@
     if (state === 'paused') {
       pausePressed = true;
       return;
+    }
+    if (state === 'title' && newVersion) {
+      const r = canvas.getBoundingClientRect();
+      if (((e.clientY - r.top) / r.height) * H < 36) {
+        openUpdate();
+        return;
+      }
     }
     if (state !== 'play') {
       startPressed = true;
@@ -1292,6 +1325,13 @@
     if ((t >> 5) % 2 === 0) text(document.body.classList.contains('touch') ? 'TAP TO START' : 'PRESS ENTER OR SPACE', W / 2, 272, { align: 'center', scale: 1, color: '#fff6c2' });
     text(`BEST ${hiScore}`, W / 2, 292, { align: 'center', color: '#c8b49a' });
     text('A GAME BY INDIE/24', W / 2, 310, { align: 'center', color: '#c8b49a' });
+    text(`V${VERSION}`, W - 3, 3, { align: 'right', color: '#c8b49a' });
+    if (newVersion) {
+      ctx.fillStyle = '#b8323c';
+      ctx.fillRect(8, 12, W - 16, 22);
+      text(`NEW VERSION ${newVersion.version}`, W / 2, 15, { align: 'center' });
+      if ((t >> 5) % 2 === 0) text('TAP HERE TO DOWNLOAD', W / 2, 25, { align: 'center', color: '#fff6c2' });
+    }
     drawToast();
   }
 
@@ -1338,6 +1378,8 @@
     get stage() { return stage; },
     get boss() { return boss && { key: boss.key, hp: boss.hp }; },
     get song() { return wantedSong(); },
+    get version() { return VERSION; },
+    get newVersion() { return newVersion; },
     get foes() { return foes?.length ?? 0; },
     skipToBoss(s = stage) { stage = s; stageTime = 1e9; foes = []; foeShots = []; boss = null; },
   };

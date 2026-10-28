@@ -2,7 +2,10 @@ package com.indie24.game;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -10,6 +13,7 @@ import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -39,7 +43,21 @@ public class MainActivity extends Activity {
         s.setMediaPlaybackRequiresUserGesture(false);
         s.setAllowContentAccess(false);
         s.setSupportZoom(false);
-        webView.setWebViewClient(new WebViewClient()); // keep navigation inside the app
+        webView.setWebViewClient(new WebViewClient() {
+            // Game files stay inside the app; web links (the APK download)
+            // open in the phone's browser.
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                Uri uri = request.getUrl();
+                if (!"https".equals(uri.getScheme())) return false;
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, uri));
+                } catch (ActivityNotFoundException ignored) {
+                    // No browser installed: nothing to open.
+                }
+                return true;
+            }
+        });
         webView.setVerticalScrollBarEnabled(false);
         webView.setHorizontalScrollBarEnabled(false);
         setContentView(webView);

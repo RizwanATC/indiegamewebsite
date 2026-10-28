@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- No permissions: the game runs fully offline from files inside the APK. -->
+    <!-- The game runs offline from files inside the APK; internet is only used
+         to check the website for a newer version. -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
