@@ -5,7 +5,6 @@ const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
-  <div class="slot" aria-hidden="true"><span></span></div>
   <div class="container inner">
     <div class="brand">
       <Logo />
@@ -32,24 +31,10 @@ const year = new Date().getFullYear();
     background: var(--ink);
     color: #dfe4f3;
   }
-  .slot {
-    display: grid;
-    place-items: center;
-    padding-top: 28px;
-  }
-  .slot span {
-    width: 64px;
-    height: 12px;
-    border-radius: var(--radius-pill);
-    background: #0c0f22;
-    box-shadow:
-      0 0 0 4px #2b3157,
-      0 1px 0 4px rgb(255 255 255 / 0.12);
-  }
   .inner {
     display: grid;
     gap: 24px;
-    padding-block: 28px 28px;
+    padding-block: 44px 28px;
   }
   .brand p {
     margin: 16px 0 0;

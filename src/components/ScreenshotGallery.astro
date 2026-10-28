@@ -70,8 +70,18 @@ const full = await Promise.all(screenshots.map((s) => getImage({ src: s.src, wid
       box-shadow 0.25s var(--ease),
       transform 0.25s var(--ease);
   }
+  /* Portrait shots stay in one row; phones swipe through them. */
   .portrait {
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 200px));
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(140px, 200px);
+    grid-template-columns: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 4px 4px 12px;
+    margin: -4px -4px 0;
+  }
+  .portrait li {
+    scroll-snap-align: start;
   }
   .portrait li a {
     aspect-ratio: 9 / 16;

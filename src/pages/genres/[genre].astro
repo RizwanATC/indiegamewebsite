@@ -24,13 +24,17 @@ const label = genreLabel(genre!);
 ---
 
 <BaseLayout title={`${label} games`} description={`${games.length} ${label.toLowerCase()} indie ${games.length === 1 ? 'game' : 'games'} featured on ${SITE.name}.`}>
-  <section class="section">
+  <header class="band">
     <div class="container">
       <nav aria-label="Breadcrumb" class="crumbs">
         <a href="/games/">All games</a> <span aria-hidden="true">/</span> <span aria-current="page">{label}</span>
       </nav>
       <h1>{label} games</h1>
-      <p class="muted">{games.length} {games.length === 1 ? 'game' : 'games'}, newest first.</p>
+      <p class="band-lede">{games.length} {games.length === 1 ? 'game' : 'games'}, newest first.</p>
+    </div>
+  </header>
+  <section class="genre-body">
+    <div class="container">
       <div class="nav"><GenreNav genres={genres} current={genre} label="Other genres" /></div>
       <ul class="game-grid">
         {
@@ -46,15 +50,8 @@ const label = genreLabel(genre!);
 </BaseLayout>
 
 <style>
-  .crumbs {
-    margin-bottom: 20px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--ink-faint);
-  }
-  .crumbs span[aria-hidden] {
-    margin-inline: 6px;
-    color: var(--accent);
+  .genre-body {
+    padding-bottom: clamp(48px, 8vw, 88px);
   }
   .nav {
     margin: 24px 0 32px;
