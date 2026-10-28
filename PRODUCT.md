@@ -48,4 +48,4 @@ A single daily pick rather than an endless catalogue, and many picks are playabl
 4. Light and free: static, fast, no third-party scripts.
 
 ## Accessibility & Inclusion
-Keyboard-operable everywhere, visible focus, respects reduced motion, readable contrast on the dark theme. Images carry real alt text.
+Keyboard-operable everywhere, visible focus, respects reduced motion, readable contrast on the light theme. Images carry real alt text.

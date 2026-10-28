@@ -1,0 +1,565 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-28T06:13:19.221971+00:00",
+  "title": "Design System: INDIE/24",
+  "extensions": {
+    "colorMeta": {
+      "machine-red": {
+        "role": "primary",
+        "displayName": "Machine Red",
+        "canonical": "#dd2c25",
+        "tonalRamp": [
+          "#40151d",
+          "#741c20",
+          "#a82422",
+          "#dd2c25",
+          "#e6615c",
+          "#ec8b87",
+          "#f3b5b3",
+          "#fadfde"
+        ]
+      },
+      "machine-red-deep": {
+        "role": "primary",
+        "displayName": "Deep Machine Red",
+        "canonical": "#a81d18",
+        "tonalRamp": [
+          "#32111a",
+          "#5a1519",
+          "#811918",
+          "#a81d18",
+          "#be5652",
+          "#cf8380",
+          "#e1b0ae",
+          "#f2dddc"
+        ]
+      },
+      "machine-red-dark": {
+        "role": "primary",
+        "displayName": "Shadowed Red",
+        "canonical": "#7e1310",
+        "tonalRamp": [
+          "#280e18",
+          "#441015",
+          "#611212",
+          "#7e1310",
+          "#9e4e4c",
+          "#b87d7c",
+          "#d2acab",
+          "#ecdcdb"
+        ]
+      },
+      "capsule-sun": {
+        "role": "secondary",
+        "displayName": "Sunflower Capsule",
+        "canonical": "#ffc22e",
+        "tonalRamp": [
+          "#483a1f",
+          "#856824",
+          "#c29529",
+          "#ffc22e",
+          "#ffd162",
+          "#ffdd8c",
+          "#ffeab6",
+          "#fff6e0"
+        ]
+      },
+      "capsule-sky": {
+        "role": "secondary",
+        "displayName": "Sky Capsule",
+        "canonical": "#2fb0e4",
+        "tonalRamp": [
+          "#14364c",
+          "#1d5e7f",
+          "#2687b2",
+          "#2fb0e4",
+          "#63c4eb",
+          "#8dd4f0",
+          "#b6e3f6",
+          "#e0f3fb"
+        ]
+      },
+      "capsule-mint": {
+        "role": "secondary",
+        "displayName": "Mint Capsule",
+        "canonical": "#2fbf82",
+        "tonalRamp": [
+          "#143a34",
+          "#1d664e",
+          "#269268",
+          "#2fbf82",
+          "#63cfa1",
+          "#8ddcba",
+          "#b6e9d3",
+          "#e0f5ec"
+        ]
+      },
+      "capsule-gum": {
+        "role": "secondary",
+        "displayName": "Bubblegum Capsule",
+        "canonical": "#ff6fa6",
+        "tonalRamp": [
+          "#48263d",
+          "#853e60",
+          "#c25683",
+          "#ff6fa6",
+          "#ff93bc",
+          "#ffb0ce",
+          "#ffcde0",
+          "#ffe9f2"
+        ]
+      },
+      "capsule-grape": {
+        "role": "secondary",
+        "displayName": "Grape Capsule",
+        "canonical": "#8a6cf0",
+        "tonalRamp": [
+          "#2b2550",
+          "#4a3c85",
+          "#6a54ba",
+          "#8a6cf0",
+          "#a791f4",
+          "#bfaef7",
+          "#d6ccfa",
+          "#ede9fd"
+        ]
+      },
+      "capsule-coral": {
+        "role": "secondary",
+        "displayName": "Coral Capsule",
+        "canonical": "#ff8a5c",
+        "tonalRamp": [
+          "#482c2a",
+          "#854c3b",
+          "#c26b4c",
+          "#ff8a5c",
+          "#ffa785",
+          "#ffbfa5",
+          "#ffd6c6",
+          "#ffede7"
+        ]
+      },
+      "capsule-white": {
+        "role": "neutral",
+        "displayName": "Capsule White",
+        "canonical": "#edf2f8",
+        "tonalRamp": [
+          "#444652",
+          "#7c8089",
+          "#b4b9c0",
+          "#edf2f8",
+          "#f2f5fa",
+          "#f5f8fb",
+          "#f9fafd",
+          "#fcfdfe"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#484a53",
+          "#85868c",
+          "#c2c2c6",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff"
+        ]
+      },
+      "dome-glass": {
+        "role": "neutral",
+        "displayName": "Dome Glass",
+        "canonical": "#d9eef9",
+        "tonalRamp": [
+          "#3e4552",
+          "#727e8a",
+          "#a6b6c1",
+          "#d9eef9",
+          "#e2f2fa",
+          "#eaf6fc",
+          "#f2f9fd",
+          "#f9fcfe"
+        ]
+      },
+      "surface-hover": {
+        "role": "neutral",
+        "displayName": "Hover Paper",
+        "canonical": "#f5f8fc",
+        "tonalRamp": [
+          "#464852",
+          "#80828b",
+          "#babdc4",
+          "#f5f8fc",
+          "#f8fafd",
+          "#fafbfd",
+          "#fcfdfe",
+          "#fefeff"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#cdd6e3",
+        "tonalRamp": [
+          "#3c3f4c",
+          "#6c727e",
+          "#9ca4b1",
+          "#cdd6e3",
+          "#dae0ea",
+          "#e4e8f0",
+          "#eef1f5",
+          "#f8f9fb"
+        ]
+      },
+      "navy-ink": {
+        "role": "neutral",
+        "displayName": "Navy Ink",
+        "canonical": "#1a1f3d",
+        "tonalRamp": [
+          "#0f1223",
+          "#12162c",
+          "#161a34",
+          "#1a1f3d",
+          "#53576e",
+          "#818494",
+          "#afb1bb",
+          "#dddde2"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "#464e72",
+        "tonalRamp": [
+          "#1a1d30",
+          "#282e46",
+          "#373e5c",
+          "#464e72",
+          "#747a95",
+          "#999eb1",
+          "#bec1ce",
+          "#e3e4ea"
+        ]
+      },
+      "ink-faint": {
+        "role": "neutral",
+        "displayName": "Faint Ink",
+        "canonical": "#5f6789",
+        "tonalRamp": [
+          "#202436",
+          "#353a52",
+          "#4a506d",
+          "#5f6789",
+          "#878da6",
+          "#a7abbe",
+          "#c7cad6",
+          "#e7e8ed"
+        ]
+      },
+      "warn": {
+        "role": "status",
+        "displayName": "Warning Amber",
+        "canonical": "#8a4b00",
+        "tonalRamp": [
+          "#2b1c14",
+          "#4a2c0d",
+          "#6a3c06",
+          "#8a4b00",
+          "#a77840",
+          "#bf9c73",
+          "#d6c0a6",
+          "#ede4d9"
+        ]
+      },
+      "warn-soft": {
+        "role": "status",
+        "displayName": "Warning Wash",
+        "canonical": "#fff1c9",
+        "tonalRamp": [
+          "#484646",
+          "#857f72",
+          "#c2b89d",
+          "#fff1c9",
+          "#fff4d6",
+          "#fff7e1",
+          "#fffaec",
+          "#fffdf7"
+        ]
+      },
+      "ok": {
+        "role": "status",
+        "displayName": "Go Green",
+        "canonical": "#1d7a52",
+        "tonalRamp": [
+          "#102828",
+          "#144436",
+          "#185f44",
+          "#1d7a52",
+          "#569b7d",
+          "#83b6a0",
+          "#b0d0c2",
+          "#ddebe5"
+        ]
+      },
+      "danger": {
+        "role": "status",
+        "displayName": "Stop Red",
+        "canonical": "#b4231d",
+        "tonalRamp": [
+          "#35121b",
+          "#60181c",
+          "#8a1e1c",
+          "#b4231d",
+          "#c75a56",
+          "#d68683",
+          "#e5b2b0",
+          "#f4dedd"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Page h1, machine wordmark (up to 4.2rem) and featured title."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section heads."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card titles and h3."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text; prose capped at 68ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Field and filter labels, badges (0.78rem), dates."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Code and file details only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "moulded",
+        "value": "0 1px 2px -1px rgb(255 255 255 / 0.7) inset, 0 10px 24px -12px rgb(26 31 61 / 0.35)",
+        "purpose": "Cards, panels, screenshots at rest."
+      },
+      {
+        "name": "moulded-lift",
+        "value": "0 1px 2px -1px rgb(255 255 255 / 0.7) inset, 0 18px 32px -14px rgb(26 31 61 / 0.42)",
+        "purpose": "Same objects on hover or focus-within."
+      },
+      {
+        "name": "button-pill",
+        "value": "0 2px 4px -2px rgb(255 255 255 / 0.55) inset, 0 -3px 6px -3px rgb(26 31 61 / 0.12) inset, 0 6px 14px -8px rgb(26 31 61 / 0.45)",
+        "purpose": "Filled buttons at rest."
+      },
+      {
+        "name": "cabinet",
+        "value": "0 3px 6px -3px rgb(255 255 255 / 0.28) inset, 0 -8px 16px -8px rgb(0 0 0 / 0.16) inset, 0 30px 50px -30px rgb(126 19 16 / 0.7)",
+        "purpose": "The red machine body."
+      },
+      {
+        "name": "recess",
+        "value": "0 10px 16px -6px rgb(0 0 0 / 0.55) inset, 0 2px 0 rgb(255 255 255 / 0.2)",
+        "purpose": "The dispensing tray."
+      },
+      {
+        "name": "focus-ring-field",
+        "value": "0 0 0 4px rgb(47 176 228 / 0.45)",
+        "purpose": "Input focus."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "All state transitions and the load animations."
+      },
+      {
+        "name": "press",
+        "value": "0.2s",
+        "purpose": "Buttons and chips lift and press."
+      },
+      {
+        "name": "card-lift",
+        "value": "0.3s",
+        "purpose": "Card lift and tilt on hover."
+      },
+      {
+        "name": "capsule-drop",
+        "value": "0.9s, 0.35s delay",
+        "purpose": "Today's capsule drops into the tray on first load."
+      },
+      {
+        "name": "knob-turn",
+        "value": "0.9s, 0.2s delay",
+        "purpose": "Knob grip turns in on load; 0.5s 90deg on hover."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.01ms",
+        "purpose": "All animation and transition collapsed under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "xs",
+        "value": "420px"
+      },
+      {
+        "name": "sm",
+        "value": "480px"
+      },
+      {
+        "name": "header-search",
+        "value": "860px"
+      },
+      {
+        "name": "machine-two-column",
+        "value": "900px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Machine-red moulded pill for the one main action (Play Now).",
+      "html": "<a class=\"ds-btn ds-btn-primary\" href=\"#\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z\"/></svg> Play Now</a>",
+      "css": ".ds-btn { --btn-bg: var(--paper, #fff); --btn-fg: var(--ink, #1a1f3d); --btn-border: var(--ink, #1a1f3d); display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 50px; padding: 12px 24px; border: 2px solid var(--btn-border); border-radius: 999px; background: var(--btn-bg); color: var(--btn-fg); font: 700 1rem/1.2 'Zen Kaku Gothic New', system-ui, sans-serif; text-decoration: none; cursor: pointer; box-shadow: 0 2px 4px -2px rgb(255 255 255 / 0.55) inset, 0 -3px 6px -3px rgb(26 31 61 / 0.12) inset, 0 6px 14px -8px rgb(26 31 61 / 0.45); transition: transform 0.2s cubic-bezier(0.16,1,0.3,1), box-shadow 0.2s cubic-bezier(0.16,1,0.3,1), background-color 0.2s cubic-bezier(0.16,1,0.3,1); } .ds-btn:hover { transform: translateY(-2px); box-shadow: 0 2px 4px -2px rgb(255 255 255 / 0.55) inset, 0 -3px 6px -3px rgb(26 31 61 / 0.12) inset, 0 12px 20px -10px rgb(26 31 61 / 0.5); } .ds-btn:active { transform: translateY(1px); box-shadow: 0 2px 4px -2px rgb(26 31 61 / 0.15) inset, 0 2px 6px -4px rgb(26 31 61 / 0.4); } .ds-btn:focus-visible { outline: 3px solid #2fb0e4; outline-offset: 3px; } .ds-btn-primary { --btn-bg: #dd2c25; --btn-fg: #fff; --btn-border: #7e1310; } .ds-btn-primary:hover { background: #e8372f; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Paper pill with navy outline for secondary actions (Download).",
+      "html": "<a class=\"ds-btn\" href=\"#\">Download APK</a>",
+      "css": ".ds-btn { --btn-bg: var(--paper, #fff); --btn-fg: var(--ink, #1a1f3d); --btn-border: var(--ink, #1a1f3d); display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 50px; padding: 12px 24px; border: 2px solid var(--btn-border); border-radius: 999px; background: var(--btn-bg); color: var(--btn-fg); font: 700 1rem/1.2 'Zen Kaku Gothic New', system-ui, sans-serif; text-decoration: none; cursor: pointer; box-shadow: 0 2px 4px -2px rgb(255 255 255 / 0.55) inset, 0 -3px 6px -3px rgb(26 31 61 / 0.12) inset, 0 6px 14px -8px rgb(26 31 61 / 0.45); transition: transform 0.2s cubic-bezier(0.16,1,0.3,1), box-shadow 0.2s cubic-bezier(0.16,1,0.3,1), background-color 0.2s cubic-bezier(0.16,1,0.3,1); } .ds-btn:hover { transform: translateY(-2px); box-shadow: 0 2px 4px -2px rgb(255 255 255 / 0.55) inset, 0 -3px 6px -3px rgb(26 31 61 / 0.12) inset, 0 12px 20px -10px rgb(26 31 61 / 0.5); } .ds-btn:active { transform: translateY(1px); box-shadow: 0 2px 4px -2px rgb(26 31 61 / 0.15) inset, 0 2px 6px -4px rgb(26 31 61 / 0.4); } .ds-btn:focus-visible { outline: 3px solid #2fb0e4; outline-offset: 3px; } "
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Outline-only pill for navigation-style actions (Game details, View all).",
+      "html": "<a class=\"ds-btn ds-btn-ghost\" href=\"#\">Game details <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14m-5-5 5 5-5 5\"/></svg></a>",
+      "css": ".ds-btn { --btn-bg: var(--paper, #fff); --btn-fg: var(--ink, #1a1f3d); --btn-border: var(--ink, #1a1f3d); display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 50px; padding: 12px 24px; border: 2px solid var(--btn-border); border-radius: 999px; background: var(--btn-bg); color: var(--btn-fg); font: 700 1rem/1.2 'Zen Kaku Gothic New', system-ui, sans-serif; text-decoration: none; cursor: pointer; box-shadow: 0 2px 4px -2px rgb(255 255 255 / 0.55) inset, 0 -3px 6px -3px rgb(26 31 61 / 0.12) inset, 0 6px 14px -8px rgb(26 31 61 / 0.45); transition: transform 0.2s cubic-bezier(0.16,1,0.3,1), box-shadow 0.2s cubic-bezier(0.16,1,0.3,1), background-color 0.2s cubic-bezier(0.16,1,0.3,1); } .ds-btn:hover { transform: translateY(-2px); box-shadow: 0 2px 4px -2px rgb(255 255 255 / 0.55) inset, 0 -3px 6px -3px rgb(26 31 61 / 0.12) inset, 0 12px 20px -10px rgb(26 31 61 / 0.5); } .ds-btn:active { transform: translateY(1px); box-shadow: 0 2px 4px -2px rgb(26 31 61 / 0.15) inset, 0 2px 6px -4px rgb(26 31 61 / 0.4); } .ds-btn:focus-visible { outline: 3px solid #2fb0e4; outline-offset: 3px; } .ds-btn-ghost { --btn-bg: transparent; --btn-border: rgb(26 31 61 / 0.35); box-shadow: none; } .ds-btn-ghost:hover { --btn-border: #1a1f3d; background: #fff; box-shadow: 0 8px 16px -10px rgb(26 31 61 / 0.4); }"
+    },
+    {
+      "name": "Knob Button",
+      "kind": "custom",
+      "refersTo": "button-primary",
+      "description": "Hero Play Now: the primary pill with a turning sunflower grip disc.",
+      "html": "<a class=\"ds-btn ds-btn-primary ds-knob\" href=\"#\"><span class=\"ds-knob-face\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z\"/></svg></span> Play Now</a>",
+      "css": ".ds-btn { --btn-bg: var(--paper, #fff); --btn-fg: var(--ink, #1a1f3d); --btn-border: var(--ink, #1a1f3d); display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 50px; padding: 12px 24px; border: 2px solid var(--btn-border); border-radius: 999px; background: var(--btn-bg); color: var(--btn-fg); font: 700 1rem/1.2 'Zen Kaku Gothic New', system-ui, sans-serif; text-decoration: none; cursor: pointer; box-shadow: 0 2px 4px -2px rgb(255 255 255 / 0.55) inset, 0 -3px 6px -3px rgb(26 31 61 / 0.12) inset, 0 6px 14px -8px rgb(26 31 61 / 0.45); transition: transform 0.2s cubic-bezier(0.16,1,0.3,1), box-shadow 0.2s cubic-bezier(0.16,1,0.3,1), background-color 0.2s cubic-bezier(0.16,1,0.3,1); } .ds-btn:hover { transform: translateY(-2px); box-shadow: 0 2px 4px -2px rgb(255 255 255 / 0.55) inset, 0 -3px 6px -3px rgb(26 31 61 / 0.12) inset, 0 12px 20px -10px rgb(26 31 61 / 0.5); } .ds-btn:active { transform: translateY(1px); box-shadow: 0 2px 4px -2px rgb(26 31 61 / 0.15) inset, 0 2px 6px -4px rgb(26 31 61 / 0.4); } .ds-btn:focus-visible { outline: 3px solid #2fb0e4; outline-offset: 3px; } .ds-btn-primary { --btn-bg: #dd2c25; --btn-fg: #fff; --btn-border: #7e1310; } .ds-knob { min-height: 60px; padding: 8px 28px 8px 8px; font-size: 1.15rem; } .ds-knob-face { position: relative; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; color: #1a1f3d; } .ds-knob-face::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, #ffc22e 0 15px, transparent 15.5px), repeating-conic-gradient(#ffc22e 0 18deg, #e0a514 18deg 30deg); box-shadow: 0 2px 4px -2px rgb(255 255 255 / 0.6) inset, 0 0 0 2px rgb(126 19 16 / 0.35); transition: rotate 0.5s cubic-bezier(0.16,1,0.3,1); } .ds-knob-face svg { position: relative; margin-left: 3px; } .ds-knob:hover .ds-knob-face::before, .ds-knob:focus-visible .ds-knob-face::before { rotate: 90deg; }"
+    },
+    {
+      "name": "Capsule Chip",
+      "kind": "chip",
+      "refersTo": "chip-capsule",
+      "description": "Genre or platform filter shaped like a capsule on its side; colour comes from the capsule hash.",
+      "html": "<a class=\"ds-chip\" style=\"--cap:#2fbf82\" href=\"#\">Arcade <span class=\"ds-count\">3</span></a> <a class=\"ds-chip\" style=\"--cap:#8a6cf0\" aria-current=\"page\" href=\"#\">Puzzle <span class=\"ds-count\">2</span></a>",
+      "css": ".ds-chip { --cap: #2fb0e4; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 16px 8px 8px; border: 2px solid #1a1f3d; border-radius: 999px; background: linear-gradient(90deg, var(--cap) 0 36px, #fff 36px); color: #1a1f3d; font: 700 0.95rem/1.2 'Zen Kaku Gothic New', system-ui, sans-serif; text-decoration: none; box-shadow: 0 6px 12px -9px rgb(26 31 61 / 0.6); transition: transform 0.2s cubic-bezier(0.16,1,0.3,1), box-shadow 0.2s cubic-bezier(0.16,1,0.3,1); } .ds-chip::before { content: ''; flex: none; width: 22px; height: 22px; margin-left: 2px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgb(255 255 255 / 0.9) 0 3px, transparent 4px); } .ds-chip:hover, .ds-chip[aria-current='page'] { transform: translateY(-2px); box-shadow: 0 10px 16px -10px rgb(26 31 61 / 0.6); } .ds-chip[aria-current='page'] { background: linear-gradient(90deg, var(--cap) 0 36px, #ffc22e 36px); } .ds-chip:focus-visible { outline: 3px solid #2fb0e4; outline-offset: 3px; } .ds-count { font-size: 0.78rem; color: #5f6789; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Search Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Pill field with navy outline and a sky focus ring.",
+      "html": "<input class=\"ds-input\" type=\"search\" placeholder=\"Search by title...\">",
+      "css": ".ds-input { width: 100%; min-height: 50px; padding: 10px 18px; border: 2px solid #1a1f3d; border-radius: 999px; background: #fff; color: #1a1f3d; font: 400 1rem 'Zen Kaku Gothic New', system-ui, sans-serif; box-shadow: 0 3px 6px -3px rgb(26 31 61 / 0.08) inset; transition: box-shadow 0.15s; } .ds-input::placeholder { color: #5f6789; } .ds-input:focus { outline: none; box-shadow: 0 3px 6px -3px rgb(26 31 61 / 0.08) inset, 0 0 0 4px rgb(47 176 228 / 0.45); }"
+    },
+    {
+      "name": "Header Navigation",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Paper header bar: red logo pill, pill nav links, sunflower current page.",
+      "html": "<header class=\"ds-header\"><a class=\"ds-logo\" href=\"#\">INDIE<span>/</span>24</a><nav><a href=\"#\" aria-current=\"page\">Today</a><a href=\"#\">All games</a><a href=\"#\">About</a></nav></header>",
+      "css": ".ds-header { display: flex; align-items: center; gap: 24px; min-height: 68px; padding: 10px 24px; background: #fff; border-bottom: 2px solid #1a1f3d; } .ds-logo { display: inline-flex; padding: 7px 14px 6px; border-radius: 999px; background: #dd2c25; color: #fff; font: 400 1.05rem/1 'Dela Gothic One', sans-serif; text-decoration: none; box-shadow: 0 2px 4px -2px rgb(255 255 255 / 0.35) inset, 0 -3px 6px -3px rgb(0 0 0 / 0.18) inset; } .ds-logo span { color: #ffc22e; } .ds-header nav { display: flex; gap: 4px; margin-left: auto; } .ds-header nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 999px; color: #1a1f3d; font: 700 0.95rem 'Zen Kaku Gothic New', system-ui, sans-serif; text-decoration: none; transition: background-color 0.15s; } .ds-header nav a:hover { background: #edf2f8; } .ds-header nav a[aria-current='page'] { background: #ffc22e; } .ds-header a:focus-visible { outline: 3px solid #2fb0e4; outline-offset: 3px; }"
+    },
+    {
+      "name": "Capsule Game Card",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Each past pick as an upright capsule: coloured arched dome over a paper base.",
+      "html": "<article class=\"ds-card\" style=\"--cap:#ffc22e\"><div class=\"ds-card-media\"><div class=\"ds-card-art\"></div></div><div class=\"ds-card-body\"><p class=\"ds-card-date\">Oct 25, 2026</p><h3 class=\"ds-card-title\"><a href=\"#\">Moss &amp; Rust</a></h3><p class=\"ds-card-desc\">A small knight explores an overgrown machine city.</p><span class=\"ds-badge\">Platformer</span></div></article>",
+      "css": ".ds-card { --cap: #2fb0e4; position: relative; display: flex; flex-direction: column; max-width: 340px; border: 2px solid #1a1f3d; border-radius: 140px 140px 26px 26px / 96px 96px 26px 26px; background: #fff; overflow: hidden; box-shadow: 0 1px 2px -1px rgb(255 255 255 / 0.7) inset, 0 10px 24px -12px rgb(26 31 61 / 0.35); transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s cubic-bezier(0.16,1,0.3,1); } .ds-card:hover, .ds-card:focus-within { transform: translateY(-5px) rotate(-0.6deg); box-shadow: 0 1px 2px -1px rgb(255 255 255 / 0.7) inset, 0 18px 32px -14px rgb(26 31 61 / 0.42); } .ds-card-media { padding: 12px 12px 0; background: radial-gradient(60% 40% at 30% 12%, rgb(255 255 255 / 0.55), transparent 70%), var(--cap); border-bottom: 2px solid #1a1f3d; } .ds-card-art { aspect-ratio: 16 / 10; border-radius: 120px 120px 0 0 / 80px 80px 0 0; background: linear-gradient(#1d2a3a, #2f4a3a); } .ds-card-body { padding: 16px 20px 20px; } .ds-card-date { margin: 0 0 4px; font: 700 0.8rem 'Zen Kaku Gothic New', system-ui, sans-serif; color: #5f6789; } .ds-card-title { margin: 0 0 8px; font: 400 1.2rem/1.15 'Dela Gothic One', sans-serif; } .ds-card-title a { color: #1a1f3d; text-decoration: none; } .ds-card-title a:focus-visible { outline: 3px solid #2fb0e4; outline-offset: 3px; } .ds-card-desc { margin: 0 0 14px; font: 400 0.95rem/1.65 'Zen Kaku Gothic New', system-ui, sans-serif; color: #464e72; } .ds-badge { display: inline-flex; padding: 3px 11px; border: 1.5px solid rgb(26 31 61 / 0.2); border-radius: 999px; font: 700 0.78rem/1.5 'Zen Kaku Gothic New', system-ui, sans-serif; color: #464e72; background: #fff; }"
+    },
+    {
+      "name": "Info Notice",
+      "kind": "custom",
+      "refersTo": "notice",
+      "description": "Dome-glass note for context; warn-soft variant for unverified downloads.",
+      "html": "<div class=\"ds-notice\"><strong>Heads up.</strong> Downloads come from the developer's official release page.</div>",
+      "css": ".ds-notice { display: flex; gap: 12px; padding: 14px 18px; border-radius: 12px; background: #d9eef9; color: #464e72; font: 400 0.95rem/1.65 'Zen Kaku Gothic New', system-ui, sans-serif; } .ds-notice strong { color: #1a1f3d; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Capsule Machine",
+    "overview": "INDIE/24 is a capsule-toy machine that dispenses one game a day. Machine-red bodywork owns whole bands; a cool capsule-white ground sits behind it; clear dome windows with a pale glass sheen hold the game art; capsule colours mark genres; deep navy ink draws every outline and line of text. Everything a visitor touches is moulded plastic: pills, domes, knobs and stickers with a lit top edge and a soft drop beneath.\n\nThe system is bright, toy-like and tactile, but it is still a reading and playing surface: the type workhorse is a plain Japanese gothic, the ground is calm, and colour is spent on objects (capsules, chips, the machine) rather than on page backgrounds. It refuses the category default of a near-black page with a neon accent and a split hero over a row of equal cards.",
+    "keyCharacteristics": [
+      "Red machine bodywork as a full-width band, not as a thin accent.",
+      "Two-tone capsules: a coloured half and a white half, used for chips, cards and the dispensed capsule.",
+      "2px navy ink outlines on every interactive object.",
+      "Moulded-plastic depth: inset highlight on top, soft navy-tinted drop below.",
+      "Arched dome silhouettes frame game art.",
+      "Heavy toy-packaging display type over a quiet gothic body."
+    ],
+    "rules": [
+      {
+        "name": "The Bodywork Rule",
+        "body": "Machine red appears as a whole object (cabinet, player housing, logo, primary button), never as a thin stripe or text highlight on the page ground.",
+        "section": "colors"
+      },
+      {
+        "name": "The Hashed Capsule Rule",
+        "body": "Capsule colour comes from the genre or platform key through the stable hash, never picked by hand per page.",
+        "section": "colors"
+      },
+      {
+        "name": "The Sunflower Means Now Rule",
+        "body": "Sunflower marks the current or selected thing: today's sticker, the active nav item, the active chip, the knob.",
+        "section": "colors"
+      },
+      {
+        "name": "The Weight-Lives-In-The-Face Rule",
+        "body": "Display type is always weight 400; Dela Gothic One is already heavy. h4 and labels switch to the body face at 700.",
+        "section": "typography"
+      },
+      {
+        "name": "The Headings Speak Alone Rule",
+        "body": "Headings carry their own weight; no small label line sits above them.",
+        "section": "typography"
+      },
+      {
+        "name": "The Lit Top Edge Rule",
+        "body": "A raised object gets a white inset highlight above and a soft tinted drop below; never a flat offset block.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** give every interactive object a 2px navy ink outline and a pill or dome shape.",
+      "**Do** colour genres and platforms through the stable capsule hash.",
+      "**Do** use the moulded shadow pair (white inset highlight plus soft navy drop) for anything raised.",
+      "**Do** reserve sunflower for the current, selected or today state.",
+      "**Do** keep display type at weight 400 and body copy in Zen Kaku Gothic New.",
+      "**Do** show focus with the sky outline (3px, 3px offset) or the 4px sky ring on fields."
+    ],
+    "donts": [
+      "**Don't** set the page on a dark or near-black ground with a neon accent.",
+      "**Don't** use hard, unblurred offset shadows.",
+      "**Don't** put small label lines (eyebrows) above headings.",
+      "**Don't** use the pixel face (Press Start 2P) for site UI; it belongs to the games' own art.",
+      "**Don't** use machine red as a thin decorative stripe on the page ground."
+    ]
+  }
+}
