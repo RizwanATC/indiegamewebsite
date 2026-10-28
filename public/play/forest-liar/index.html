@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#13202a" />
+    <title>Forest Liar</title>
+    <link rel="stylesheet" href="style.css?v=1" />
+  </head>
+  <body>
+    <div id="screen">
+      <canvas id="game" tabindex="0" aria-label="Forest Liar, a comedy trap platformer. A or Left and D or Right walk, Space, W or Up jumps, R restarts, P or Escape pauses, M mutes. Menus use the arrow keys and Enter."></canvas>
+    </div>
+    <div id="hud" hidden>
+      <button id="b-sound" type="button" aria-label="Sound on or off"><img src="assets/ui/icon_music.png" alt="" /></button>
+      <button id="b-full" type="button" aria-label="Fullscreen" hidden><img src="assets/ui/icon_full.png" alt="" /></button>
+      <button id="b-restart" type="button" aria-label="Restart level"><img src="assets/ui/icon_restart.png" alt="" /></button>
+      <button id="b-pause" type="button" aria-label="Pause"><img src="assets/ui/icon_pause.png" alt="" /></button>
+    </div>
+    <div id="pad" role="group" aria-label="Touch controls" hidden>
+      <div id="t-move" aria-label="Move left or right"><img src="assets/ui/dpad.png" alt="" /></div>
+      <div id="t-jump" aria-label="Jump"><img src="assets/ui/jump.png" alt="" /></div>
+    </div>
+    <div id="rotate" hidden>
+      <span>Rotate your phone for the best view</span>
+      <button type="button" aria-label="Dismiss">✕</button>
+    </div>
+    <script src="assets/atlas.js?v=1"></script>
+    <script src="levels.js?v=1"></script>
+    <script src="game.js?v=1"></script>
+  </body>
+</html>

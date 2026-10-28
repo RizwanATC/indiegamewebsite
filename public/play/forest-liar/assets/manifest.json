@@ -1,0 +1,1102 @@
+{
+ "source": "art/forest-liar/forest_liar_asset_sheet.png",
+ "scale": 0.44,
+ "sprites": {
+  "pip_idle": {
+   "region": [
+    483,
+    71,
+    49,
+    67
+   ],
+   "file": "atlas.png",
+   "rect": [
+    121,
+    182,
+    20,
+    28
+   ]
+  },
+  "pip_walk": {
+   "region": [
+    553,
+    71,
+    50,
+    67
+   ],
+   "file": "atlas.png",
+   "rect": [
+    210,
+    182,
+    20,
+    27
+   ]
+  },
+  "pip_run": {
+   "region": [
+    616,
+    74,
+    50,
+    64
+   ],
+   "file": "atlas.png",
+   "rect": [
+    249,
+    182,
+    20,
+    26
+   ]
+  },
+  "pip_run2": {
+   "region": [
+    676,
+    76,
+    49,
+    62
+   ],
+   "file": "atlas.png",
+   "rect": [
+    352,
+    182,
+    20,
+    25
+   ]
+  },
+  "pip_jump": {
+   "region": [
+    736,
+    75,
+    51,
+    61
+   ],
+   "file": "atlas.png",
+   "rect": [
+    373,
+    182,
+    20,
+    25
+   ]
+  },
+  "pip_fall": {
+   "region": [
+    800,
+    57,
+    48,
+    64
+   ],
+   "file": "atlas.png",
+   "rect": [
+    270,
+    182,
+    19,
+    26
+   ]
+  },
+  "pip_stride": {
+   "region": [
+    861,
+    70,
+    48,
+    63
+   ],
+   "file": "atlas.png",
+   "rect": [
+    290,
+    182,
+    19,
+    26
+   ]
+  },
+  "pip_hurt": {
+   "region": [
+    1068,
+    79,
+    36,
+    59
+   ],
+   "file": "atlas.png",
+   "rect": [
+    441,
+    182,
+    14,
+    24
+   ]
+  },
+  "pip_die": {
+   "region": [
+    1113,
+    106,
+    63,
+    31
+   ],
+   "file": "atlas.png",
+   "rect": [
+    155,
+    243,
+    26,
+    11
+   ]
+  },
+  "star": {
+   "region": [
+    1470,
+    60,
+    39,
+    41
+   ],
+   "file": "atlas.png",
+   "rect": [
+    488,
+    218,
+    15,
+    16
+   ]
+  },
+  "shroom_bonus": {
+   "region": [
+    1241,
+    144,
+    48,
+    50
+   ],
+   "file": "atlas.png",
+   "rect": [
+    266,
+    218,
+    19,
+    20
+   ]
+  },
+  "heart": {
+   "region": [
+    1349,
+    62,
+    42,
+    39
+   ],
+   "file": "atlas.png",
+   "rect": [
+    30,
+    243,
+    17,
+    15
+   ]
+  },
+  "key": {
+   "region": [
+    1414,
+    61,
+    34,
+    40
+   ],
+   "file": "atlas.png",
+   "rect": [
+    0,
+    243,
+    13,
+    16
+   ]
+  },
+  "gem": {
+   "region": [
+    1282,
+    61,
+    40,
+    40
+   ],
+   "file": "atlas.png",
+   "rect": [
+    48,
+    243,
+    15,
+    15
+   ]
+  },
+  "shroom_face": {
+   "region": [
+    834,
+    254,
+    48,
+    58
+   ],
+   "file": "atlas.png",
+   "rect": [
+    100,
+    218,
+    19,
+    23
+   ]
+  },
+  "slime": {
+   "region": [
+    610,
+    276,
+    52,
+    36
+   ],
+   "file": "atlas.png",
+   "rect": [
+    79,
+    243,
+    21,
+    14
+   ]
+  },
+  "snail": {
+   "region": [
+    899,
+    266,
+    56,
+    45
+   ],
+   "file": "atlas.png",
+   "rect": [
+    348,
+    218,
+    22,
+    18
+   ]
+  },
+  "bee": {
+   "region": [
+    1132,
+    257,
+    41,
+    43
+   ],
+   "file": "atlas.png",
+   "rect": [
+    422,
+    218,
+    16,
+    17
+   ]
+  },
+  "tree_face": {
+   "region": [
+    600,
+    390,
+    104,
+    98
+   ],
+   "file": "atlas.png",
+   "rect": [
+    464,
+    116,
+    44,
+    41
+   ]
+  },
+  "walking_log": {
+   "region": [
+    705,
+    436,
+    65,
+    51
+   ],
+   "file": "atlas.png",
+   "rect": [
+    216,
+    218,
+    27,
+    21
+   ]
+  },
+  "ghost_leaf": {
+   "region": [
+    973,
+    401,
+    42,
+    65
+   ],
+   "file": "atlas.png",
+   "rect": [
+    231,
+    182,
+    17,
+    27
+   ]
+  },
+  "boss_tree": {
+   "region": [
+    1033,
+    363,
+    150,
+    136
+   ],
+   "file": "atlas.png",
+   "rect": [
+    369,
+    116,
+    64,
+    58
+   ]
+  },
+  "spikes": {
+   "region": [
+    1218,
+    320,
+    63,
+    43
+   ],
+   "file": "atlas.png",
+   "rect": [
+    439,
+    218,
+    26,
+    17
+   ]
+  },
+  "log_plank": {
+   "region": [
+    1294,
+    314,
+    59,
+    37
+   ],
+   "file": "atlas.png",
+   "rect": [
+    101,
+    243,
+    24,
+    14
+   ]
+  },
+  "crush_block": {
+   "region": [
+    1368,
+    296,
+    61,
+    63
+   ],
+   "file": "atlas.png",
+   "rect": [
+    310,
+    182,
+    25,
+    26
+   ]
+  },
+  "arrow": {
+   "region": [
+    1221,
+    439,
+    69,
+    34
+   ],
+   "file": "atlas.png",
+   "rect": [
+    126,
+    243,
+    28,
+    13
+   ]
+  },
+  "fire": {
+   "region": [
+    1397,
+    436,
+    39,
+    63
+   ],
+   "file": "atlas.png",
+   "rect": [
+    336,
+    182,
+    15,
+    26
+   ]
+  },
+  "poison": {
+   "region": [
+    1458,
+    452,
+    52,
+    47
+   ],
+   "file": "atlas.png",
+   "rect": [
+    182,
+    243,
+    21,
+    11
+   ]
+  },
+  "tree_round": {
+   "region": [
+    778,
+    597,
+    151,
+    176
+   ],
+   "file": "atlas.png",
+   "rect": [
+    407,
+    0,
+    64,
+    76
+   ]
+  },
+  "tree_pine": {
+   "region": [
+    940,
+    580,
+    110,
+    153
+   ],
+   "file": "atlas.png",
+   "rect": [
+    0,
+    116,
+    47,
+    65
+   ]
+  },
+  "tree_tall": {
+   "region": [
+    1057,
+    590,
+    115,
+    182
+   ],
+   "file": "atlas.png",
+   "rect": [
+    357,
+    0,
+    49,
+    77
+   ]
+  },
+  "stump": {
+   "region": [
+    1172,
+    615,
+    101,
+    84
+   ],
+   "file": "atlas.png",
+   "rect": [
+    0,
+    182,
+    43,
+    35
+   ]
+  },
+  "sign": {
+   "region": [
+    1291,
+    607,
+    74,
+    45
+   ],
+   "file": "atlas.png",
+   "rect": [
+    371,
+    218,
+    31,
+    18
+   ]
+  },
+  "fence": {
+   "region": [
+    1393,
+    608,
+    104,
+    75
+   ],
+   "file": "atlas.png",
+   "rect": [
+    76,
+    182,
+    44,
+    29
+   ]
+  },
+  "bush": {
+   "region": [
+    886,
+    714,
+    87,
+    57
+   ],
+   "file": "atlas.png",
+   "rect": [
+    120,
+    218,
+    36,
+    23
+   ]
+  },
+  "shroom_small": {
+   "region": [
+    1016,
+    724,
+    36,
+    47
+   ],
+   "file": "atlas.png",
+   "rect": [
+    319,
+    218,
+    14,
+    19
+   ]
+  },
+  "shroom_tiny": {
+   "region": [
+    1362,
+    712,
+    35,
+    38
+   ],
+   "file": "atlas.png",
+   "rect": [
+    64,
+    243,
+    14,
+    15
+   ]
+  },
+  "rock": {
+   "region": [
+    1160,
+    711,
+    106,
+    60
+   ],
+   "file": "atlas.png",
+   "rect": [
+    394,
+    182,
+    46,
+    25
+   ]
+  },
+  "flower": {
+   "region": [
+    1415,
+    720,
+    52,
+    51
+   ],
+   "file": "atlas.png",
+   "rect": [
+    244,
+    218,
+    21,
+    21
+   ]
+  },
+  "grass1": {
+   "region": [
+    1280,
+    681,
+    39,
+    24
+   ],
+   "file": "atlas.png",
+   "rect": [
+    245,
+    243,
+    15,
+    9
+   ]
+  },
+  "grass2": {
+   "region": [
+    1325,
+    683,
+    38,
+    22
+   ],
+   "file": "atlas.png",
+   "rect": [
+    290,
+    243,
+    15,
+    7
+   ]
+  },
+  "grass3": {
+   "region": [
+    1468,
+    743,
+    42,
+    28
+   ],
+   "file": "atlas.png",
+   "rect": [
+    204,
+    243,
+    17,
+    11
+   ]
+  },
+  "plant": {
+   "region": [
+    1278,
+    722,
+    34,
+    49
+   ],
+   "file": "atlas.png",
+   "rect": [
+    334,
+    218,
+    13,
+    19
+   ]
+  },
+  "vine": {
+   "region": [
+    350,
+    410,
+    70,
+    120
+   ],
+   "file": "atlas.png",
+   "rect": [
+    434,
+    116,
+    29,
+    52
+   ]
+  },
+  "pine_small": {
+   "region": [
+    431,
+    387,
+    53,
+    143
+   ],
+   "file": "atlas.png",
+   "rect": [
+    48,
+    116,
+    22,
+    61
+   ]
+  },
+  "tuft": {
+   "region": [
+    498,
+    503,
+    53,
+    27
+   ],
+   "file": "atlas.png",
+   "rect": [
+    222,
+    243,
+    22,
+    10
+   ]
+  },
+  "logo": {
+   "region": [
+    22,
+    16,
+    434,
+    94
+   ],
+   "file": "atlas.png",
+   "rect": [
+    71,
+    116,
+    297,
+    59
+   ]
+  },
+  "fx_dust": {
+   "region": [
+    1303,
+    833,
+    110,
+    67
+   ],
+   "file": "atlas.png",
+   "rect": [
+    142,
+    182,
+    46,
+    28
+   ]
+  },
+  "fx_spark": {
+   "region": [
+    1228,
+    844,
+    41,
+    53
+   ],
+   "file": "atlas.png",
+   "rect": [
+    157,
+    218,
+    16,
+    22
+   ]
+  },
+  "fx_leaf": {
+   "region": [
+    1346,
+    934,
+    52,
+    43
+   ],
+   "file": "atlas.png",
+   "rect": [
+    466,
+    218,
+    21,
+    17
+   ]
+  },
+  "fx_burst": {
+   "region": [
+    1430,
+    917,
+    74,
+    73
+   ],
+   "file": "atlas.png",
+   "rect": [
+    44,
+    182,
+    31,
+    30
+   ]
+  },
+  "fx_slash": {
+   "region": [
+    1099,
+    845,
+    97,
+    56
+   ],
+   "file": "atlas.png",
+   "rect": [
+    174,
+    218,
+    41,
+    22
+   ]
+  },
+  "tile_grass": {
+   "region": [
+    30,
+    241,
+    49,
+    49
+   ],
+   "file": "atlas.png",
+   "rect": [
+    456,
+    182,
+    24,
+    24
+   ]
+  },
+  "tile_dirt": {
+   "region": [
+    162,
+    324,
+    36,
+    36
+   ],
+   "file": "atlas.png",
+   "rect": [
+    481,
+    182,
+    24,
+    24
+   ]
+  },
+  "tile_dirt2": {
+   "region": [
+    31,
+    266,
+    46,
+    26
+   ],
+   "file": "atlas.png",
+   "rect": [
+    0,
+    218,
+    24,
+    24
+   ]
+  },
+  "tile_stone_top": {
+   "region": [
+    362,
+    289,
+    46,
+    46
+   ],
+   "file": "atlas.png",
+   "rect": [
+    25,
+    218,
+    24,
+    24
+   ]
+  },
+  "tile_stone": {
+   "region": [
+    362,
+    334,
+    44,
+    40
+   ],
+   "file": "atlas.png",
+   "rect": [
+    50,
+    218,
+    24,
+    24
+   ]
+  },
+  "tile_water": {
+   "region": [
+    40,
+    470,
+    48,
+    48
+   ],
+   "file": "atlas.png",
+   "rect": [
+    75,
+    218,
+    24,
+    24
+   ]
+  },
+  "acorn": {
+   "reconstructed": true,
+   "file": "atlas.png",
+   "rect": [
+    281,
+    243,
+    8,
+    8
+   ]
+  },
+  "mailbox": {
+   "reconstructed": true,
+   "file": "atlas.png",
+   "rect": [
+    403,
+    218,
+    18,
+    18
+   ]
+  },
+  "mailbox_flag": {
+   "reconstructed": true,
+   "file": "atlas.png",
+   "rect": [
+    306,
+    243,
+    5,
+    7
+   ]
+  },
+  "letter": {
+   "reconstructed": true,
+   "file": "atlas.png",
+   "rect": [
+    312,
+    243,
+    9,
+    6
+   ]
+  },
+  "wood_button": {
+   "region": [
+    31,
+    900,
+    139,
+    44
+   ],
+   "note": "label removed, middle stretched",
+   "file": "atlas.png",
+   "rect": [
+    286,
+    218,
+    32,
+    20
+   ]
+  },
+  "bg_forest": {
+   "region": [
+    341,
+    586,
+    397,
+    186
+   ],
+   "note": "cropped right of a frame artifact",
+   "file": "atlas.png",
+   "rect": [
+    0,
+    0,
+    246,
+    115
+   ]
+  },
+  "bg_trees": {
+   "region": [
+    29,
+    586,
+    176,
+    186
+   ],
+   "file": "atlas.png",
+   "rect": [
+    247,
+    0,
+    109,
+    115
+   ]
+  },
+  "pip_idle2": {
+   "derived": "pip_idle",
+   "note": "one-pixel squash for breathing",
+   "file": "atlas.png",
+   "rect": [
+    189,
+    182,
+    20,
+    28
+   ]
+  },
+  "shroom_peek": {
+   "derived": "shroom_face",
+   "file": "atlas.png",
+   "rect": [
+    261,
+    243,
+    19,
+    9
+   ]
+  },
+  "star_off": {
+   "derived": "star",
+   "file": "atlas.png",
+   "rect": [
+    14,
+    243,
+    15,
+    16
+   ]
+  }
+ },
+ "ui": {
+  "dpad": {
+   "file": "ui/dpad.png",
+   "region": [
+    606,
+    834,
+    165,
+    166
+   ],
+   "size": [
+    157,
+    158
+   ]
+  },
+  "jump": {
+   "file": "ui/jump.png",
+   "region": [
+    818,
+    871,
+    105,
+    107
+   ],
+   "size": [
+    97,
+    99
+   ]
+  },
+  "icon_settings": {
+   "file": "ui/icon_settings.png",
+   "region": [
+    31,
+    953,
+    53,
+    49
+   ],
+   "size": [
+    49,
+    45
+   ]
+  },
+  "icon_music": {
+   "file": "ui/icon_music.png",
+   "region": [
+    117,
+    953,
+    52,
+    49
+   ],
+   "size": [
+    48,
+    45
+   ]
+  },
+  "icon_mute": {
+   "file": "ui/icon_mute.png",
+   "region": [
+    218,
+    953,
+    52,
+    49
+   ],
+   "size": [
+    48,
+    44
+   ]
+  },
+  "icon_home": {
+   "file": "ui/icon_home.png",
+   "region": [
+    321,
+    952,
+    52,
+    50
+   ],
+   "size": [
+    48,
+    46
+   ]
+  },
+  "icon_play": {
+   "file": "ui/icon_play.png",
+   "region": [
+    429,
+    953,
+    52,
+    49
+   ],
+   "size": [
+    48,
+    45
+   ]
+  },
+  "icon_pause": {
+   "file": "ui/icon_pause.png",
+   "reconstructed": true,
+   "note": "glyph drawn on the icon frame"
+  },
+  "icon_restart": {
+   "file": "ui/icon_restart.png",
+   "reconstructed": true,
+   "note": "glyph drawn on the icon frame"
+  },
+  "icon_full": {
+   "file": "ui/icon_full.png",
+   "reconstructed": true,
+   "note": "glyph drawn on the icon frame"
+  }
+ }
+}
