@@ -62,12 +62,13 @@ const full = await Promise.all(screenshots.map((s) => getImage({ src: s.src, wid
   li a {
     display: block;
     aspect-ratio: 16 / 9;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-lg);
     overflow: hidden;
+    box-shadow: var(--shadow);
     transition:
-      border-color 0.15s,
-      transform 0.2s var(--ease);
+      box-shadow 0.25s var(--ease),
+      transform 0.25s var(--ease);
   }
   .portrait {
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 200px));
@@ -76,8 +77,8 @@ const full = await Promise.all(screenshots.map((s) => getImage({ src: s.src, wid
     aspect-ratio: 9 / 16;
   }
   li a:hover {
-    border-color: var(--accent);
-    transform: translateY(-2px);
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-4px);
   }
   li :global(img) {
     width: 100%;
@@ -94,7 +95,7 @@ const full = await Promise.all(screenshots.map((s) => getImage({ src: s.src, wid
     color: var(--text);
   }
   .lightbox::backdrop {
-    background: rgb(5 4 12 / 0.85);
+    background: rgb(26 31 61 / 0.88);
   }
   figure {
     margin: 0;
@@ -119,15 +120,16 @@ const full = await Promise.all(screenshots.map((s) => getImage({ src: s.src, wid
     margin-top: 12px;
   }
   .counter {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--text-faint);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.85rem;
+    color: var(--ink-faint);
   }
   .close {
     position: absolute;
     top: 22px;
     right: 22px;
-    background: rgb(12 10 22 / 0.8);
+    background: var(--paper);
   }
 </style>
 

@@ -102,6 +102,16 @@ export function allPlatforms(games: Game[]): Platform[] {
   return (Object.keys(PLATFORM_LABELS) as Platform[]).filter((p) => used.has(p));
 }
 
+const CAPSULES = ['sun', 'sky', 'mint', 'gum', 'grape', 'red'] as const;
+export type Capsule = (typeof CAPSULES)[number];
+
+/** Capsule colour for a genre (or any key), stable across builds. */
+export function capColor(key: string): Capsule {
+  let h = 0;
+  for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return CAPSULES[h % CAPSULES.length];
+}
+
 export function genreLabel(genre: string): string {
   return genre
     .split('-')

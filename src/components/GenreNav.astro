@@ -1,5 +1,5 @@
 ---
-import { genreLabel } from '../lib/games';
+import { capColor, genreLabel } from '../lib/games';
 interface Props {
   genres: { genre: string; count: number }[];
   current?: string;
@@ -13,7 +13,7 @@ const { genres, current, label = 'Genres' } = Astro.props;
     {
       genres.map(({ genre, count }) => (
         <li>
-          <a class="chip" href={`/genres/${genre}/`} aria-current={genre === current ? 'page' : undefined}>
+          <a class="chip" data-cap={capColor(genre)} href={`/genres/${genre}/`} aria-current={genre === current ? 'page' : undefined}>
             {genreLabel(genre)} <span class="count">{count}</span>
           </a>
         </li>

@@ -2,7 +2,7 @@
 import { Image } from 'astro:assets';
 import GameLabels from './GameLabels.astro';
 import Icon from './Icon.astro';
-import { formatDate, gameUrl, genreLabel, platformLabel, type Game } from '../lib/games';
+import { capColor, formatDate, gameUrl, genreLabel, platformLabel, type Game } from '../lib/games';
 
 interface Props {
   game: Game;
@@ -21,6 +21,7 @@ const playable = Boolean(d.playUrl);
   data-genres={d.genres.join(' ')}
   data-platforms={d.platforms.join(' ')}
   data-date={d.featuredDate}
+  data-cap={capColor(d.genres[0] ?? d.title)}
 >
   <div class="media">
     <Image
@@ -52,71 +53,83 @@ const playable = Boolean(d.playUrl);
 </article>
 
 <style>
+  /* Each past pick is a capsule: a coloured dome holding the art, a white base holding the label. */
   .card {
+    --cap: var(--sky);
     position: relative;
     display: flex;
     flex-direction: column;
     height: 100%;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background: var(--bg-raised);
+    border: 2px solid var(--ink);
+    border-radius: 140px 140px 26px 26px / 96px 96px 26px 26px;
+    background: var(--paper);
     overflow: hidden;
+    box-shadow: var(--shadow);
     transition:
-      transform 0.2s var(--ease),
-      box-shadow 0.2s var(--ease),
-      border-color 0.2s;
+      transform 0.3s var(--ease),
+      box-shadow 0.3s var(--ease);
   }
+  .card[data-cap='sun'] { --cap: var(--sun); }
+  .card[data-cap='sky'] { --cap: var(--sky); }
+  .card[data-cap='mint'] { --cap: var(--mint); }
+  .card[data-cap='gum'] { --cap: var(--gum); }
+  .card[data-cap='grape'] { --cap: var(--grape); }
+  .card[data-cap='red'] { --cap: #ff8a5c; }
   .card:hover,
   .card:focus-within {
-    transform: translate(-3px, -3px);
-    border-color: var(--accent);
-    box-shadow: 6px 6px 0 0 #2e1065;
+    transform: translateY(-5px) rotate(-0.6deg);
+    box-shadow: var(--shadow-lift);
   }
   .media {
     position: relative;
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
-    background: var(--surface);
+    padding: 12px 12px 0;
+    background:
+      radial-gradient(60% 40% at 30% 12%, rgb(255 255 255 / 0.55), transparent 70%),
+      var(--cap);
+    border-bottom: 2px solid var(--ink);
   }
   .media :global(img) {
     width: 100%;
-    height: 100%;
+    aspect-ratio: 16 / 10;
     object-fit: cover;
-    transition: transform 0.4s var(--ease);
+    border-radius: 120px 120px 0 0 / 80px 80px 0 0;
+    transition: scale 0.5s var(--ease);
   }
   .card:hover .media :global(img) {
-    transform: scale(1.04);
+    scale: 1.03;
   }
   .overlay {
     position: absolute;
-    left: 10px;
-    top: 10px;
-    right: 10px;
+    left: 20px;
+    right: 20px;
+    bottom: 10px;
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 6px;
   }
   .overlay :global(.badge) {
-    background: rgb(12 10 22 / 0.85);
+    box-shadow: 0 4px 10px -6px rgb(0 0 0 / 0.6);
   }
   .body {
     display: flex;
     flex-direction: column;
     flex: 1;
-    padding: 16px 18px 18px;
+    padding: 16px 20px 20px;
   }
   .date {
-    margin: 0 0 6px;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--text-faint);
+    margin: 0 0 4px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-faint);
   }
   .title {
-    font-size: 1.125rem;
+    font-size: 1.2rem;
     margin: 0 0 8px;
   }
   .title a {
-    color: var(--text);
+    color: var(--ink);
     text-decoration: none;
   }
   /* Whole card is clickable, but only the title is the link in the a11y tree. */
@@ -130,13 +143,13 @@ const playable = Boolean(d.playUrl);
     outline: none;
   }
   .card:has(.stretched:focus-visible) {
-    outline: 2px solid var(--accent-strong);
-    outline-offset: 3px;
+    outline: 3px solid var(--sky);
+    outline-offset: 4px;
   }
   .desc {
     margin: 0 0 14px;
-    font-size: 0.925rem;
-    color: var(--text-muted);
+    font-size: 0.95rem;
+    color: var(--ink-soft);
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;

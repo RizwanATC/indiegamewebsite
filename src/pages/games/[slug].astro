@@ -256,10 +256,12 @@ const videoGame = !d.sample && {
 </BaseLayout>
 
 <style>
+  /* Game page: the capsule's paper insert, under a red machine band. */
   .hero {
-    padding-block: 24px 32px;
-    border-bottom: 1px solid var(--border);
-    background: radial-gradient(60% 90% at 80% 0%, rgb(124 58 237 / 0.14), transparent 70%);
+    padding-block: 20px clamp(28px, 5vw, 48px);
+    background: var(--red);
+    color: #fff;
+    border-bottom: 2px solid var(--red-dark);
   }
   .crumbs ol {
     display: flex;
@@ -268,40 +270,58 @@ const videoGame = !d.sample && {
     margin: 0 0 20px;
     padding: 0;
     list-style: none;
-    font-size: 0.875rem;
-    color: var(--text-faint);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #fff;
   }
   .crumbs li + li::before {
     content: '/';
     margin-right: 8px;
-    color: var(--accent);
+    color: var(--sun);
   }
   .crumbs a {
-    color: var(--text-muted);
+    color: #fff;
+  }
+  .crumbs a:hover {
+    color: var(--sun);
   }
   .hero-grid {
     display: grid;
-    gap: 28px;
+    gap: 24px;
     align-items: center;
   }
   @media (min-width: 1000px) {
     .hero-grid {
       grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-      gap: 48px;
+      gap: 40px;
     }
   }
+  /* Dome window, as on the home page machine. */
   .hero-art {
-    aspect-ratio: 16 / 9;
-    border: 2px solid var(--border-strong);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    box-shadow: 8px 8px 0 0 #2e1065;
-    background: var(--surface);
+    aspect-ratio: 16 / 10;
+    padding: 10px;
+    border-radius: 30px;
+    background: #fff;
+    box-shadow:
+      0 -4px 8px -4px rgb(26 31 61 / 0.12) inset,
+      0 16px 26px -16px rgb(0 0 0 / 0.6);
   }
   .hero-art :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 22px;
+  }
+  .hero-info {
+    padding: clamp(20px, 2.6vw, 30px);
+    border-radius: 26px;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 16px 28px -18px rgb(0 0 0 / 0.6);
+  }
+  .hero-info h1 {
+    margin-bottom: 6px;
+    line-height: 1.05;
   }
   .labels {
     display: flex;
@@ -313,45 +333,39 @@ const videoGame = !d.sample && {
   }
   .by {
     margin-bottom: 12px;
-    color: var(--text-muted);
+    color: var(--ink-soft);
   }
   .by strong {
-    color: var(--text);
+    color: var(--ink);
   }
   .lede {
-    font-size: 1.1rem;
-    color: #d9d4ec;
+    font-size: 1.08rem;
   }
   .tags {
-    margin-bottom: 24px;
+    margin-bottom: 22px;
   }
   a.badge {
     text-decoration: none;
   }
   a.badge:hover {
-    color: #fff;
-    border-color: var(--accent);
+    background: var(--sun);
+    color: var(--ink);
   }
   .no-play {
     margin: 12px 0 0;
-    font-size: 0.875rem;
+    font-size: 0.9rem;
   }
   .sample-note {
-    margin-top: 28px;
-  }
-  .sample-note :global(svg) {
-    flex: none;
-    color: var(--warn);
-    margin-top: 3px;
+    margin-top: 24px;
   }
   .sample-note p {
     margin: 0;
   }
   .block {
-    margin-top: 40px;
+    margin-top: clamp(36px, 5vw, 56px);
   }
   .block > h2 {
-    margin-bottom: 16px;
+    margin-bottom: 18px;
   }
   .body-grid {
     display: grid;
@@ -367,55 +381,73 @@ const videoGame = !d.sample && {
     display: grid;
     gap: 20px;
     align-content: start;
-    margin-top: 40px;
+    margin-top: clamp(36px, 5vw, 56px);
   }
   .side-h {
-    font-size: 1rem;
-    margin-bottom: 12px;
+    font-size: 1.15rem;
+    margin-bottom: 14px;
   }
   .facts {
     display: grid;
     gap: 12px;
     margin: 0;
   }
+  .facts div {
+    display: grid;
+    gap: 2px;
+    padding-bottom: 12px;
+    border-bottom: 2px dotted var(--border);
+  }
+  .facts div:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
   .facts dt {
-    font-size: 0.75rem;
+    font-size: 0.82rem;
     font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--text-faint);
+    color: var(--ink-faint);
   }
   .facts dd {
     margin: 0;
+    font-weight: 700;
   }
+  /* Controls read like the instruction slip folded inside a capsule. */
   .controls {
     width: 100%;
-    max-width: 560px;
-    border-collapse: collapse;
-    font-size: 0.95rem;
+    max-width: 620px;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--paper);
+    font-size: 0.98rem;
   }
   .controls th {
     text-align: left;
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--text-faint);
-    padding: 0 12px 8px 0;
+    font-size: 0.85rem;
+    color: var(--ink);
+    padding: 12px 16px;
+    background: var(--sun);
+    border-bottom: 2px solid var(--ink);
   }
   .controls td {
-    padding: 10px 12px 10px 0;
-    border-top: 1px solid var(--border);
+    padding: 12px 16px;
     vertical-align: top;
+  }
+  .controls tr + tr td {
+    border-top: 2px dotted var(--border);
   }
   kbd {
     display: inline-block;
-    padding: 2px 8px;
-    border: 1px solid var(--border-strong);
-    border-bottom-width: 3px;
-    border-radius: 4px;
-    background: var(--surface);
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
+    padding: 2px 10px;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-pill);
+    background: var(--ground);
+    box-shadow: 0 -2px 4px -2px rgb(26 31 61 / 0.15) inset;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.88rem;
     white-space: nowrap;
   }
   .links {
@@ -430,38 +462,36 @@ const videoGame = !d.sample && {
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    padding: 12px 14px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--text);
+    padding: 12px 18px;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-pill);
+    color: var(--ink);
     text-decoration: none;
-    font-weight: 600;
-    font-size: 0.925rem;
-    transition: border-color 0.15s, background-color 0.15s;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: background-color 0.15s;
   }
   .links a:hover {
-    border-color: var(--accent);
-    background: var(--accent-soft);
+    background: var(--sun);
   }
   .host {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     font-weight: 400;
-    font-size: 0.8rem;
-    color: var(--text-faint);
+    font-size: 0.82rem;
+    color: var(--ink-faint);
   }
   .fine,
   .report {
     margin: 12px 0 0;
-    font-size: 0.8rem;
-    color: var(--text-faint);
+    font-size: 0.85rem;
+    color: var(--ink-faint);
   }
   .report {
     margin: 0;
   }
   .related {
     margin-top: 32px;
-    border-top: 1px solid var(--border);
   }
 </style>

@@ -86,9 +86,19 @@ const buttonLabel = isApk ? 'Download APK' : d.downloadType === 'store' ? 'Open 
     gap: 16px;
     scroll-margin-top: 80px;
   }
+  .download {
+    --ink-faint: #3b4265;
+    --ink-soft: #2a3155;
+    --text-faint: var(--ink-faint);
+    --text-muted: var(--ink-soft);
+    background: var(--sun);
+  }
   .download h2 {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: 1.4rem;
+  }
+  .download :global(.notice) {
+    background: var(--paper);
   }
   .facts {
     display: grid;
@@ -100,15 +110,13 @@ const buttonLabel = isApk ? 'Download APK' : d.downloadType === 'store' ? 'Open 
     gap: 2px;
   }
   dt {
-    font-size: 0.75rem;
+    font-size: 0.82rem;
     font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--text-faint);
+    color: var(--ink-faint);
   }
   dd {
     margin: 0;
-    font-size: 0.925rem;
+    font-size: 0.95rem;
   }
   .hash {
     display: block;

@@ -4,16 +4,16 @@ import BaseLayout from './BaseLayout.astro';
 interface Props {
   title: string;
   description: string;
+  /** No longer shown: headings carry their own weight. */
   eyebrow?: string;
   noindex?: boolean;
 }
-const { title, description, eyebrow, noindex } = Astro.props;
+const { title, description, noindex } = Astro.props;
 ---
 
 <BaseLayout title={title} description={description} noindex={noindex}>
   <article class="section">
     <div class="container">
-      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
       <h1>{title}</h1>
       <div class="prose">
         <slot />

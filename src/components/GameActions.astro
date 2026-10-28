@@ -27,8 +27,8 @@ const downloadLabel = d.downloadType === 'apk' ? 'Download APK' : d.downloadType
 <div class="actions">
   {
     play.kind === 'embed' && (
-      <a class="btn btn-primary" href={context === 'hero' ? `${detail}#play` : '#play'} data-play-trigger={context === 'detail' ? '' : undefined}>
-        <Icon name="play" /> Play Now
+      <a class:list={['btn btn-primary', { knob: context === 'hero' }]} href={context === 'hero' ? `${detail}#play` : '#play'} data-play-trigger={context === 'detail' ? '' : undefined}>
+        {context === 'hero' ? <span class="knob-face"><Icon name="knob" size={26} /></span> : <Icon name="play" />} Play Now
       </a>
     )
   }
@@ -67,6 +67,35 @@ const downloadLabel = d.downloadType === 'apk' ? 'Download APK' : d.downloadType
   .host {
     font-weight: 500;
     opacity: 0.8;
+  }
+  /* The big turning knob of the machine. */
+  .knob {
+    min-height: 60px;
+    padding: 8px 28px 8px 8px;
+    font-size: 1.15rem;
+  }
+  .knob-face {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--sun);
+    color: var(--ink);
+    box-shadow:
+      0 2px 4px -2px rgb(255 255 255 / 0.6) inset,
+      0 -3px 6px -3px rgb(0 0 0 / 0.15) inset;
+    animation: turn 0.9s 0.2s var(--ease) both;
+    transition: rotate 0.5s var(--ease);
+  }
+  .knob:hover .knob-face,
+  .knob:focus-visible .knob-face {
+    rotate: 90deg;
+  }
+  @keyframes turn {
+    from {
+      rotate: -180deg;
+    }
   }
   @media (max-width: 479px) {
     .actions > :global(.btn) {

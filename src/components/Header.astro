@@ -39,17 +39,16 @@ const nav = [
     position: sticky;
     top: 0;
     z-index: 50;
-    background: rgb(12 10 22 / 0.88);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--border);
+    background: var(--paper);
+    border-bottom: 2px solid var(--ink);
   }
   .bar {
     display: flex;
     align-items: center;
     gap: 12px 24px;
-    min-height: 64px;
+    min-height: 68px;
     flex-wrap: wrap;
-    padding-block: 8px;
+    padding-block: 10px;
   }
   nav {
     margin-left: auto;
@@ -65,60 +64,52 @@ const nav = [
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    padding: 0 10px;
-    border-radius: var(--radius);
-    color: var(--text-muted);
-    font-weight: 600;
-    font-size: 0.925rem;
+    padding: 0 14px;
+    border-radius: var(--radius-pill);
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 0.95rem;
     text-decoration: none;
-    position: relative;
+    transition: background-color 0.15s;
   }
   nav a:hover {
-    color: var(--text);
-    background: var(--surface);
+    color: var(--ink);
+    background: var(--ground);
   }
   nav a[aria-current='page'] {
-    color: var(--text);
-  }
-  nav a[aria-current='page']::after {
-    content: '';
-    position: absolute;
-    left: 10px;
-    right: 10px;
-    bottom: 6px;
-    height: 2px;
-    background: var(--accent);
+    background: var(--sun);
+    color: var(--ink);
   }
   .header-search {
     position: relative;
     display: none;
-    width: 220px;
+    width: 230px;
   }
   .header-search .input {
-    min-height: 40px;
-    padding: 6px 12px 6px 36px;
-    font-size: 0.9rem;
+    min-height: 42px;
+    padding: 6px 14px 6px 40px;
+    font-size: 0.92rem;
   }
   .header-search :global(.search-icon) {
     position: absolute;
-    left: 12px;
+    left: 15px;
     top: 50%;
     translate: 0 -50%;
-    color: var(--text-faint);
+    color: var(--ink-faint);
     pointer-events: none;
   }
   @media (min-width: 860px) {
     .header-search {
       display: block;
     }
-    nav {
-      margin-left: auto;
-    }
   }
   @media (max-width: 420px) {
+    .bar {
+      gap: 8px;
+    }
     nav a {
-      padding: 0 8px;
-      font-size: 0.875rem;
+      padding: 0 10px;
+      font-size: 0.9rem;
     }
   }
 </style>

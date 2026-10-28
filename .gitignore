@@ -31,3 +31,6 @@ pnpm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Impeccable review captures
+.impeccable/review/

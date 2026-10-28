@@ -29,7 +29,6 @@ const label = genreLabel(genre!);
       <nav aria-label="Breadcrumb" class="crumbs">
         <a href="/games/">All games</a> <span aria-hidden="true">/</span> <span aria-current="page">{label}</span>
       </nav>
-      <p class="eyebrow">Genre</p>
       <h1>{label} games</h1>
       <p class="muted">{games.length} {games.length === 1 ? 'game' : 'games'}, newest first.</p>
       <div class="nav"><GenreNav genres={genres} current={genre} label="Other genres" /></div>
@@ -49,8 +48,9 @@ const label = genreLabel(genre!);
 <style>
   .crumbs {
     margin-bottom: 20px;
-    font-size: 0.875rem;
-    color: var(--text-faint);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-faint);
   }
   .crumbs span[aria-hidden] {
     margin-inline: 6px;

@@ -5,6 +5,7 @@ const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
+  <div class="slot" aria-hidden="true"><span></span></div>
   <div class="container inner">
     <div class="brand">
       <Logo />
@@ -27,24 +28,39 @@ const year = new Date().getFullYear();
 
 <style>
   .site-footer {
-    margin-top: 48px;
-    border-top: 1px solid var(--border);
-    background: var(--bg-raised);
+    margin-top: clamp(48px, 8vw, 96px);
+    background: var(--ink);
+    color: #dfe4f3;
+  }
+  .slot {
+    display: grid;
+    place-items: center;
+    padding-top: 28px;
+  }
+  .slot span {
+    width: 64px;
+    height: 12px;
+    border-radius: var(--radius-pill);
+    background: #0c0f22;
+    box-shadow:
+      0 0 0 4px #2b3157,
+      0 1px 0 4px rgb(255 255 255 / 0.12);
   }
   .inner {
     display: grid;
     gap: 24px;
-    padding-block: 40px 24px;
+    padding-block: 28px 28px;
   }
   .brand p {
-    margin: 14px 0 0;
+    margin: 16px 0 0;
     max-width: 44ch;
-    font-size: 0.925rem;
+    font-size: 0.95rem;
+    color: #c3c9de;
   }
   ul {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 20px;
+    gap: 4px 22px;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -52,20 +68,20 @@ const year = new Date().getFullYear();
   ul a {
     display: inline-block;
     padding: 8px 0;
-    color: var(--text-muted);
-    font-weight: 600;
-    font-size: 0.925rem;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
     text-decoration: none;
   }
   ul a:hover {
-    color: var(--text);
+    color: var(--sun);
     text-decoration: underline;
   }
   .legal {
-    padding-block: 16px 32px;
-    border-top: 1px solid var(--border);
-    font-size: 0.8rem;
-    color: var(--text-faint);
+    padding-block: 18px 36px;
+    border-top: 1px solid #2f3660;
+    font-size: 0.82rem;
+    color: #aeb5cf;
   }
   .legal p {
     margin: 0;

@@ -34,18 +34,13 @@ import SearchForm from '../components/SearchForm.astro';
     font-family: var(--font-display);
     font-size: clamp(3rem, 14vw, 6rem);
     line-height: 1;
-    color: var(--accent);
-    text-shadow: 6px 6px 0 #2e1065;
-    animation: flicker 3s steps(1) infinite;
+    color: var(--red);
+    rotate: -4deg;
+    animation: tilt 2.4s ease-in-out infinite alternate;
   }
-  @keyframes flicker {
-    0%,
-    92%,
-    100% {
-      opacity: 1;
-    }
-    94% {
-      opacity: 0.4;
+  @keyframes tilt {
+    to {
+      rotate: 4deg;
     }
   }
   .actions {

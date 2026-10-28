@@ -13,7 +13,6 @@ const platforms = allPlatforms(games);
 <BaseLayout title="All games" description={`Browse all ${games.length} indie games featured on ${SITE.name}. Search by title and filter by genre and platform.`}>
   <section class="section archive">
     <div class="container">
-      <p class="eyebrow">The archive</p>
       <h1>All games</h1>
       <p class="muted intro">Every game featured on {SITE.name}, newest first.</p>
 
@@ -81,6 +80,24 @@ const platforms = allPlatforms(games);
 <style>
   .intro {
     margin-bottom: 28px;
+    font-size: 1.1rem;
+  }
+  /* The filter bar is the machine's control panel. */
+  .filters {
+    border: 0;
+    background: var(--red);
+    color: #fff;
+    box-shadow:
+      0 3px 6px -3px rgb(255 255 255 / 0.28) inset,
+      0 -6px 12px -6px rgb(0 0 0 / 0.16) inset,
+      0 20px 34px -24px rgb(126 19 16 / 0.8);
+  }
+  .filters :global(label) {
+    color: #fff;
+  }
+  .filters .input,
+  .filters .select {
+    border-color: var(--red-dark);
   }
   .filters {
     display: grid;
@@ -118,8 +135,8 @@ const platforms = allPlatforms(games);
   .search-wrap :global(.icon-search) {
     position: absolute;
     left: 16px;
-    top: 15px;
-    color: var(--text-faint);
+    top: 16px;
+    color: var(--ink-faint);
     pointer-events: none;
   }
   .result-bar {
@@ -132,9 +149,9 @@ const platforms = allPlatforms(games);
   }
   .count {
     margin: 0;
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    color: var(--text-muted);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-soft);
   }
   [data-item][hidden],
   [data-reset][hidden],
@@ -147,7 +164,7 @@ const platforms = allPlatforms(games);
     padding: 40px 20px;
   }
   .empty h2 {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
   }
   .more {
     display: flex;

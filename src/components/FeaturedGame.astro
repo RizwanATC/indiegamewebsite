@@ -3,7 +3,7 @@ import { Image } from 'astro:assets';
 import GameActions from './GameActions.astro';
 import GameLabels from './GameLabels.astro';
 import { SITE } from '../config';
-import { formatDate, gameUrl, genreLabel, platformLabel, type DailyPick } from '../lib/games';
+import { capColor, formatDate, gameUrl, genreLabel, platformLabel, type DailyPick } from '../lib/games';
 
 interface Props {
   pick: DailyPick | undefined;
@@ -14,167 +14,240 @@ const d = game?.data;
 ---
 
 <section class="featured" aria-labelledby="featured-heading">
-  <div class="container intro">
-    <h1 class="brand">
-      <span class="word" aria-hidden="true">INDIE<span class="slash">/</span>24</span>
-      <span class="visually-hidden">{SITE.name}:</span>
-      <span class="tagline">{SITE.tagline}</span>
-    </h1>
-  </div>
-  {
-    game && d ? (
-      <div class="container grid">
-        <a class="art" href={gameUrl(game)} tabindex="-1" aria-hidden="true">
-          <Image
-            src={d.coverImage}
-            alt=""
-            widths={[640, 960, 1280, 1600]}
-            sizes="(min-width: 1200px) 720px, (min-width: 900px) 58vw, 100vw"
-            loading="eager"
-            fetchpriority="high"
-            class="pixelated"
-          />
-          <span class="frame" />
-        </a>
-        <div class="info">
-          <p class="eyebrow">
-            {pick.isToday ? (
-              <>
-                Game of the Day · <time datetime={d.featuredDate}>{formatDate(d.featuredDate, 'long')}</time>
-              </>
-            ) : (
-              <>
-                Latest pick · <time datetime={d.featuredDate}>{formatDate(d.featuredDate, 'long')}</time>
-              </>
-            )}
-          </p>
-          <h2 id="featured-heading" class="title">
-            <a href={gameUrl(game)}>{d.title}</a>
-          </h2>
-          <p class="by">
-            by <strong>{d.developer}</strong>
-            {d.releaseYear && <span class="muted"> · {d.releaseYear}</span>}
-          </p>
-          <div class="labels">
-            <GameLabels game={game} />
+  <div class="container">
+    <div class="cabinet">
+      <h1 class="sign">
+        <span class="word" aria-hidden="true">INDIE<span class="slash">/</span>24</span>
+        <span class="visually-hidden">{SITE.name}:</span>
+        <span class="tagline">{SITE.tagline}</span>
+      </h1>
+      {
+        game && d ? (
+          <div class="body">
+            <div class="dome-wrap">
+              <a class="dome" href={gameUrl(game)} tabindex="-1" aria-hidden="true">
+                <Image
+                  src={d.coverImage}
+                  alt=""
+                  widths={[640, 960, 1280, 1600]}
+                  sizes="(min-width: 1200px) 660px, (min-width: 900px) 55vw, 100vw"
+                  loading="eager"
+                  fetchpriority="high"
+                  class="pixelated"
+                />
+              </a>
+              <p class="sticker">
+                <span class="sticker-top">{pick.isToday ? 'Today' : 'Latest'}</span>
+                <time datetime={d.featuredDate}>{formatDate(d.featuredDate)}</time>
+                <span class="visually-hidden">{pick.isToday ? 'Game of the Day' : 'Latest pick'}</span>
+              </p>
+            </div>
+            <div class="label">
+              <h2 id="featured-heading" class="title">
+                <a href={gameUrl(game)}>{d.title}</a>
+              </h2>
+              <p class="by">
+                by <strong>{d.developer}</strong>
+                {d.releaseYear && <span> · {d.releaseYear}</span>}
+              </p>
+              <div class="labels">
+                <GameLabels game={game} />
+              </div>
+              <div class="cta">
+                <GameActions game={game} context="hero" />
+              </div>
+              <p class="lede">{d.shortDescription}</p>
+              <ul class="badge-list tags" aria-label="Genres and platforms">
+                {d.genres.map((g) => (
+                  <li>
+                    <a class="badge badge-accent" href={`/genres/${g}/`}>
+                      {genreLabel(g)}
+                    </a>
+                  </li>
+                ))}
+                {d.platforms.map((p) => (
+                  <li class="badge">{platformLabel(p)}</li>
+                ))}
+              </ul>
+              {!pick.isToday && <p class="fallback">No new game is scheduled for today yet, so here is our most recent pick.</p>}
+            </div>
+            <div class="tray" aria-hidden="true">
+              <span class="capsule" data-cap={capColor(d.genres[0] ?? d.title)} />
+            </div>
           </div>
-          <p class="lede">{d.shortDescription}</p>
-          <ul class="badge-list" aria-label="Genres and platforms">
-            {d.genres.map((g) => (
-              <li>
-                <a class="badge badge-accent" href={`/genres/${g}/`}>
-                  {genreLabel(g)}
-                </a>
-              </li>
-            ))}
-            {d.platforms.map((p) => (
-              <li class="badge">{platformLabel(p)}</li>
-            ))}
-          </ul>
-          <GameActions game={game} context="hero" />
-          {!pick.isToday && <p class="fallback muted">No new game is scheduled for today yet, so here is our most recent pick.</p>}
-        </div>
-      </div>
-    ) : (
-      <div class="container empty">
-        <p class="eyebrow">Game of the Day</p>
-        <h2 id="featured-heading">Nothing scheduled yet</h2>
-        <p class="muted">The first featured game is on its way. Check back soon, or browse the archive.</p>
-        <a class="btn" href="/games/">Browse games</a>
-      </div>
-    )
-  }
+        ) : (
+          <div class="empty">
+            <h2 id="featured-heading">Nothing scheduled yet</h2>
+            <p>The first featured game is on its way. Check back soon, or browse the archive.</p>
+            <a class="btn" href="/games/">Browse games</a>
+          </div>
+        )
+      }
+    </div>
+  </div>
 </section>
 
 <style>
   .featured {
-    padding-block: clamp(24px, 5vw, 56px) clamp(32px, 6vw, 64px);
-    border-bottom: 1px solid var(--border);
-    background:
-      radial-gradient(60% 80% at 20% 0%, rgb(124 58 237 / 0.16), transparent 70%),
-      var(--bg);
+    padding-block: clamp(16px, 4vw, 40px) clamp(8px, 2vw, 16px);
   }
-  .intro {
-    margin-bottom: clamp(20px, 4vw, 40px);
+
+  /* The machine's red bodywork. */
+  .cabinet {
+    position: relative;
+    padding: clamp(18px, 3.4vw, 36px);
+    border-radius: clamp(28px, 4vw, 44px);
+    background: var(--red);
+    color: #fff;
+    box-shadow:
+      0 3px 6px -3px rgb(255 255 255 / 0.28) inset,
+      0 -8px 16px -8px rgb(0 0 0 / 0.16) inset,
+      0 30px 50px -30px rgb(126 19 16 / 0.7);
   }
-  .brand {
+
+  /* The sign across the top of the machine. */
+  .sign {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
-    gap: 6px 18px;
-    margin: 0;
+    gap: 2px 18px;
+    margin: 0 0 clamp(16px, 2.6vw, 28px);
   }
   .word {
-    font-family: var(--font-display);
-    font-size: clamp(1.5rem, 6vw, 2.6rem);
-    line-height: 1.1;
-    letter-spacing: 0.02em;
-    text-shadow: 4px 4px 0 #2e1065;
+    font-size: clamp(2rem, 7vw, 4.2rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
   }
   .slash {
-    color: var(--accent);
+    color: var(--sun);
   }
   .tagline {
-    font-size: clamp(1rem, 2.4vw, 1.25rem);
-    font-weight: 600;
-    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: clamp(1rem, 2.2vw, 1.3rem);
+    color: #fff;
   }
-  .grid {
+
+  .body {
     display: grid;
-    gap: clamp(24px, 4vw, 48px);
-    align-items: center;
+    gap: clamp(18px, 3vw, 32px);
   }
   @media (min-width: 900px) {
-    .grid {
-      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    .body {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+      grid-template-areas:
+        'dome label'
+        'tray label';
+      align-items: start;
+    }
+    .dome-wrap {
+      grid-area: dome;
+    }
+    .label {
+      grid-area: label;
+    }
+    .tray {
+      grid-area: tray;
     }
   }
-  .art {
+
+  /* The clear dome window: a white rim, then glass, then today's game. */
+  .dome-wrap {
+    position: relative;
+  }
+  .dome {
     position: relative;
     display: block;
-    aspect-ratio: 16 / 9;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    border: 2px solid var(--border-strong);
-    box-shadow: 8px 8px 0 0 #2e1065;
-    background: var(--surface);
-    transition:
-      transform 0.25s var(--ease),
-      box-shadow 0.25s var(--ease);
+    aspect-ratio: 16 / 10;
+    padding: clamp(8px, 1.2vw, 12px);
+    border-radius: clamp(22px, 3vw, 34px);
+    background: #fff;
+    box-shadow:
+      0 -4px 8px -4px rgb(26 31 61 / 0.12) inset,
+      0 14px 24px -16px rgb(0 0 0 / 0.6);
   }
-  .art:hover {
-    transform: translate(-3px, -3px);
-    box-shadow: 11px 11px 0 0 #3b0f85;
-  }
-  .art :global(img) {
+  .dome :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: clamp(14px, 2.2vw, 24px);
+    background: var(--glass);
   }
-  .frame {
+  /* Glass sheen across the window. */
+  .dome::after {
+    content: '';
     position: absolute;
-    inset: 0;
+    inset: clamp(8px, 1.2vw, 12px);
+    border-radius: clamp(14px, 2.2vw, 24px);
     pointer-events: none;
-    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
-    background: linear-gradient(to top, rgb(12 10 22 / 0.35), transparent 40%);
+    box-shadow: 0 0 0 2px rgb(255 255 255 / 0.5) inset;
+    background:
+      linear-gradient(115deg, rgb(255 255 255 / 0.42) 0 9%, transparent 9.5% 15%, rgb(255 255 255 / 0.22) 15.5% 19%, transparent 19.5%);
+    transition: background-position 0.6s var(--ease);
+    background-size: 200% 100%;
+    background-position: 0 0;
+  }
+  .dome:hover::after {
+    background-position: -40% 0;
+  }
+
+  /* Price-style sticker slapped on the dome. */
+  .sticker {
+    position: absolute;
+    right: clamp(-6px, -0.8vw, -12px);
+    top: clamp(-14px, -1.4vw, -20px);
+    display: grid;
+    place-content: center;
+    width: clamp(86px, 11vw, 112px);
+    aspect-ratio: 1;
+    margin: 0;
+    border-radius: 50%;
+    background: var(--sun);
+    color: var(--ink);
+    text-align: center;
+    line-height: 1.1;
+    rotate: 8deg;
+    box-shadow:
+      0 2px 4px -2px rgb(255 255 255 / 0.6) inset,
+      0 8px 14px -8px rgb(0 0 0 / 0.55);
+  }
+  .sticker-top {
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 1.8vw, 1.3rem);
+  }
+  .sticker time {
+    font-weight: 700;
+    font-size: clamp(0.72rem, 1.1vw, 0.85rem);
+  }
+
+  /* The paper label on the machine front. */
+  .label {
+    display: flex;
+    flex-direction: column;
+    padding: clamp(20px, 2.6vw, 30px);
+    border-radius: clamp(20px, 2.4vw, 28px);
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 16px 28px -18px rgb(0 0 0 / 0.6);
   }
   .title {
-    margin-bottom: 8px;
-    font-size: clamp(2rem, 5vw, 3.25rem);
+    margin: 0 0 6px;
+    font-size: clamp(2rem, 4.6vw, 3.2rem);
+    line-height: 1.05;
   }
   .title a {
-    color: var(--text);
+    color: var(--ink);
     text-decoration: none;
   }
   .title a:hover {
-    color: var(--accent-strong);
+    color: var(--red);
   }
   .by {
-    margin: 0 0 12px;
-    color: var(--text-muted);
+    margin: 0 0 14px;
+    color: var(--ink-soft);
   }
   .by strong {
-    color: var(--text);
+    color: var(--ink);
   }
   .labels:empty {
     display: none;
@@ -184,28 +257,94 @@ const d = game?.data;
     gap: 6px;
     margin-bottom: 14px;
   }
-  .lede {
-    font-size: 1.1rem;
-    color: #d9d4ec;
-    max-width: 48ch;
+  .cta {
+    margin-bottom: 18px;
   }
-  .badge-list {
-    margin-bottom: 24px;
+  .lede {
+    margin: 0 0 16px;
+    font-size: 1.08rem;
+    max-width: 46ch;
   }
   a.badge {
     text-decoration: none;
   }
   a.badge:hover {
-    color: #fff;
-    border-color: var(--accent);
+    background: var(--sun);
+    color: var(--ink);
   }
   .fallback {
     margin: 16px 0 0;
-    font-size: 0.875rem;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
   }
+
+  /* The dispensing tray, where today's capsule lands. */
+  .tray {
+    position: relative;
+    justify-self: center;
+    width: min(240px, 70%);
+    height: 64px;
+    border-radius: 18px 18px 32px 32px;
+    background: var(--red-dark);
+    box-shadow:
+      0 10px 16px -6px rgb(0 0 0 / 0.55) inset,
+      0 2px 0 rgb(255 255 255 / 0.2);
+    overflow: hidden;
+  }
+  .capsule {
+    --cap: var(--sky);
+    position: absolute;
+    left: 50%;
+    bottom: 8px;
+    width: 46px;
+    height: 46px;
+    margin-left: -23px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 34% 26%, rgb(255 255 255 / 0.85) 0 4px, transparent 5px),
+      linear-gradient(var(--cap) 0 50%, #fff 50%);
+    box-shadow:
+      0 -2px 4px -2px rgb(0 0 0 / 0.12) inset,
+      0 0 0 2px rgb(26 31 61 / 0.25);
+    animation: drop 0.9s 0.35s var(--ease) both;
+  }
+  .capsule[data-cap='sun'] { --cap: var(--sun); }
+  .capsule[data-cap='sky'] { --cap: var(--sky); }
+  .capsule[data-cap='mint'] { --cap: var(--mint); }
+  .capsule[data-cap='gum'] { --cap: var(--gum); }
+  .capsule[data-cap='grape'] { --cap: var(--grape); }
+  .capsule[data-cap='red'] { --cap: #ff8a5c; }
+  @keyframes drop {
+    0% {
+      translate: 0 -80px;
+      rotate: -120deg;
+    }
+    70% {
+      translate: 0 2px;
+    }
+    100% {
+      translate: 0 0;
+      rotate: 18deg;
+    }
+  }
+
+  /* Phones: dome, then the button, then the rest of the label. */
+  @media (max-width: 899px) {
+    .sticker {
+      right: -4px;
+      top: -12px;
+    }
+    .tray {
+      display: none;
+    }
+  }
+
   .empty {
+    padding: 24px;
+    border-radius: 24px;
+    background: var(--paper);
+    color: var(--ink);
     text-align: center;
-    padding-block: 48px;
   }
   .empty p {
     max-width: 48ch;
