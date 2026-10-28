@@ -523,7 +523,7 @@ input[type='search']::-webkit-search-cancel-button {
 .game-grid {
   display: grid;
   gap: clamp(20px, 3vw, 32px) clamp(16px, 2.4vw, 28px);
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
   margin: 0;
   padding: 0;
   list-style: none;

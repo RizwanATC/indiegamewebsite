@@ -28,7 +28,7 @@ const downloadLabel = d.downloadType === 'apk' ? 'Download APK' : d.downloadType
   {
     play.kind === 'embed' && (
       <a class:list={['btn btn-primary', { knob: context === 'hero' }]} href={context === 'hero' ? `${detail}#play` : '#play'} data-play-trigger={context === 'detail' ? '' : undefined}>
-        {context === 'hero' ? <span class="knob-face"><Icon name="knob" size={26} /></span> : <Icon name="play" />} Play Now
+        {context === 'hero' ? <span class="knob-face"><Icon name="play" size={20} /></span> : <Icon name="play" />} Play Now
       </a>
     )
   }
@@ -74,22 +74,36 @@ const downloadLabel = d.downloadType === 'apk' ? 'Download APK' : d.downloadType
     padding: 8px 28px 8px 8px;
     font-size: 1.15rem;
   }
+  /* A sun-yellow knob: a ridged grip ring that turns, a play mark that stays upright. */
   .knob-face {
+    position: relative;
     display: grid;
     place-items: center;
-    width: 44px;
-    height: 44px;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
-    background: var(--sun);
     color: var(--ink);
+  }
+  .knob-face::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, var(--sun) 0 15px, transparent 15.5px),
+      repeating-conic-gradient(var(--sun) 0 18deg, #e0a514 18deg 30deg);
     box-shadow:
       0 2px 4px -2px rgb(255 255 255 / 0.6) inset,
-      0 -3px 6px -3px rgb(0 0 0 / 0.15) inset;
+      0 0 0 2px rgb(126 19 16 / 0.35);
     animation: turn 0.9s 0.2s var(--ease) both;
     transition: rotate 0.5s var(--ease);
   }
-  .knob:hover .knob-face,
-  .knob:focus-visible .knob-face {
+  .knob-face :global(.icon) {
+    position: relative;
+    margin-left: 3px;
+  }
+  .knob:hover .knob-face::before,
+  .knob:focus-visible .knob-face::before {
     rotate: 90deg;
   }
   @keyframes turn {

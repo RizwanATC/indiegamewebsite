@@ -21,6 +21,6 @@ STORY: The visitor sees today's capsule in the machine, understands one game dro
 
 FIRST VIEWPORT: A red machine body fills the width. Its dome window holds today's cover art. Its label panel carries a date sticker, the title in heavy display type, one line of description, and the knob-shaped Play Now button with Download and Details beside it. On phones the dome sits above the panel and Play Now is reachable without scrolling.
 
-FORM: Capsule toy machine (gashapon); position 3 on the ordered grounded list; seed: seed:bdb79638ee21e0fe. Signature interaction: the knob turns and today's capsule settles into the tray on first load.
+FORM: Capsule toy machine (gashapon); position 3 on the ordered grounded list; seed:bdb79638ee21e0fe. Signature interaction: the knob turns and today's capsule settles into the tray on first load.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

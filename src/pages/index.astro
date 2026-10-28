@@ -30,14 +30,18 @@ const jsonLd = {
   <section class="section browse" aria-labelledby="browse-heading">
     <div class="container">
       <div class="browse-grid">
-        <div>
+        <div class="intro">
           <h2 id="browse-heading">Find your next favourite</h2>
           <p class="muted">Every game we've ever featured, searchable by title and sortable by genre and platform.</p>
+        </div>
+        <div class="search">
           <SearchForm id="home-q" />
         </div>
         <div class="filters">
           <h3 class="label">By genre</h3>
           <GenreNav genres={genres} />
+        </div>
+        <div class="filters">
           <h3 class="label">By platform</h3>
           <ul class="platforms">
             {
@@ -86,14 +90,25 @@ const jsonLd = {
   .browse h2 {
     font-size: clamp(1.7rem, 3.6vw, 2.4rem);
   }
+  /* Tighter bottom so Recent picks follows on at the same rhythm. */
+  .browse {
+    padding-bottom: clamp(8px, 2vw, 24px);
+  }
+  .intro p {
+    margin-bottom: 0;
+  }
   .browse-grid {
     display: grid;
-    gap: 32px;
+    gap: 24px;
   }
   @media (min-width: 900px) {
     .browse-grid {
       grid-template-columns: 1fr 1fr;
-      gap: 56px;
+      gap: 28px 56px;
+      align-items: end;
+    }
+    .filters {
+      align-self: start;
     }
   }
   .filters {

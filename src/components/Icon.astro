@@ -19,17 +19,15 @@ const ICONS = {
   fullscreen: 'M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5',
   warning: 'M12 4 2.8 19.5h18.4L12 4zm0 6v4.5m0 2.5v.5',
   arrow: 'M4.5 12h15m0 0-6-6m6 6-6 6',
+  arrowLeft: 'M19.5 12h-15m0 0 6-6m-6 6 6 6',
   close: 'M6 6l12 12M18 6 6 18',
   globe: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3 12h18M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9c-2.5-2.5-3.5-5.5-3.5-9s1-6.5 3.5-9z',
   user: 'M12 11.5a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20.5c.8-4 3.8-6 7.5-6s6.7 2 7.5 6',
   clock: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zm0-13.5V12l3 2',
   menu: 'M4 7h16M4 12h16M4 17h16',
-  /* The turning knob of a capsule machine. */
-  knob: 'M5.5 12h13',
 } as const;
 
 const FILLED = new Set(['play']);
-const HEAVY = new Set(['knob']);
 const { name, size = 16, label, class: className } = Astro.props;
 const filled = FILLED.has(name);
 ---
@@ -41,7 +39,7 @@ const filled = FILLED.has(name);
   viewBox="0 0 24 24"
   fill={filled ? 'currentColor' : 'none'}
   stroke="currentColor"
-  stroke-width={filled ? 1.5 : HEAVY.has(name) ? 5 : 2.4}
+  stroke-width={filled ? 1.5 : 2.4}
   stroke-linecap="round"
   stroke-linejoin="round"
   aria-hidden={label ? undefined : 'true'}

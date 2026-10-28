@@ -37,11 +37,11 @@ const full = await Promise.all(screenshots.map((s) => getImage({ src: s.src, wid
     </figure>
     <div class="lb-controls">
       <button type="button" class="btn btn-sm" data-prev>
-        <span aria-hidden="true">←</span> Previous
+        <Icon name="arrowLeft" /> Previous
       </button>
       <span class="counter" data-counter aria-live="polite"></span>
       <button type="button" class="btn btn-sm" data-next>
-        Next <span aria-hidden="true">→</span>
+        Next <Icon name="arrow" />
       </button>
     </div>
     <button type="button" class="close btn btn-sm btn-ghost" data-close aria-label="Close screenshots">
