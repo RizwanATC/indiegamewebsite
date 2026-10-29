@@ -48,7 +48,7 @@ export const ADS: {
   showDevPlaceholders: boolean;
 } = {
   enabled: false,
-  publisherId: '',
+  publisherId: 'ca-pub-5978067529669035',
   slots: {
     /** Home page, between Game of the Day and "Previously featured". */
     'home-mid': '',
