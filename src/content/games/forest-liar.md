@@ -5,7 +5,7 @@ developer: "INDIE/24"
 developerUrl: "/about/"
 releaseYear: 2026
 genres: ["platformer", "comedy", "puzzle"]
-platforms: ["web"]
+platforms: ["web", "android"]
 featuredDate: "2026-10-29"
 coverImage: "../../assets/games/forest-liar/cover.png"
 coverAlt: "The Forest Liar logo over a sunny pixel-art forest, with Pip the courier walking towards a sign that says hello"
@@ -18,6 +18,11 @@ screenshots:
     alt: "Level 3-3 at dusk: Pip stands by a checkpoint star while wooden stage platforms hang on ropes over a pit of spikes"
 playUrl: "/play/forest-liar/"
 playerAspect: "16/9"
+downloadUrl: "https://github.com/RizwanATC/indiegamewebsite/releases/download/android-latest/forest-liar.apk"
+downloadType: "apk"
+downloadSource: "official"
+apkVersion: "1.0.0"
+apkSha256: "17fd7a294ec4ec847ac5c754d38ddeaa55e2725336ac1a07ec0715b1c08706a5"
 controls:
   - input: "Touch: on-screen pad"
     action: "Left / right on the d-pad, big JUMP button (hold to jump higher)"
@@ -35,10 +40,6 @@ controls:
     action: "Stick or d-pad to walk, A to jump, Start to pause"
 estimatedPlaytime: "20–40 minutes"
 ---
-
-> **Android APK coming soon.** We're packaging Forest Liar as an Android
-> app right now. Until it's ready, you can play it here in your browser,
-> on your phone too.
 
 **Forest Liar** is INDIE/24's second home-made game: a short comedy
 platformer about a tiny courier named Pip, a sealed letter, and the
@@ -77,11 +78,15 @@ levels, best times and death counts are saved on your device.
 
 ### Phones and tablets
 
-An Android APK is on the way, and a download button will appear on this
-page when it's out. Until then, the browser version works on phones.
 The game shows a touch pad (a d-pad and a jump button) on touch screens,
 and every level can be finished with it. Turn your phone sideways for the
 best view. On a computer you can switch the touch pad on under Settings.
+
+### On Android
+
+The Android app runs the same game full-screen, sideways and offline. Use
+the download button on this page. Android will ask you to allow installs
+from this source the first time, because the app isn't from the Play Store.
 
 ### Credits
 
