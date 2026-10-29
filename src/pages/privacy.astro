@@ -1,30 +1,68 @@
 ---
 /**
  * PRIVACY POLICY TEMPLATE
- * This page describes what the site does TODAY: no analytics, no cookies,
- * no ads, no accounts. If you add any of those, update this page before
- * (not after) you ship them. This template is not legal advice.
+ * This page describes what the site does TODAY. The advertising parts switch
+ * on by themselves when ADS.publisherId is set in src/config.ts. If you add
+ * anything else (analytics, accounts), update this page before you ship it.
+ * This template is not legal advice.
  */
 import PageLayout from '../layouts/PageLayout.astro';
-import { SITE } from '../config';
-const lastUpdated = '27 October 2026';
+import { SITE, ADSENSE_CONNECTED as ads } from '../config';
+const lastUpdated = ads ? '29 October 2026' : '27 October 2026';
 ---
 
-<PageLayout title="Privacy Policy" eyebrow="Plain language" description={`How ${SITE.name} handles your data: no accounts, no analytics, no advertising cookies.`}>
+<PageLayout title="Privacy Policy" eyebrow="Plain language" description={ads ? `How ${SITE.name} handles your data, including the Google ads we show.` : `How ${SITE.name} handles your data: no accounts, no analytics, no advertising cookies.`}>
   <p class="muted">Last updated: {lastUpdated}</p>
 
-  <p>
-    This policy explains what happens to your information when you visit {SITE.name}. The short version: we don't run analytics, we don't set
-    cookies, we don't show ads, and there are no user accounts.
-  </p>
+  {
+    ads ? (
+      <p>
+        This policy explains what happens to your information when you visit {SITE.name}. The short version: we show ads from Google to keep the
+        site free, Google uses cookies to do that, and we don't run our own analytics or have user accounts.
+      </p>
+    ) : (
+      <p>
+        This policy explains what happens to your information when you visit {SITE.name}. The short version: we don't run analytics, we don't set
+        cookies, we don't show ads, and there are no user accounts.
+      </p>
+    )
+  }
 
   <h2>Information we don't collect</h2>
   <ul>
-    <li>We don't use analytics or tracking scripts.</li>
-    <li>We don't set cookies.</li>
-    <li>We don't show advertising and don't share data with ad networks.</li>
+    <li>We don't use our own analytics or tracking scripts.</li>
+    {ads ? <li>We don't set cookies ourselves. Our advertising partner does; see below.</li> : <li>We don't set cookies.</li>}
+    {!ads && <li>We don't show advertising and don't share data with ad networks.</li>}
     <li>There are no accounts, sign-ups or comment forms.</li>
   </ul>
+
+  {
+    ads && (
+      <>
+        <h2>Advertising</h2>
+        <p>
+          We show ads served by Google AdSense in clearly labelled boxes on some pages. Ads never appear inside games. Google and its partners use
+          cookies and similar technologies to serve ads based on your visits to this and other websites, to limit how often you see an ad and to
+          measure ad performance. Google's use of advertising cookies lets it and its partners serve ads to you based on your visits to
+          {SITE.name} and/or other sites on the Internet.
+        </p>
+        <ul>
+          <li>
+            You can turn off personalised ads in <a href="https://adssettings.google.com/" rel="noopener">Google's Ad Settings</a>, or opt out of
+            many third-party vendors at <a href="https://www.aboutads.info/choices/" rel="noopener">aboutads.info</a>.
+          </li>
+          <li>
+            If you visit from the European Economic Area, the UK or Switzerland, we ask for your consent before personalised ads are shown, and you
+            can change your choice at any time through the privacy settings link on the page.
+          </li>
+          <li>
+            Learn more in <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">How Google uses information from sites
+            that use its services</a>.
+          </li>
+        </ul>
+      </>
+    )
+  }
 
   <h2>Hosting</h2>
   <p>
@@ -58,7 +96,8 @@ const lastUpdated = '27 October 2026';
 
   <h2>Changes</h2>
   <p>
-    If we ever add analytics, advertising or anything else that affects your privacy, we'll update this page first and change the date at the top.
+    If we ever add analytics{ads ? '' : ', advertising'} or anything else that affects your privacy, we'll update this page first and change the
+    date at the top.
   </p>
 
   <h2>Contact</h2>
