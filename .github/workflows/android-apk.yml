@@ -1,8 +1,7 @@
 # Builds the Android apps (a WebView around the same game files the website
-# serves), one APK per game, and publishes them on the GitHub Release
-# "android-latest":
-#   https://github.com/<owner>/<repo>/releases/download/android-latest/slime-siege.apk
-# The repository must be public for visitors to download them.
+# serves), one APK per game, and keeps them as a short-lived workflow artifact.
+# The APKs are sold on itch.io, so this workflow never publishes them on a
+# public GitHub Release. Download the artifact and upload it to itch.io by hand.
 #
 # Optional signing secrets (recommended, so updates install over old versions):
 #   SIGNING_KEYSTORE_BASE64, SIGNING_STORE_PASSWORD, SIGNING_KEY_ALIAS, SIGNING_KEY_PASSWORD
@@ -19,10 +18,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-
-env:
-  TAG: android-latest
+  contents: read
 
 concurrency:
   group: android-apk
@@ -71,19 +67,4 @@ jobs:
         with:
           name: apks
           path: apk/*.apk
-
-      - name: Publish release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          NOTES="INDIE/24 Android apps, build ${{ github.run_number }} from ${GITHUB_SHA::7}.
-
-          $(cd apk && sha256sum *.apk)
-
-          Install: download the APK on your phone, open it, and allow installs from your browser when Android asks."
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release edit "$TAG" --title "INDIE/24 games for Android" --notes "$NOTES"
-          else
-            gh release create "$TAG" --title "INDIE/24 games for Android" --notes "$NOTES" --latest=false --target "$GITHUB_SHA"
-          fi
-          gh release upload "$TAG" apk/*.apk --clobber
+          retention-days: 3

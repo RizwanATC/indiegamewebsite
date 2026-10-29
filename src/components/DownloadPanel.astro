@@ -15,8 +15,17 @@ const isApk = d.downloadType === 'apk';
 const official = d.downloadSource === 'official';
 const host = url && isExternal(url) ? hostname(url) : 'this site';
 
-const typeLabel = { apk: 'Android APK file', store: 'Store listing', page: 'Official download page' }[d.downloadType];
-const buttonLabel = isApk ? 'Download APK' : d.downloadType === 'store' ? 'Open store page' : 'Go to official download';
+const price = d.price;
+const typeLabel = price
+  ? `Android app, ${price} (paid)`
+  : { apk: 'Android APK file', store: 'Store listing', page: 'Official download page' }[d.downloadType];
+const buttonLabel = price
+  ? `Buy the Android app · ${price}`
+  : isApk
+    ? 'Download APK'
+    : d.downloadType === 'store'
+      ? 'Open store page'
+      : 'Go to official download';
 ---
 
 {
@@ -59,6 +68,12 @@ const buttonLabel = isApk ? 'Download APK' : d.downloadType === 'store' ? 'Open 
         )}
       </dl>
 
+      {price && d.playUrl && (
+        <p class="muted small">
+          The browser version stays free. Buying the app gets you an offline, full-screen version and supports the developer.
+        </p>
+      )}
+
       {isApk && (
         <div class="notice notice-warn">
           <Icon name="warning" size={20} />
@@ -71,7 +86,7 @@ const buttonLabel = isApk ? 'Download APK' : d.downloadType === 'store' ? 'Open 
         </div>
       )}
 
-      <a class="btn btn-primary" href={url} target="_blank" rel="noopener" download={isApk && !isExternal(url) ? '' : undefined}>
+      <a class="btn btn-primary" href={url} target="_blank" rel="noopener" download={isApk && !price && !isExternal(url) ? '' : undefined}>
         <Icon name="download" /> {buttonLabel}
         {isExternal(url) && <Icon name="external" size={12} />}
         <span class="visually-hidden">(opens {host})</span>
