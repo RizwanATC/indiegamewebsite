@@ -1626,11 +1626,11 @@
           const tx = Math.floor(cx / T);
           if (Math.abs(tx - e.tx) <= 2 && (solidTile(tx, e.ty + 1) || tileAt(tx, e.ty + 1) === '=') && !solidTile(tx, e.ty)) e.x = tx * T;
           sfx.whistle();
-        } else if (e.s === 'warn' && e.t > (e.warn ?? 0.6)) {
+        } else if (e.s === 'warn' && e.t > (e.warn ?? 0.3)) {
           e.s = 'fall';
           e.t = 0;
           e.by = Math.min(e.by, cam.y - 40);
-          e.vy = 260;
+          e.vy = 420;
         } else if (e.s === 'fall') {
           e.vy += 1600 * DT;
           e.by += e.vy * DT;
@@ -1652,7 +1652,7 @@
         const mid = e.x + T / 2;
         if (e.s === 'warn' || e.s === 'fall') {
           // Shadow grows as the block gets closer.
-          const k = e.s === 'warn' ? Math.min(1, e.t / (e.warn ?? 0.6)) * 0.6 : 0.6 + Math.min(0.4, (e.by - (e.ground - 200)) / 500);
+          const k = e.s === 'warn' ? Math.min(1, e.t / (e.warn ?? 0.3)) * 0.6 : 0.6 + Math.min(0.4, (e.by - (e.ground - 200)) / 500);
           const w = Math.round(8 + 16 * k);
           ctx.fillStyle = `rgba(19, 32, 42, ${0.25 + 0.35 * k})`;
           ctx.fillRect(Math.round(mid - w / 2 - cam.x), Math.round(e.ground - 3 - cam.y), w, 3);
@@ -1674,14 +1674,14 @@
       update(e) {
         const p = P();
         const dist = (e.dist ?? 4) * T;
-        const speed = e.speed ?? (e.chase ? 85 : 60);
+        const speed = e.speed ?? (e.chase ? 120 : 95);
         let vx = 0;
         if (e.chase) {
           const cx = p.x + p.w / 2;
           if (e.s === 'idle' && Math.abs(cx - (e.x + T / 2)) < 3 * T && Math.abs(cx - (e.x + T / 2)) > T && Math.abs(p.y + p.h - (e.y + T)) < 30) {
             // Only starts once you're past it.
             if ((cx - (e.x + T / 2)) * e.dir > 0) (e.s = 'rev'), (e.t = 0), sfx.rattle();
-          } else if (e.s === 'rev' && e.t > 0.45) e.s = 'go';
+          } else if (e.s === 'rev' && e.t > 0.2) e.s = 'go';
           else if (e.s === 'go') {
             vx = e.dir * speed;
             if (Math.abs(e.x + vx * DT - e.hx) >= dist) (vx = 0), (e.s = 'stop');
@@ -1693,7 +1693,7 @@
             vx = e.dir * speed;
             const nx = e.x + vx * DT;
             if (nx > e.hx + dist || nx < e.hx) (e.s = 'wait'), (e.t = 0), (vx = 0), (e.dir *= -1);
-          } else if (e.s === 'wait' && e.t > 0.35) e.s = 'go';
+          } else if (e.s === 'wait' && e.t > 0.2) e.s = 'go';
         }
         e.dx = vx * DT;
         e.x += e.dx;
@@ -1731,16 +1731,16 @@
           e.t = 0;
           e.fall = cx < base ? -1 : 1;
           sfx.rumble();
-        } else if (e.s === 'rumble' && e.t > 0.45) {
+        } else if (e.s === 'rumble' && e.t > 0.2) {
           e.s = 'grow';
           e.t = 0;
           sfx.grow();
         } else if (e.s === 'grow') {
-          e.grow = 1 + Math.min(1, e.t / 0.35) * ((e.tall ?? 1.9) - 1);
-          if (e.t > 0.4) (e.s = 'falling'), (e.t = 0);
+          e.grow = 1 + Math.min(1, e.t / 0.2) * ((e.tall ?? 1.9) - 1);
+          if (e.t > 0.22) (e.s = 'falling'), (e.t = 0);
         } else if (e.s === 'falling') {
-          e.ang = Math.min(Math.PI / 2, (e.t / 0.5) ** 2 * (Math.PI / 2));
-          if (e.t > 0.3) hurtIf(this.zone(e), 'tree');
+          e.ang = Math.min(Math.PI / 2, (e.t / 0.35) ** 2 * (Math.PI / 2));
+          if (e.t > 0.18) hurtIf(this.zone(e), 'tree');
           if (e.ang >= Math.PI / 2) {
             e.s = 'down';
             sfx.thud();
