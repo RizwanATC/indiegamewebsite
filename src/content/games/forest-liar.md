@@ -40,8 +40,8 @@ estimatedPlaytime: "20–40 minutes"
 platformer about a tiny courier named Pip, a sealed letter, and the
 Whisperwood Forest, which does not want that letter delivered.
 
-The forest cheats, but it cheats fairly. Every trap has a tell, and it does
-the same thing every time. You will die a lot, and you're back on your feet
+The forest cheats, and it doesn't warn you. But every trap does the same
+thing every time, so you can learn it. You will die a lot, and you're back on your feet
 in under a second. The second try is where the fun is.
 
 ### Things that are lying to you
@@ -55,13 +55,15 @@ in under a second. The second try is where the fun is.
 - **Tree stumps** rattle, then roll acorns at you.
 - **Welcome mats** slide away once you step on them.
 - **A theatrical tree** moves the scenery around to the beat of its drum.
-- **Rocks fall out of the sky** right where you're standing. Watch for the
-  shadow, and move.
+- **Rocks fall out of the sky** right where you're standing, with no warning.
+  Keep moving.
 - **Spikes on wheels** roll back and forth, and some quietly follow you once
   you've walked past.
-- **Trees** have growth spurts. If one rumbles, run past it before it falls
-  on you.
-- **The mailbox** at the end is real. Usually.
+- **Logs** come rolling at you from up ahead. Jump.
+- **Trees** have sudden growth spurts, then fall on you.
+- **The ground** is sometimes fake, the grass sometimes has spikes in it, and
+  the air sometimes has an invisible block for your head.
+- **The mailbox** sometimes hops away just as you reach it.
 
 ### Levels
 

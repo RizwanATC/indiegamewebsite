@@ -291,6 +291,9 @@
     rumble: () => (hiss(450, 0.08, 150, 90), tone(60, 450, 'sawtooth', 0.04, 20)),
     grow: () => tone(200, 350, 'square', 0.04, 600),
     move: () => tone(500, 30, 'square', 0.02),
+    pop: () => tone(900, 60, 'square', 0.04, -500),
+    bonk: () => (tone(240, 90, 'square', 0.05, -120), tone(180, 120, 'triangle', 0.04, -60, 0.05)),
+    nope: () => [0, 0.07].forEach((d) => tone(1000, 60, 'square', 0.03, 400, d)),
   };
 
   // ---------------------------------------------------------------- music --
@@ -728,6 +731,10 @@
     Z: { type: 'slider' },
     z: { type: 'slider', chase: true },
     J: { type: 'growtree' },
+    V: { type: 'fakeground' },
+    H: { type: 'popspike' },
+    I: { type: 'hidden' },
+    L: { type: 'roller' },
   };
 
   function tileAt(tx, ty) {
@@ -1008,6 +1015,9 @@
     acorn: ['ACORN DELIVERED. TO YOUR HEAD.', 'BONK! SQUIRREL MAIL.', 'THE TREE THREW FIRST.'],
     crush: ['SQUISHED.', 'STAGE CREW ACCIDENT.', 'THE SKY WAS NOT EMPTY.', 'LOOK UP NEXT TIME.'],
     tree: ['TIMBER!', 'THAT TREE HAD A GROWTH SPURT.', 'FLATTENED BY FOLIAGE.'],
+    pop: ['SURPRISE SPIKES!', 'THE GRASS HAD TEETH.', 'THAT WAS NOT THERE BEFORE.'],
+    roll: ['ROLLED OVER.', 'LOG 1, PIP 0.', 'SHOULD HAVE JUMPED.'],
+    trapdoor: ['THE GROUND WAS FAKE.', 'FLOOR? WHAT FLOOR?', 'BYE, GROUND!'],
   };
   function pickQuip(cause) {
     const list = QUIPS[cause] || QUIPS.spikes;
@@ -1045,6 +1055,21 @@
     exit: {
       update(e) {
         const p = P();
+        // Some mailboxes hop away the first time you get close.
+        if (e.run && !e.ran && Math.abs(p.x + p.w / 2 - (e.x + T / 2)) < 2.2 * T) {
+          e.ran = true;
+          e.hop = 0;
+          e.from = e.x;
+          sfx.nope();
+          world.quip = { text: 'NOPE!', t: 0.9 };
+        }
+        if (e.hop !== undefined && e.hop < 1) {
+          e.hop = Math.min(1, e.hop + DT / 0.3);
+          e.x = e.from + e.run * T * e.hop;
+          e.lift = Math.sin(e.hop * Math.PI) * 26;
+          return;
+        }
+        e.lift = 0;
         if (!p.won && !p.dead && overlap(p, { x: e.x - 2, y: e.y - 20, w: T + 4, h: 44 })) {
           p.won = 0.0001;
           e.s = 'got';
@@ -1055,7 +1080,7 @@
         }
       },
       draw(e) {
-        const bottom = e.y + T;
+        const bottom = e.y + T - (e.lift || 0);
         const cx = e.x + T / 2;
         stand('mailbox', cx, bottom);
         // Flag goes up when the letter is in.
@@ -1625,11 +1650,10 @@
           // It aims at the spot you're standing on (if there's ground there to land on).
           const tx = Math.floor(cx / T);
           if (Math.abs(tx - e.tx) <= 2 && (solidTile(tx, e.ty + 1) || tileAt(tx, e.ty + 1) === '=') && !solidTile(tx, e.ty)) e.x = tx * T;
-          sfx.whistle();
-        } else if (e.s === 'warn' && e.t > (e.warn ?? 0.3)) {
+        } else if (e.s === 'warn' && e.t >= (e.warn ?? 0)) {
           e.s = 'fall';
           e.t = 0;
-          e.by = Math.min(e.by, cam.y - 40);
+          e.by = Math.min(e.by, cam.y - 40, e.ground - 260); // same fall time wherever it lands
           e.vy = 420;
         } else if (e.s === 'fall') {
           e.vy += 1600 * DT;
@@ -1650,9 +1674,9 @@
       },
       draw(e) {
         const mid = e.x + T / 2;
-        if (e.s === 'warn' || e.s === 'fall') {
-          // Shadow grows as the block gets closer.
-          const k = e.s === 'warn' ? Math.min(1, e.t / (e.warn ?? 0.3)) * 0.6 : 0.6 + Math.min(0.4, (e.by - (e.ground - 200)) / 500);
+        if (e.warn && (e.s === 'warn' || e.s === 'fall')) {
+          // Shadow grows as the block gets closer (only on rocks that get a warning).
+          const k = e.s === 'warn' ? Math.min(1, e.t / e.warn) * 0.6 : 0.6 + Math.min(0.4, (e.by - (e.ground - 200)) / 500);
           const w = Math.round(8 + 16 * k);
           ctx.fillStyle = `rgba(19, 32, 42, ${0.25 + 0.35 * k})`;
           ctx.fillRect(Math.round(mid - w / 2 - cam.x), Math.round(e.ground - 3 - cam.y), w, 3);
@@ -1730,8 +1754,7 @@
           e.s = 'rumble';
           e.t = 0;
           e.fall = cx < base ? -1 : 1;
-          sfx.rumble();
-        } else if (e.s === 'rumble' && e.t > 0.2) {
+        } else if (e.s === 'rumble' && e.t >= (e.rumble ?? 0)) {
           e.s = 'grow';
           e.t = 0;
           sfx.grow();
@@ -1773,7 +1796,133 @@
         ctx.scale(1, e.grow);
         ctx.drawImage(sheet, ax, ay, w, h, -Math.round(w / 2), -h, w, h);
         ctx.restore();
-        if (e.s === 'rumble' || e.s === 'grow') text(e.s === 'grow' ? 'TIMBER!' : '?!', base, Math.max(cam.y + 14, bottom - this.height(e) - 10), { align: 'center', color: '#fff6c2', scale: e.s === 'grow' ? 2 : 1 });
+        if (e.rumble && (e.s === 'rumble' || e.s === 'grow')) text(e.s === 'grow' ? 'TIMBER!' : '?!', base, Math.max(cam.y + 14, bottom - this.height(e) - 10), { align: 'center', color: '#fff6c2', scale: e.s === 'grow' ? 2 : 1 });
+      },
+    },
+    // Ground that looks real until you stand on it. No warning.
+    fakeground: {
+      update(e) {
+        if (e.s === 'idle') {
+          const g = world.ents.find((o) => o.id === P().ground);
+          if (g && g.type === 'fakeground' && Math.abs(g.tx - e.tx) <= 2) {
+            e.s = 'fall';
+            e.t = 0;
+            e.vy = 40 + (e.tx % 2) * 30;
+            if (g === e) sfx.fold();
+          }
+        } else if (e.s === 'fall') {
+          e.vy += GRAV * DT;
+          e.y += e.vy * DT;
+          if (e.y > world.rows * T + 40) e.gone = true;
+        }
+        e.t += DT;
+      },
+      solid(e) {
+        return e.s === 'idle' ? { x: e.x, y: e.y, w: T, h: T } : null;
+      },
+      draw(e) {
+        const top = !world.ents.some((o) => o.type === 'fakeground' && o.tx === e.tx && o.ty === e.ty - 1) && !solidTile(e.tx, e.ty - 1);
+        const name = top ? 'tile_grass' : (e.tx + e.ty) % 2 ? 'tile_dirt' : 'tile_dirt2';
+        spr(name, e.x, e.y, e.s === 'fall' ? { rot: e.t * (e.tx % 2 ? 2 : -2), ox: 0.5, oy: 0.5 } : undefined);
+      },
+    },
+    // Spikes hiding in the grass. They jump out when you walk over them.
+    popspike: {
+      update(e) {
+        const p = P();
+        const feet = p.y + p.h;
+        if (e.s === 'idle' && p.x + p.w > e.x + 2 && p.x < e.x + T - 2 && Math.abs(feet - (e.y + T)) < 3) {
+          e.s = 'up';
+          e.t = 0;
+          sfx.pop();
+        }
+        if (e.s === 'up') hurtIf({ x: e.x + 3, y: e.y + 11, w: 18, h: 13 }, 'pop');
+        e.t += DT;
+      },
+      draw(e) {
+        if (e.s !== 'up') return;
+        const k = Math.min(1, e.t / 0.06);
+        spr('spikes', e.x - 1, e.y + 7 + (1 - k) * 17, { sx: 24 / 26, ox: 0, oy: 0 });
+      },
+    },
+    // An invisible block. You only find it with your head.
+    hidden: {
+      update(e) {
+        const p = P();
+        if (e.s === 'idle' && p.vy < 0 && p.x + p.w > e.x && p.x < e.x + T && p.y >= e.y + T - 2 && p.y + p.vy * DT * 2 < e.y + T) {
+          e.s = 'shown';
+          e.t = 0;
+          sfx.bonk();
+          dust(e.x + T / 2, e.y + T, 3);
+        }
+        e.t += DT;
+      },
+      solid(e) {
+        return e.s === 'shown' ? { x: e.x, y: e.y, w: T, h: T } : null;
+      },
+      draw(e) {
+        if (e.s !== 'shown') return;
+        const k = Math.max(0, 1 - e.t / 0.12);
+        spr('tile_stone_top', e.x, e.y - Math.round(k * 4), { ox: 0, oy: 0, sx: 1.0001 });
+        if (e.t < 0.6) text('?', e.x + T / 2, e.y + 6, { align: 'center', color: '#13202a' });
+      },
+    },
+    // A log that comes rolling at you from up ahead.
+    roller: {
+      init(e) {
+        e.vx = 0;
+        e.vy = 0;
+      },
+      update(e) {
+        const p = P();
+        if (e.s === 'idle') {
+          if (p.x + p.w / 2 > e.x - (e.range ?? 10) * T) {
+            e.s = 'roll';
+            e.t = 0;
+            e.vx = -(e.speed ?? 170);
+            e.y = e.y + T - 20;
+            sfx.roll();
+          }
+          return;
+        }
+        e.t += DT;
+        e.vy = Math.min(MAX_FALL, e.vy + GRAV * DT);
+        const r = { x: e.x, y: e.y, w: 20, h: 20, vx: e.vx, vy: e.vy };
+        moveX(r, e.vx * DT, []);
+        moveY(r, e.vy * DT, []);
+        if (r.vx === 0) e.gone = true;
+        e.x = r.x;
+        e.y = r.y;
+        e.vy = r.vy;
+        if (e.y > world.rows * T + 20 || e.x < cam.x - 60) e.gone = true;
+        if (Math.floor(e.t * 6) !== Math.floor((e.t - DT) * 6) && onScreen(e)) sfx.roll();
+        if (!e.gone) hurtIf({ x: e.x + 2, y: e.y + 3, w: 16, h: 17 }, 'roll');
+        if (e.gone) dust(e.x + 10, e.y + 20, 4);
+      },
+      draw(e) {
+        if (e.s === 'idle') return;
+        const cx = Math.round(e.x + 10 - cam.x);
+        const cy = Math.round(e.y + 10 - cam.y);
+        const a = (e.x / 10) % (Math.PI * 2);
+        ctx.fillStyle = '#13202a';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 11, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#a8692f';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 9, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#e0b070';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+        ctx.fill();
+        // Tree rings spin as it rolls.
+        ctx.strokeStyle = '#7a4a24';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 3, a, a + 4);
+        ctx.stroke();
+        ctx.fillRect(cx + Math.round(Math.cos(a) * 7) - 1, cy + Math.round(Math.sin(a) * 7) - 1, 2, 2);
       },
     },
     // Background scenery that some levels want in a specific spot.
