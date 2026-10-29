@@ -18,7 +18,8 @@ screenshots:
     alt: "Level 3-3 at dusk: Pip stands by a checkpoint star while wooden stage platforms hang on ropes over a pit of spikes"
 playUrl: "/play/forest-liar/"
 playerAspect: "16/9"
-downloadUrl: "https://github.com/RizwanATC/indiegamewebsite/releases/download/android-latest/forest-liar.apk"
+downloadUrl: "https://mockiex.itch.io/forest-liar"
+price: "$1.99"
 downloadType: "apk"
 downloadSource: "official"
 apkVersion: "1.0.0"
@@ -84,9 +85,11 @@ best view. On a computer you can switch the touch pad on under Settings.
 
 ### On Android
 
-The Android app runs the same game full-screen, sideways and offline. Use
-the download button on this page. Android will ask you to allow installs
-from this source the first time, because the app isn't from the Play Store.
+The Android app runs the same game full-screen, sideways and offline, with
+no ads. It costs $1.99 on itch.io: use the Buy button on this page, then
+download the APK from itch. Android will ask you to allow installs from this
+source the first time, because the app isn't from the Play Store. The browser
+version on this page stays free.
 
 ### Credits
 
