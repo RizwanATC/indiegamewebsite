@@ -70,7 +70,6 @@
   };
 
   // --------------------------------------------------------------- canvas --
-  let view = { x: 0, y: 0, w: W, h: H };
   function fit() {
     const portrait = innerHeight > innerWidth;
     // In portrait the game sits at the top and the controls get the space below.
@@ -82,7 +81,6 @@
     canvas.style.width = cw + 'px';
     canvas.style.height = ch + 'px';
     const r = canvas.getBoundingClientRect();
-    view = { x: r.left, y: r.top, w: r.width, h: r.height };
     Object.assign(hudEl.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px' });
     // Controls scale with the screen but never drop below comfortable thumb size.
     const short = Math.min(innerWidth, innerHeight);
@@ -693,7 +691,7 @@
     jumpWas = input.jump;
     // Gamepad drives menus too.
     const nav = pad.up ? 'ArrowUp' : pad.down ? 'ArrowDown' : pad.left ? 'ArrowLeft' : pad.right ? 'ArrowRight' : pad.jump ? 'Enter' : '';
-    if (nav !== padNavWas && nav && state !== 'play') onKey(nav, true);
+    if (nav !== padNavWas && nav && state !== 'play') onKey(nav);
     padNavWas = nav;
   }
 
@@ -1029,12 +1027,6 @@
 
   // ------------------------------------------------------------ the traps --
   const P = () => world.player;
-  const near = (e, dx, dyUp = 40, dyDown = 10) => {
-    const p = P();
-    const cx = p.x + p.w / 2;
-    const bottom = p.y + p.h;
-    return Math.abs(cx - (e.x + T / 2)) < dx && bottom > e.y - dyUp && bottom < e.y + T + dyDown;
-  };
   const standingOn = (e) => P().ground === e.id;
   const hurtIf = (r, cause) => {
     const p = P();
@@ -1682,9 +1674,9 @@
     return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
   }
   const CHAPTER = [
-    { sky: ['#8fd3f4', '#d7f1f9'], tint: null, song: 'ch0', far: '#2f6b5b' },
-    { sky: ['#f6b26b', '#fde3b0'], tint: 'rgba(255, 170, 80, 0.16)', song: 'ch1', far: '#5b5a3a' },
-    { sky: ['#4b3d78', '#e88a74'], tint: 'rgba(60, 40, 110, 0.28)', song: 'ch2', far: '#2b2d4a' },
+    { sky: ['#4aa3d8', '#67c1e2'], skip: 2, tint: null, song: 'ch0', far: '#2f6b5b' },
+    { sky: ['#f6a35b', '#fde3b0'], skip: 62, tint: 'rgba(255, 170, 80, 0.16)', song: 'ch1', far: '#5b5a3a' },
+    { sky: ['#3b2f68', '#e88a74'], skip: 62, tint: 'rgba(60, 40, 110, 0.28)', song: 'ch2', far: '#2b2d4a' },
   ];
 
   function bakeTerrain(L) {
@@ -1759,15 +1751,17 @@
 
   function drawBackground(chapter) {
     const ch = chapter || CHAPTER[0];
-    const g = ctx.createLinearGradient(0, 0, 0, H);
+    const r = ATLAS.bg_forest;
+    const bw = r[2];
+    const by = H - r[3] - 12;
+    // The day sky comes with the picture; sunset and dusk swap in their own sky above the hills.
+    const skip = ch.skip;
+    const g = ctx.createLinearGradient(0, 0, 0, by + skip + 4);
     g.addColorStop(0, ch.sky[0]);
     g.addColorStop(1, ch.sky[1]);
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
     // Far forest: the sheet's wide background, mirrored every other copy so it tiles.
-    const r = ATLAS.bg_forest;
-    const bw = r[2];
-    const by = H - r[3] - 30 + Math.round(-cam.y * 0.1);
     const scroll = -((cam.x * 0.2) % (bw * 2));
     for (let i = -1; i < W / bw + 2; i++) {
       const x = Math.round(scroll + i * bw);
@@ -1775,7 +1769,7 @@
       ctx.save();
       ctx.translate(flip ? x + bw : x, by);
       ctx.scale(flip ? -1 : 1, 1);
-      ctx.drawImage(sheet, r[0], r[1] + 30, bw, r[3] - 30, 0, 30, bw, r[3] - 30);
+      ctx.drawImage(sheet, r[0], r[1] + skip, bw, r[3] - skip, 0, skip, bw, r[3] - skip);
       ctx.restore();
     }
     ctx.fillStyle = ch.far;
@@ -1895,7 +1889,6 @@
   let state = 'loading';
   let menu = []; // [{label, x, y, w, h, act, small}]
   let focus = 0;
-  let selLevel = 0;
   let pausedFrom = null;
   let result = null; // last completed level stats
   let endT = 0;
@@ -2009,7 +2002,6 @@
 
   function setState(s) {
     if (s === 'levels') {
-      const i = menu.findIndex((m) => m.level === selLevel);
       focus = 0;
       state = s;
       buildMenu();
@@ -2027,7 +2019,6 @@
 
   function startLevel(i) {
     loadLevel(i);
-    selLevel = i;
     pausedFrom = null;
     state = 'play';
     menu = [];
@@ -2073,7 +2064,7 @@
     setState('complete');
   }
 
-  function onKey(code, fromPad) {
+  function onKey(code) {
     if (state === 'play') {
       if (code === 'Escape' || code === 'KeyP') pause();
       else if (code === 'KeyR') restartLevel();

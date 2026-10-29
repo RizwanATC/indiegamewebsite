@@ -303,11 +303,8 @@ def main():
     manifest['sprites']['wood_button'] = {'region': UI['btn_pause'][0], 'note': 'label removed, middle stretched'}
     # Background: the wide forest panel without the stray frame lines on its left.
     bg = raw((341, 586, 397, 186))
-    sprites['bg_forest'] = shrink(bg, scale=0.62)
+    sprites['bg_forest'] = shrink(bg, scale=0.95)
     manifest['sprites']['bg_forest'] = {'region': (341, 586, 397, 186), 'note': 'cropped right of a frame artifact'}
-    bg2 = raw((29, 586, 176, 186))
-    sprites['bg_trees'] = shrink(bg2, scale=0.62)
-    manifest['sprites']['bg_trees'] = {'region': (29, 586, 176, 186)}
 
     # Pip's idle breath: second frame squashed by one pixel.
     idle = sprites['pip_idle']
