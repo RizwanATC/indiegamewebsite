@@ -48,7 +48,34 @@
   const saveSettings = () => store.set('settings', settings);
   const saveProgress = () => store.set('progress', progress);
 
+  // -------------------------------------------------------------- version --
+  // Bump VERSION together with version.json (and upload the new APK) for each
+  // Android release. The app runs from file:// and asks the website for the
+  // latest version.json, so it can offer the newer APK on the title screen.
   const VERSION = '1.0.0';
+  const VERSION_URL = 'https://indiegamewebsite.vercel.app/play/forest-liar/version.json';
+  let newVersion = null; // { version, apk } once a newer APK is known
+  function isNewer(a, b) {
+    const x = a.split('.').map(Number);
+    const y = b.split('.').map(Number);
+    for (let i = 0; i < 3; i++) if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) > (y[i] || 0);
+    return false;
+  }
+  if (location.protocol === 'file:') {
+    fetch(VERSION_URL, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((v) => {
+        if (v && typeof v.version === 'string' && /^https:\/\//.test(v.apk ?? '') && isNewer(v.version, VERSION)) {
+          newVersion = v;
+          if (state === 'title') buildMenu();
+        }
+      })
+      .catch(() => {
+        /* offline: just play */
+      });
+  }
+  // The app opens https links in the phone's browser, which downloads the APK.
+  const openUpdate = () => (location.href = newVersion.apk);
 
   // ------------------------------------------------------------ leaderboard --
   // MVP scores stay on this device. A real server board would implement the
@@ -2255,6 +2282,7 @@
         ],
         122,
       );
+      if (newVersion) menu.push({ label: `NEW VERSION ${newVersion.version}: TAP TO DOWNLOAD`, act: openUpdate, x: 60, y: 2, w: W - 120, h: 18 });
     } else if (state === 'levels') {
       const cw = 104;
       const chh = 44;

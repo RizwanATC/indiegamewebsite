@@ -14,6 +14,7 @@ on:
     paths:
       - 'android/**'
       - 'public/play/slime-siege/**'
+      - 'public/play/forest-liar/**'
       - '.github/workflows/android-apk.yml'
   workflow_dispatch:
 
@@ -60,7 +61,7 @@ jobs:
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: |
           mkdir -p apk
-          for game in slime-siege; do
+          for game in slime-siege forest-liar; do
             gradle -p android clean assembleRelease -Pgame=$game --no-daemon --stacktrace
             cp android/app/build/outputs/apk/release/app-release.apk apk/$game.apk
             echo "$game.apk SHA-256: $(sha256sum apk/$game.apk | cut -d' ' -f1) ($(du -k apk/$game.apk | cut -f1) KB)" >> "$GITHUB_STEP_SUMMARY"
