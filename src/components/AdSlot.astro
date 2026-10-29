@@ -1,33 +1,37 @@
 ---
 /**
- * Placeholder for a future display ad. Renders NOTHING unless ADS.enabled is
- * true in src/config.ts, so the live site carries no ad markup today.
- *
- * When you add an ad network later:
- *  1. Put the network's markup inside the `enabled` branch below.
- *  2. Add its domains to the CSP in public/_headers.
- *  3. Update the privacy policy (src/pages/privacy.astro) and add a consent
- *     banner if your visitors' laws require one.
+ * A clearly labelled Google AdSense display unit. Renders NOTHING unless
+ * ADS.enabled is true, the publisher ID is set and this slot has an ad-unit
+ * ID in src/config.ts, so the site never shows empty ad boxes.
  *
  * Ad slots always sit between content sections, never inside game
  * descriptions, players or download panels.
  */
-import { ADS } from '../config';
+import { ADS, ADSENSE_CONNECTED } from '../config';
 
 interface Props {
-  /** Where the slot is, e.g. "home-mid" or "game-sidebar". Useful for ad-unit mapping. */
+  /** Key in ADS.slots, e.g. "home-mid" or "game-sidebar". */
   id: string;
   size?: 'banner' | 'rectangle';
 }
 const { id, size = 'banner' } = Astro.props;
+const unitId = ADS.slots[id] ?? '';
+const live = ADS.enabled && ADSENSE_CONNECTED && /^\d+$/.test(unitId);
 const devPreview = import.meta.env.DEV && ADS.showDevPlaceholders;
 ---
 
 {
-  ADS.enabled ? (
-    <aside class:list={['ad', size]} aria-label="Advertisement" data-ad-slot={id}>
+  live ? (
+    <aside class:list={['ad', size]} aria-label="Advertisement" data-ad-slot-name={id}>
       <span class="ad-label">Advertisement</span>
-      {/* Ad network markup goes here. */}
+      <ins
+        class="adsbygoogle"
+        style="display:block"
+        data-ad-client={ADS.publisherId}
+        data-ad-slot={unitId}
+        data-ad-format={size === 'rectangle' ? 'rectangle' : 'horizontal'}
+        data-full-width-responsive="true"
+      />
     </aside>
   ) : (
     devPreview && (
@@ -37,6 +41,15 @@ const devPreview = import.meta.env.DEV && ADS.showDevPlaceholders;
     )
   )
 }
+
+<script>
+  // Bundled into an external file, so the strict CSP (no inline scripts) holds.
+  type AdQueue = { push: (o: object) => void };
+  const w = window as unknown as { adsbygoogle?: AdQueue };
+  document.querySelectorAll('ins.adsbygoogle:not([data-adsbygoogle-status])').forEach(() => {
+    (w.adsbygoogle = w.adsbygoogle || ([] as unknown as AdQueue)).push({});
+  });
+</script>
 
 <style>
   .ad {
@@ -53,6 +66,10 @@ const devPreview = import.meta.env.DEV && ADS.showDevPlaceholders;
   .rectangle {
     max-width: 300px;
     min-height: 250px;
+  }
+  .ad ins {
+    width: 100%;
+    margin-top: 18px;
   }
   .ad-label {
     position: absolute;

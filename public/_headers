@@ -4,14 +4,15 @@
 # frame-src: add the origin of every external game you embed (and list the
 # same origins in EMBED_ALLOWED_ORIGINS in src/config.ts). Example:
 #   frame-src 'self' https://html-classic.itch.zone;
-# If you add ads or analytics later, their domains must be added here too.
+# Google AdSense domains are allowed in script-src, connect-src and frame-src
+# (ad images come from many hosts, so img-src allows any https: image).
 #
 # 'wasm-unsafe-eval', blob: workers and blob: media are allowed so that
 # authorized HTML5 builds hosted under /play/ (Godot, Unity, Defold, etc.)
 # can run. Inline scripts are NOT allowed anywhere, including /play/.
 
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://*.adtrafficquality.google https://*.googletagservices.com https://*.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://*.adtrafficquality.google; worker-src 'self' blob:; frame-src 'self' https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://*.adtrafficquality.google; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()

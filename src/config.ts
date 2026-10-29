@@ -28,15 +28,39 @@ export const SITE = {
 } as const;
 
 /**
- * Monetization switches. Everything is OFF by default. While `enabled` is
- * false, <AdSlot> renders nothing at all, so the site carries no ad markup,
- * no third-party scripts and no empty boxes.
+ * Google AdSense. Everything is OFF until you fill it in:
+ *
+ *  1. `publisherId`: your AdSense ID, e.g. 'ca-pub-1234567890123456'. Setting
+ *     it loads the AdSense script on every page (so Google can verify the
+ *     site) and publishes /ads.txt. No ads appear yet.
+ *  2. `slots`: the "data-ad-slot" number of each ad unit you create in
+ *     AdSense (Ads > By ad unit > Display ads). A slot left empty stays hidden.
+ *  3. `enabled`: set to true once AdSense has approved the site.
+ *
+ * Keep Auto ads OFF in AdSense so ads never land on top of a game player.
+ * Turn on Google's consent message (Privacy & messaging > European
+ * regulations) so visitors from the EEA/UK get a certified consent banner.
  */
-export const ADS = {
+export const ADS: {
+  enabled: boolean;
+  publisherId: string;
+  slots: Record<string, string>;
+  showDevPlaceholders: boolean;
+} = {
   enabled: false,
+  publisherId: 'ca-pub-5978067529669035',
+  slots: {
+    /** Home page, between Game of the Day and "Previously featured". */
+    'home-mid': '',
+    /** Game page sidebar, under the download links. */
+    'game-sidebar': '',
+  },
   /** Show a dashed placeholder box in `astro dev` only, to help plan layouts. */
   showDevPlaceholders: false,
-} as const;
+};
+
+/** True when the AdSense script should load (publisher ID filled in). */
+export const ADSENSE_CONNECTED = /^ca-pub-\d{10,20}$/.test(ADS.publisherId);
 
 /**
  * Origins that external playUrls may be embedded from. Keep this in sync with
