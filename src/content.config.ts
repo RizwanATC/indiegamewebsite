@@ -55,6 +55,11 @@ const games = defineCollection({
          * "authorized-mirror": a copy hosted by INDIE/24 with the developer's written permission.
          */
         downloadSource: z.enum(['official', 'authorized-mirror']).default('official'),
+        /**
+         * Price for a paid download, e.g. "$1.99". Set it when downloadUrl is a
+         * page that sells the game (such as itch.io); the button then says "Buy".
+         */
+        price: z.string().optional(),
         apkVersion: z.string().optional(),
         /** SHA-256 published by the developer, shown so players can compare it. */
         apkSha256: z.string().regex(/^[a-f0-9]{64}$/i).optional(),
