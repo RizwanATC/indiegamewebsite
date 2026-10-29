@@ -287,6 +287,9 @@
     win: () => [523, 659, 784, 1046].forEach((f, i) => tone(f, 130, 'triangle', 0.06, 0, i * 0.1)),
     trombone: () => [392, 370, 349, 330].forEach((f, i) => tone(f, i === 3 ? 600 : 260, 'sawtooth', 0.04, i === 3 ? -40 : 0, i * 0.28)),
     click: () => tone(700, 40, 'square', 0.03),
+    whistle: () => tone(1400, 550, 'sine', 0.04, -900),
+    rumble: () => (hiss(450, 0.08, 150, 90), tone(60, 450, 'sawtooth', 0.04, 20)),
+    grow: () => tone(200, 350, 'square', 0.04, 600),
     move: () => tone(500, 30, 'square', 0.02),
   };
 
@@ -721,6 +724,10 @@
     W: { type: 'mat', dir: 1 },
     w: { type: 'mat', dir: -1 },
     T: { type: 'stagetree' },
+    K: { type: 'skydrop' },
+    Z: { type: 'slider' },
+    z: { type: 'slider', chase: true },
+    J: { type: 'growtree' },
   };
 
   function tileAt(tx, ty) {
@@ -999,7 +1006,8 @@
     fall: ['BYE!', 'GRAVITY STILL WORKS.', 'THAT WAS A LONG WAY DOWN.'],
     sign: ['THE SIGN WAS HEAVIER THAN IT LOOKED.', 'BONK!', 'SIGNS: NOT TO BE TRUSTED.'],
     acorn: ['ACORN DELIVERED. TO YOUR HEAD.', 'BONK! SQUIRREL MAIL.', 'THE TREE THREW FIRST.'],
-    crush: ['SQUISHED.', 'STAGE CREW ACCIDENT.'],
+    crush: ['SQUISHED.', 'STAGE CREW ACCIDENT.', 'THE SKY WAS NOT EMPTY.', 'LOOK UP NEXT TIME.'],
+    tree: ['TIMBER!', 'THAT TREE HAD A GROWTH SPURT.', 'FLATTENED BY FOLIAGE.'],
   };
   function pickQuip(cause) {
     const list = QUIPS[cause] || QUIPS.spikes;
@@ -1597,6 +1605,175 @@
           return;
         }
         spr('tile_stone', e.x, e.y);
+      },
+    },
+    // A stone block that drops out of the sky. Its shadow on the ground is the warning.
+    skydrop: {
+      init(e) {
+        e.ground = e.y + T; // lands on the ground under its map cell
+        e.by = -40;
+        e.vy = 0;
+      },
+      update(e) {
+        const p = P();
+        const cx = p.x + p.w / 2;
+        const mid = e.x + T / 2;
+        const range = (e.range ?? 2.2) * T;
+        if (e.s === 'idle' && Math.abs(cx - mid) < range && p.y + p.h > e.ground - 80 && p.y < e.ground) {
+          e.s = 'warn';
+          e.t = 0;
+          // It aims at the spot you're standing on (if there's ground there to land on).
+          const tx = Math.floor(cx / T);
+          if (Math.abs(tx - e.tx) <= 2 && (solidTile(tx, e.ty + 1) || tileAt(tx, e.ty + 1) === '=') && !solidTile(tx, e.ty)) e.x = tx * T;
+          sfx.whistle();
+        } else if (e.s === 'warn' && e.t > (e.warn ?? 0.6)) {
+          e.s = 'fall';
+          e.t = 0;
+          e.by = Math.min(e.by, cam.y - 40);
+          e.vy = 260;
+        } else if (e.s === 'fall') {
+          e.vy += 1600 * DT;
+          e.by += e.vy * DT;
+          if (e.by + 22 >= e.ground) {
+            e.by = e.ground - 22;
+            e.s = 'down';
+            sfx.thud();
+            dust(mid, e.ground, 8);
+            if (settings.shake) world.shake = 0.2;
+          }
+          hurtIf({ x: e.x + 2, y: e.by, w: 20, h: 22 }, 'crush');
+        }
+        e.t += DT;
+      },
+      solid(e) {
+        return e.s === 'down' && e.stay !== false ? { x: e.x + 1, y: e.by, w: 22, h: 22 } : null;
+      },
+      draw(e) {
+        const mid = e.x + T / 2;
+        if (e.s === 'warn' || e.s === 'fall') {
+          // Shadow grows as the block gets closer.
+          const k = e.s === 'warn' ? Math.min(1, e.t / (e.warn ?? 0.6)) * 0.6 : 0.6 + Math.min(0.4, (e.by - (e.ground - 200)) / 500);
+          const w = Math.round(8 + 16 * k);
+          ctx.fillStyle = `rgba(19, 32, 42, ${0.25 + 0.35 * k})`;
+          ctx.fillRect(Math.round(mid - w / 2 - cam.x), Math.round(e.ground - 3 - cam.y), w, 3);
+          if (e.s === 'warn') text('!', mid, e.ground - 40 - Math.round(Math.sin(e.t * 20) * 2), { align: 'center', color: '#d8433a', scale: 2 });
+        }
+        if (e.s === 'fall' || e.s === 'down') {
+          if (e.stay === false && e.s === 'down') return;
+          spr('crush_block', mid - 12, e.by - 2, { sx: 24 / 25, sy: 24 / 26, ox: 0, oy: 0 });
+        }
+      },
+    },
+    // Spikes on a little cart. They patrol, or (chase) wait until you pass and then follow.
+    slider: {
+      init(e) {
+        e.hx = e.x;
+        e.dir = e.dir ?? 1;
+        e.py = e.y;
+      },
+      update(e) {
+        const p = P();
+        const dist = (e.dist ?? 4) * T;
+        const speed = e.speed ?? (e.chase ? 85 : 60);
+        let vx = 0;
+        if (e.chase) {
+          const cx = p.x + p.w / 2;
+          if (e.s === 'idle' && Math.abs(cx - (e.x + T / 2)) < 3 * T && Math.abs(cx - (e.x + T / 2)) > T && Math.abs(p.y + p.h - (e.y + T)) < 30) {
+            // Only starts once you're past it.
+            if ((cx - (e.x + T / 2)) * e.dir > 0) (e.s = 'rev'), (e.t = 0), sfx.rattle();
+          } else if (e.s === 'rev' && e.t > 0.45) e.s = 'go';
+          else if (e.s === 'go') {
+            vx = e.dir * speed;
+            if (Math.abs(e.x + vx * DT - e.hx) >= dist) (vx = 0), (e.s = 'stop');
+          }
+        } else {
+          // Ping-pong with a short stop at each end.
+          if (e.s === 'idle') e.s = 'go';
+          if (e.s === 'go') {
+            vx = e.dir * speed;
+            const nx = e.x + vx * DT;
+            if (nx > e.hx + dist || nx < e.hx) (e.s = 'wait'), (e.t = 0), (vx = 0), (e.dir *= -1);
+          } else if (e.s === 'wait' && e.t > 0.35) e.s = 'go';
+        }
+        e.dx = vx * DT;
+        e.x += e.dx;
+        e.t += DT;
+        hurtIf({ x: e.x + 3, y: e.y + 9, w: 18, h: 15 }, 'spikes');
+      },
+      draw(e) {
+        const jig = e.s === 'rev' ? Math.round(Math.sin(e.t * 50)) : 0;
+        spr('spikes', e.x - 1 + jig, e.y + 4, { sx: 24 / 26, ox: 0, oy: 0 });
+        // Wheels.
+        ctx.fillStyle = '#13202a';
+        ctx.fillRect(Math.round(e.x + 3 + jig - cam.x), Math.round(e.y + 20 - cam.y), 6, 4);
+        ctx.fillRect(Math.round(e.x + 15 + jig - cam.x), Math.round(e.y + 20 - cam.y), 6, 4);
+        ctx.fillStyle = '#6b7c88';
+        ctx.fillRect(Math.round(e.x + 4 + jig - cam.x), Math.round(e.y + 21 - cam.y), 4, 2);
+        ctx.fillRect(Math.round(e.x + 16 + jig - cam.x), Math.round(e.y + 21 - cam.y), 4, 2);
+      },
+    },
+    // An ordinary tree. Walk up to it and it shoots up tall, then falls on you.
+    growtree: {
+      init(e) {
+        e.ang = 0;
+        e.grow = 1;
+        e.fall = 1;
+      },
+      height(e) {
+        return sh('tree_tall') * e.grow;
+      },
+      update(e) {
+        const p = P();
+        const base = e.x + T / 2;
+        const cx = p.x + p.w / 2;
+        if (e.s === 'idle' && Math.abs(cx - base) < (e.range ?? 3) * T && Math.abs(p.y + p.h - (e.y + T)) < 50) {
+          e.s = 'rumble';
+          e.t = 0;
+          e.fall = cx < base ? -1 : 1;
+          sfx.rumble();
+        } else if (e.s === 'rumble' && e.t > 0.45) {
+          e.s = 'grow';
+          e.t = 0;
+          sfx.grow();
+        } else if (e.s === 'grow') {
+          e.grow = 1 + Math.min(1, e.t / 0.35) * ((e.tall ?? 1.9) - 1);
+          if (e.t > 0.4) (e.s = 'falling'), (e.t = 0);
+        } else if (e.s === 'falling') {
+          e.ang = Math.min(Math.PI / 2, (e.t / 0.5) ** 2 * (Math.PI / 2));
+          if (e.t > 0.3) hurtIf(this.zone(e), 'tree');
+          if (e.ang >= Math.PI / 2) {
+            e.s = 'down';
+            sfx.thud();
+            if (settings.shake) world.shake = 0.3;
+            for (let i = 1; i < 6; i++) dust(base + e.fall * i * 22, e.y + T, 2);
+          }
+        }
+        e.t += DT;
+      },
+      zone(e) {
+        const base = e.x + T / 2;
+        const len = this.height(e) - 6;
+        return { x: e.fall < 0 ? base - len : base, y: e.y + T - 22, w: len, h: 22 };
+      },
+      solid(e) {
+        if (e.s !== 'down') return null;
+        const base = e.x + T / 2;
+        const len = this.height(e) - 10;
+        return { x: e.fall < 0 ? base - len : base + 4, y: e.y + T - 10, w: len - 4, h: 10 };
+      },
+      draw(e) {
+        const base = e.x + T / 2;
+        const bottom = e.y + T;
+        const jig = e.s === 'rumble' ? Math.round(Math.sin(e.t * 60) * 1.5) : 0;
+        if (e.s === 'rumble' && Math.random() < 0.3) world.fx.push({ k: 'leaf', x: base + (Math.random() - 0.5) * 40, y: bottom - 60, vx: (Math.random() - 0.5) * 30, vy: 10, t: 0, life: 0.9 });
+        const [ax, ay, w, h] = ATLAS.tree_tall;
+        ctx.save();
+        ctx.translate(Math.round(base + jig - cam.x), Math.round(bottom - cam.y));
+        ctx.rotate(e.ang * e.fall);
+        ctx.scale(1, e.grow);
+        ctx.drawImage(sheet, ax, ay, w, h, -Math.round(w / 2), -h, w, h);
+        ctx.restore();
+        if (e.s === 'rumble' || e.s === 'grow') text(e.s === 'grow' ? 'TIMBER!' : '?!', base, Math.max(cam.y + 14, bottom - this.height(e) - 10), { align: 'center', color: '#fff6c2', scale: e.s === 'grow' ? 2 : 1 });
       },
     },
     // Background scenery that some levels want in a specific spot.

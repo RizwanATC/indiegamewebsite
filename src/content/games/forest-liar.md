@@ -55,6 +55,12 @@ in under a second. The second try is where the fun is.
 - **Tree stumps** rattle, then roll acorns at you.
 - **Welcome mats** slide away once you step on them.
 - **A theatrical tree** moves the scenery around to the beat of its drum.
+- **Rocks fall out of the sky** right where you're standing. Watch for the
+  shadow, and move.
+- **Spikes on wheels** roll back and forth, and some quietly follow you once
+  you've walked past.
+- **Trees** have growth spurts. If one rumbles, run past it before it falls
+  on you.
 - **The mailbox** at the end is real. Usually.
 
 ### Levels
