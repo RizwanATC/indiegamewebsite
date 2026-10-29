@@ -36,6 +36,10 @@ controls:
 estimatedPlaytime: "20–40 minutes"
 ---
 
+> **Android APK coming soon.** We're packaging Forest Liar as an Android
+> app right now. Until it's ready, you can play it here in your browser,
+> on your phone too.
+
 **Forest Liar** is INDIE/24's second home-made game: a short comedy
 platformer about a tiny courier named Pip, a sealed letter, and the
 Whisperwood Forest, which does not want that letter delivered.
@@ -73,6 +77,8 @@ levels, best times and death counts are saved on your device.
 
 ### Phones and tablets
 
+An Android APK is on the way, and a download button will appear on this
+page when it's out. Until then, the browser version works on phones.
 The game shows a touch pad (a d-pad and a jump button) on touch screens,
 and every level can be finished with it. Turn your phone sideways for the
 best view. On a computer you can switch the touch pad on under Settings.
