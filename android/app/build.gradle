@@ -12,6 +12,7 @@ def ks = System.getenv('SIGNING_KEYSTORE_PATH')
 // The game folder under public/play/ is bundled as the app's assets.
 def GAMES = [
     'slime-siege'  : [id: 'com.indie24.slimesiege',   label: 'Slime Siege',   orientation: 'sensorPortrait'],
+    'forest-liar'  : [id: 'com.indie24.forestliar',   label: 'Forest Liar',   orientation: 'sensorLandscape'],
 ]
 def game = (project.findProperty('game') ?: 'slime-siege').toString()
 def cfg = GAMES[game]
