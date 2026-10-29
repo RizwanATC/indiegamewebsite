@@ -17,6 +17,12 @@ screenshots:
   - src: "../../assets/games/slime-siege/screenshot-3.png"
     alt: "Boss fight: a giant skeleton called the Bone Lord with a health bar, while the hero throws sword slashes up the path"
 playUrl: "/play/slime-siege/"
+downloadUrl: "https://mockiex.itch.io/slime-siege"
+price: "$1.99"
+downloadType: "apk"
+downloadSource: "official"
+apkVersion: "1.1.0"
+apkSha256: "e70d82905037fca57cac76c62d17d8b0eaa6d735063ab4e31884ea47a745191f"
 playerAspect: "9/16"
 controls:
   - input: "Touch: drag anywhere"
@@ -65,8 +71,11 @@ saved on your device.
 
 ### On Android
 
-The Android app (full-screen, offline, no ads) is moving to itch.io and will
-be back on this page soon. The browser version above stays free.
+The Android app runs the same game full-screen and offline, with no ads. It
+costs $1.99 on itch.io: use the Buy button on this page, then download the APK
+from itch. Android will ask you to allow installs from this source the first
+time, because the app isn't from the Play Store. The browser version on this
+page stays free.
 
 ### Credits
 
