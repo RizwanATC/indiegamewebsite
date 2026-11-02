@@ -24,6 +24,8 @@ pnpm-debug.log*
 *.apk
 *.aab
 *.xapk
+# except our own small apps, served free from the site
+!public/downloads/*.apk
 
 # editors & OS
 .vscode/*
