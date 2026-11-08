@@ -832,6 +832,7 @@
       newBest = S.score > 0;
       store.set('best', best);
     }
+    window.Indie24Scores?.submit('bumble-dash', S.score);
     medalShown = medalFor(S.score);
     if (medalShown) setTimeout(() => state === 'over' && sfx.medal(), 500);
     setState('over');
