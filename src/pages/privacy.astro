@@ -33,7 +33,7 @@ const lastUpdated = ads ? '29 October 2026' : '27 October 2026';
     <li>We don't use our own analytics or tracking scripts.</li>
     {ads ? <li>We don't set cookies ourselves. Our advertising partner does; see below.</li> : <li>We don't set cookies.</li>}
     {!ads && <li>We don't show advertising and don't share data with ad networks.</li>}
-    <li>There are no accounts, sign-ups or comment forms.</li>
+    <li>There are no accounts, sign-ups or comment forms. The only thing we ask for is an optional player name for the leaderboards.</li>
   </ul>
 
   {
@@ -77,6 +77,15 @@ const lastUpdated = ads ? '29 October 2026' : '27 October 2026';
     Embedded games only load after you press <strong>Play Now</strong>. Games hosted on {SITE.name} may save things like your high score in your
     browser's local storage; that data stays on your device and you can clear it in your browser settings. When a game is hosted by another website,
     pressing Play loads it from that website, and that site's own privacy policy applies.
+  </p>
+
+  <h2>Leaderboards</h2>
+  <p>
+    When you first visit, we ask for a player name. It is optional, you pick it yourself, and you can change it any time from the name button at the
+    top of the page. Your browser keeps the name and a random player ID in local storage. When you finish a round of a game that has a
+    leaderboard, the name, the ID and your score are sent to our leaderboard and the name and score are shown publicly on the
+    <a href="/leaderboard/">leaderboard</a>. Don't use your real full name if you don't want it shown. To have a score removed,
+    <a href="/contact/">contact us</a>. The scores are stored with Upstash, our database provider.
   </p>
 
   <h2>Links to other sites</h2>

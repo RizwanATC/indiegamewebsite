@@ -1,0 +1,31 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import Leaderboard from '../components/Leaderboard.astro';
+import { LEADERBOARDS } from '../config';
+import { gameSlug, gameUrl, getVisibleGames } from '../lib/games';
+
+const games = (await getVisibleGames()).filter((g) => LEADERBOARDS[gameSlug(g)]);
+---
+
+<PageLayout title="Leaderboard" eyebrow="Hall of fame" description="Top players for every INDIE/24 game.">
+  <p class="lead">The top 10 players of each game. Play any game on the site and your best score lands here under your player name.</p>
+  <p>
+    <button type="button" class="btn btn-sm" data-name-open>Change my player name</button>
+  </p>
+  <div class="boards">
+    {games.map((g) => <Leaderboard game={gameSlug(g)} title={g.data.title} href={gameUrl(g)} headingLevel={2} />)}
+  </div>
+</PageLayout>
+
+<style>
+  .boards {
+    display: grid;
+    gap: 20px;
+    margin-top: 24px;
+  }
+  @media (min-width: 760px) {
+    .boards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

@@ -9,8 +9,9 @@ import GamePlayer from '../../components/GamePlayer.astro';
 import DownloadPanel from '../../components/DownloadPanel.astro';
 import ScreenshotGallery from '../../components/ScreenshotGallery.astro';
 import AdSlot from '../../components/AdSlot.astro';
+import Leaderboard from '../../components/Leaderboard.astro';
 import Icon from '../../components/Icon.astro';
-import { SITE } from '../../config';
+import { LEADERBOARDS, SITE } from '../../config';
 import { formatDate, gameSlug, gameUrl, genreLabel, getVisibleGames, hostname, isExternal, platformLabel, relatedGames, type Game } from '../../lib/games';
 
 export async function getStaticPaths() {
@@ -136,6 +137,13 @@ const videoGame = !d.sample && {
 
     <div class="container body-grid">
       <div class="main">
+        {
+          LEADERBOARDS[gameSlug(game)] && (
+            <div class="block">
+              <Leaderboard game={gameSlug(game)} title={`${d.title} leaderboard`} />
+            </div>
+          )
+        }
         <section aria-labelledby="about-heading" class="block">
           <h2 id="about-heading">About this game</h2>
           <div class="prose"><Content /></div>

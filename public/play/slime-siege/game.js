@@ -1080,6 +1080,7 @@
             hiScore = score;
             store.set('hi', hiScore);
           }
+          window.Indie24Scores?.submit('slime-siege', score);
           setState('over');
         }
         break;

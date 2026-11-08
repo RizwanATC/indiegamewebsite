@@ -6,6 +6,7 @@ const path = Astro.url.pathname;
 const nav = [
   { href: '/', label: 'Today', match: (p: string) => p === '/' },
   { href: '/games/', label: 'All games', match: (p: string) => p.startsWith('/games') || p.startsWith('/genres') },
+  { href: '/leaderboard/', label: 'Leaderboard', match: (p: string) => p.startsWith('/leaderboard') },
   { href: '/about/', label: 'About', match: (p: string) => p.startsWith('/about') },
 ];
 ---
@@ -13,6 +14,10 @@ const nav = [
 <header class="site-header">
   <div class="container bar">
     <Logo />
+    <button type="button" class="player-chip" data-name-open data-player-chip title="Change your player name">
+      <Icon name="user" size={14} />
+      <span data-player-name>Set name</span>
+    </button>
     <nav aria-label="Main">
       <ul>
         {
@@ -34,7 +39,40 @@ const nav = [
   </div>
 </header>
 
+<script>
+  import { getPlayer, PLAYER_EVENT } from '../lib/player';
+  const label = document.querySelector<HTMLElement>('[data-player-name]');
+  const show = () => {
+    if (label) label.textContent = getPlayer().name || 'Set name';
+  };
+  show();
+  window.addEventListener(PLAYER_EVENT, show);
+</script>
+
 <style>
+  .player-chip {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 160px;
+    min-height: 40px;
+    padding: 6px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text);
+    font: 600 0.85rem/1 var(--font-body);
+    cursor: pointer;
+  }
+  .player-chip span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .player-chip:hover {
+    border-color: var(--accent);
+  }
   .site-header {
     position: sticky;
     top: 0;
@@ -110,6 +148,11 @@ const nav = [
   @media (min-width: 860px) {
     .header-search {
       display: block;
+      order: 2;
+    }
+    .player-chip {
+      order: 3;
+      margin-left: 0;
     }
     nav {
       margin-left: auto;
