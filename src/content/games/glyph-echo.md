@@ -5,6 +5,7 @@ developer: "INDIE/24 Sample Studio (placeholder)"
 releaseYear: 2026
 genres: ["puzzle", "casual"]
 platforms: ["web"]
+published: false     # hidden: fictional sample entry
 featuredDate: "2026-10-26"
 coverImage: "../../assets/games/glyph-echo/cover.png"
 coverAlt: "Pixel-art night ruins with four stone glyph tiles, one of them glowing pale blue"

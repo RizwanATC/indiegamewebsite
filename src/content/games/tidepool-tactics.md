@@ -5,6 +5,7 @@ developer: "INDIE/24 Sample Studio (placeholder)"
 releaseYear: 2025
 genres: ["strategy", "turn-based"]
 platforms: ["android"]
+published: false     # hidden: fictional sample entry
 featuredDate: "2026-10-24"
 coverImage: "../../assets/games/tidepool-tactics/cover.png"
 coverAlt: "Pixel-art teal evening sea with layered rocks and a tiny boat"

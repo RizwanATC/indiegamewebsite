@@ -7,7 +7,7 @@ platforms: ["web"]
 featuredDate: "2026-10-20"
 coverImage: "../../assets/games/starling-post/cover.png"
 coverAlt: "Pixel-art blue dusk with a small bird"
-published: false
+published: false     # hidden: fictional sample entry
 sample: true
 ---
 
