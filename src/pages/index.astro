@@ -27,8 +27,6 @@ const jsonLd = {
 ---
 
 <BaseLayout jsonLd={jsonLd}>
-  <FeaturedGame pick={pick} />
-
   {
     boards.length > 0 && (
       <section class="section boards-section" aria-labelledby="boards-heading">
@@ -47,6 +45,8 @@ const jsonLd = {
       </section>
     )
   }
+
+  <FeaturedGame pick={pick} />
 
   <section class="section browse" aria-labelledby="browse-heading">
     <div class="container">
