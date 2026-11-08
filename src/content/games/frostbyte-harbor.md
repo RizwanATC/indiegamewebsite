@@ -4,6 +4,7 @@ shortDescription: "Scheduled sample entry with a future featuredDate. It stays h
 developer: "INDIE/24 Sample Studio (placeholder)"
 genres: ["simulation"]
 platforms: ["windows", "macos", "linux"]
+published: false     # hidden: fictional sample entry
 featuredDate: "2026-12-01"
 coverImage: "../../assets/games/frostbyte-harbor/cover.png"
 coverAlt: "Pixel-art icy harbour at night with a small boat"

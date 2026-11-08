@@ -5,6 +5,7 @@ developer: "INDIE/24 Sample Studio (placeholder)"
 releaseYear: 2026
 genres: ["puzzle", "exploration"]
 platforms: ["android", "windows"]
+published: false     # hidden: fictional sample entry
 featuredDate: "2026-10-22"
 coverImage: "../../assets/games/comet-cartographer/cover.png"
 coverAlt: "Pixel-art deep-blue space scene over alien hills with a small probe"

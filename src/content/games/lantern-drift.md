@@ -5,6 +5,7 @@ developer: "INDIE/24 Sample Studio (placeholder)"
 releaseYear: 2026
 genres: ["arcade", "casual"]
 platforms: ["web"]
+published: false     # hidden: fictional sample entry
 featuredDate: "2026-10-20"
 coverImage: "../../assets/games/lantern-drift/cover.png"
 coverAlt: "Pixel-art night sky with a full moon over dark hills and a glowing paper lantern floating above the grass"

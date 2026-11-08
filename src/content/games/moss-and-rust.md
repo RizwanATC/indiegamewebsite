@@ -4,6 +4,7 @@ shortDescription: "A small knight explores an overgrown machine city, unlocking 
 developer: "INDIE/24 Sample Studio (placeholder)"
 genres: ["platformer", "exploration"]
 platforms: ["windows", "linux"]
+published: false     # hidden: fictional sample entry
 featuredDate: "2026-10-25"
 coverImage: "../../assets/games/moss-and-rust/cover.png"
 coverAlt: "Pixel-art green dusk over mossy hills, with a tiny armoured knight standing in the foreground"

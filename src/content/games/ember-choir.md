@@ -5,6 +5,7 @@ developer: "INDIE/24 Sample Studio (placeholder)"
 releaseYear: 2025
 genres: ["rhythm", "arcade"]
 platforms: ["windows"]
+published: false     # hidden: fictional sample entry
 featuredDate: "2026-10-21"
 coverImage: "../../assets/games/ember-choir/cover.png"
 coverAlt: "Pixel-art orange and red sunset over layered hills with a small bird"

@@ -5,6 +5,7 @@ developer: "INDIE/24 Sample Studio (placeholder)"
 releaseYear: 2024
 genres: ["adventure", "narrative"]
 platforms: ["windows", "macos"]
+published: false     # hidden: fictional sample entry
 featuredDate: "2026-10-23"
 coverImage: "../../assets/games/night-market-courier/cover.png"
 coverAlt: "Pixel-art magenta night sky over rooftops with a courier on a small bike"
