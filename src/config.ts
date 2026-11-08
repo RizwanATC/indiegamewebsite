@@ -47,13 +47,13 @@ export const ADS: {
   slots: Record<string, string>;
   showDevPlaceholders: boolean;
 } = {
-  enabled: false,
+  enabled: true,
   publisherId: 'ca-pub-5978067529669035',
   slots: {
     /** Home page, between Game of the Day and "Previously featured". */
-    'home-mid': '',
+    'home-mid': '9325901573',
     /** Game page sidebar, under the download links. */
-    'game-sidebar': '',
+    'game-sidebar': '1447411551',
   },
   /** Show a dashed placeholder box in `astro dev` only, to help plan layouts. */
   showDevPlaceholders: false,
