@@ -22,7 +22,7 @@ downloadUrl: "/downloads/bumble-dash.apk"
 downloadType: "apk"
 downloadSource: "official"
 apkVersion: "1.0.0"
-apkSha256: "d18633839612b3534d4855f4b3bbf9e09e25c6d5ea8c716c067acab3ddfd247b"
+apkSha256: "ee40c5d357581bb96b00edd17bfa39f040c621c3bf056b332f7fe19a07e1abf8"
 controls:
   - input: "Tap anywhere"
     action: "Flap (phones and tablets)"
@@ -51,10 +51,12 @@ thorn and the run is over, and the next one starts straight away.
   get tighter the further you fly.
 - **Honey drops** float between the vines. Grab one for a bonus point, if
   you dare to leave the safe line.
-- **Swaying vines** start to bob up and down after a while.
-- **Wasps** move in later and hover right where you want to go.
+- **Swaying vines** bob up and down almost from the start.
+- **Wasps** move in early and hover right where you want to go.
 - **Squeezing vines** look wide open from far away, then close in as you
-  get there. Nobody warns you about those.
+  get there.
+- **Jumping vines** sit perfectly still, then hop their gap up or down
+  just before you reach it. Nobody warns you about those.
 
 ### Four times of day
 

@@ -16,9 +16,9 @@
   const SPACING = 86; // distance between bramble columns
   const BX = 40; // the bee's x position
   const BR = 4.5; // the bee's hit radius (a little smaller than it looks)
-  const GRAVITY = 0.22;
-  const FLAP = -3.55;
-  const MAX_FALL = 5.2;
+  const GRAVITY = 0.25;
+  const FLAP = -3.75;
+  const MAX_FALL = 5.6;
 
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
@@ -494,7 +494,7 @@
       score: 0,
       honey: 0,
       dead: false,
-      speed: 1.1,
+      speed: 1.25,
       cols: [],
       wasps: [],
       drops: [],
@@ -507,31 +507,37 @@
 
   function makeColumn(S) {
     const n = S.made++;
-    const gap = Math.max(52, 72 - n * 0.45);
-    const lo = 34 + gap / 2;
-    const hi = GY - 30 - gap / 2;
-    let c = S.lastC + (rand(S) * 2 - 1) * Math.min(70, 30 + n * 2);
+    const gap = Math.max(46, 62 - n * 0.5);
+    const lo = 30 + gap / 2;
+    const hi = GY - 26 - gap / 2;
+    let c = S.lastC + (rand(S) * 2 - 1) * Math.min(90, 40 + n * 3);
     c = Math.max(lo, Math.min(hi, c));
-    const col = { x: S.nextX, c, gap, kind: 'plain', amp: 0, ph: rand(S) * 6.28, scored: false, knot: (rand(S) * 12) | 0 };
-    // Later columns cheat: some sway, some close in as you get near.
+    const col = { x: S.nextX, c, gap, kind: 'plain', amp: 0, shift: 0, ph: rand(S) * 6.28, scored: false, knot: (rand(S) * 12) | 0 };
+    // The garden cheats early and often, with no warning: some vines sway,
+    // some squeeze shut as you get near, some jump the gap up or down.
     const r = rand(S);
-    if (n >= 28 && r < 0.3) col.kind = 'close';
-    else if (n >= 9 && r < 0.62) {
+    if (n >= 12 && r < 0.22) {
+      col.kind = 'shift';
+      const room = [hi - c, c - lo];
+      const dir = room[0] > room[1] ? 1 : -1;
+      col.shift = dir * Math.min(Math.max(room[0], room[1]), 26 + rand(S) * 10);
+    } else if (n >= 8 && r < 0.45) col.kind = 'close';
+    else if (n >= 3 && r < 0.8) {
       col.kind = 'sway';
-      col.amp = Math.min(20, 10 + (n - 9) * 0.4);
+      col.amp = Math.min(26, 12 + (n - 3) * 0.6);
       col.c = Math.max(lo + col.amp, Math.min(hi - col.amp, col.c));
     }
-    if (col.kind === 'close') col.gap = Math.max(50, gap - 2);
+    if (col.kind === 'close') col.gap = Math.max(46, gap - 2);
     S.cols.push(col);
-    // Between this column and the next: a honey drop, or (later on) a wasp.
+    // Between this column and the next: a honey drop, or a wasp.
     const midX = col.x + SW + (SPACING - SW) / 2;
     const r2 = rand(S);
-    if (n >= 14 && r2 < 0.32) {
-      S.wasps.push({ x: midX, y0: col.c, amp: 18 + rand(S) * 10, ph: rand(S) * 6.28, sp: 0.045 + rand(S) * 0.03, buzzed: false });
-    } else if (r2 < 0.7) {
-      S.drops.push({ x: midX, y: Math.max(40, Math.min(GY - 20, col.c + (rand(S) * 2 - 1) * 34)), got: false });
+    if (n >= 5 && r2 < 0.42) {
+      S.wasps.push({ x: midX, y0: col.c, amp: 20 + rand(S) * 12, ph: rand(S) * 6.28, sp: 0.05 + rand(S) * 0.035, buzzed: false });
+    } else if (r2 < 0.75) {
+      S.drops.push({ x: midX, y: Math.max(40, Math.min(GY - 20, col.c + (rand(S) * 2 - 1) * 40)), got: false });
     }
-    S.lastC = col.c;
+    S.lastC = col.c + col.shift;
     S.nextX += SPACING;
   }
 
@@ -539,11 +545,16 @@
   function gapOf(col) {
     let c = col.c;
     let gap = col.gap;
-    if (col.kind === 'sway') c += Math.sin(col.ph + col.x * 0.045) * col.amp;
+    if (col.kind === 'sway') c += Math.sin(col.ph + col.x * 0.05) * col.amp;
     if (col.kind === 'close') {
       // Starts wide and squeezes shut as the column reaches the bee.
       const k = Math.max(0, Math.min(1, (W - col.x) / (W - BX - 10)));
-      gap = col.gap + 22 * (1 - k);
+      gap = col.gap + 26 * (1 - k);
+    }
+    if (col.kind === 'shift') {
+      // Sits still, then jumps up or down just before you get there.
+      const k = Math.max(0, Math.min(1, (BX + 62 - col.x) / 16));
+      c += col.shift * k * k * (3 - 2 * k);
     }
     return { top: c - gap / 2, bot: c + gap / 2 };
   }
@@ -594,7 +605,7 @@
       S.by = 4;
       S.vy = Math.max(0, S.vy);
     }
-    S.speed = Math.min(1.6, 1.1 + S.made * 0.008);
+    S.speed = Math.min(1.95, 1.25 + S.made * 0.01);
     for (const col of S.cols) col.x -= S.speed;
     for (const w of S.wasps) w.x -= S.speed;
     for (const d of S.drops) d.x -= S.speed;
