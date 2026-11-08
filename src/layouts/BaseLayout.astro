@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import NamePrompt from '../components/NamePrompt.astro';
 import { SITE, ADS, ADSENSE_CONNECTED } from '../config';
 
 interface Props {
@@ -80,5 +81,6 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
       <slot />
     </main>
     <Footer />
+    <NamePrompt />
   </body>
 </html>

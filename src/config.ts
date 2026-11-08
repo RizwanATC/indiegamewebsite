@@ -71,6 +71,17 @@ export const EMBED_ALLOWED_ORIGINS: string[] = [
   // e.g. 'https://html-classic.itch.zone',
 ];
 
+/**
+ * Games with an online leaderboard (slug -> what the score means). The list
+ * of games and their score limits on the server is in api/scores.js; add a
+ * game in both places.
+ */
+export const LEADERBOARDS: Record<string, { scoreLabel: string; note?: string }> = {
+  'slime-siege': { scoreLabel: 'Score', note: 'Best score in one run.' },
+  'forest-liar': { scoreLabel: 'Total', note: 'Your best score on each level, added up. Faster runs with fewer deaths score more.' },
+  'bumble-dash': { scoreLabel: 'Score', note: 'Best score in one flight.' },
+};
+
 export const PLATFORM_LABELS = {
   web: 'Browser',
   android: 'Android',

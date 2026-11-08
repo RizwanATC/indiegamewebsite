@@ -1,0 +1,228 @@
+---
+/**
+ * Top 10 for one game, loaded in the browser from /api/scores. Refreshes when
+ * the embedded game posts a score or the player changes their name.
+ */
+import { LEADERBOARDS } from '../config';
+
+interface Props {
+  game: string;
+  title?: string;
+  href?: string;
+  headingLevel?: 2 | 3;
+  /** How many rows to show (the server sends up to 10). */
+  limit?: number;
+}
+const { game, title = 'Leaderboard', href, headingLevel = 2, limit = 10 } = Astro.props;
+const board = LEADERBOARDS[game];
+const H = `h${headingLevel}` as 'h2' | 'h3';
+const id = `lb-${game}-${limit}`;
+---
+
+{
+  board && (
+    <section class="board panel" data-board={game} data-limit={limit} aria-labelledby={id}>
+      <div class="head">
+        <H id={id} class="title">
+          {href ? <a href={href}>{title}</a> : title}
+        </H>
+        <button type="button" class="you" data-name-open>
+          Playing as <strong data-board-name>…</strong>
+        </button>
+      </div>
+      {board.note && <p class="note">{board.note}</p>}
+      <p class="status" data-board-status role="status">
+        Loading scores…
+      </p>
+      <ol class="rows" data-board-rows hidden />
+      <p class="me" data-board-me hidden />
+      <template data-board-row>
+        <li>
+          <span class="rank" />
+          <span class="name" />
+          <span class="score" />
+        </li>
+      </template>
+      <span hidden data-score-label>{board.scoreLabel}</span>
+    </section>
+  )
+}
+
+<style>
+  .board {
+    display: grid;
+    gap: 10px;
+  }
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+  }
+  .title {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+  .title a {
+    color: inherit;
+  }
+  .you {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--text-muted);
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+  }
+  .you strong {
+    color: var(--accent-strong);
+  }
+  .note,
+  .status,
+  .me {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+  .rows {
+    display: grid;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: none;
+  }
+  .rows[hidden],
+  .me[hidden] {
+    display: none;
+  }
+  .rows :global(li) {
+    display: grid;
+    grid-template-columns: 2.5em minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    padding: 7px 10px;
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-variant-numeric: tabular-nums;
+  }
+  .rows :global(li.is-you) {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+  .rows :global(.rank) {
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    color: var(--text-faint);
+  }
+  .rows :global(li:nth-child(1) .rank) {
+    color: #f7c948;
+  }
+  .rows :global(li:nth-child(2) .rank) {
+    color: #d6d3e8;
+  }
+  .rows :global(li:nth-child(3) .rank) {
+    color: #e3a06b;
+  }
+  .rows :global(.name) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  .rows :global(.score) {
+    font-weight: 700;
+    color: var(--accent-strong);
+  }
+</style>
+
+<script>
+  import { getPlayer, PLAYER_EVENT } from '../lib/player';
+
+  interface Row {
+    rank: number;
+    name: string;
+    score: number;
+    you: boolean;
+  }
+  interface Data {
+    total: number;
+    top: Row[];
+    me: { rank: number; score: number } | null;
+  }
+
+  const fmt = new Intl.NumberFormat('en');
+
+  function init(el: HTMLElement) {
+    const game = el.dataset.board!;
+    const limit = Number(el.dataset.limit) || 10;
+    const status = el.querySelector<HTMLElement>('[data-board-status]')!;
+    const rows = el.querySelector<HTMLOListElement>('[data-board-rows]')!;
+    const me = el.querySelector<HTMLElement>('[data-board-me]')!;
+    const tpl = el.querySelector<HTMLTemplateElement>('[data-board-row]')!;
+    const nameEl = el.querySelector<HTMLElement>('[data-board-name]')!;
+    let busy = false;
+
+    const showName = () => (nameEl.textContent = getPlayer().name || 'Guest (set a name)');
+
+    async function load() {
+      if (busy) return;
+      busy = true;
+      try {
+        const res = await fetch(`/api/scores?game=${encodeURIComponent(game)}&player=${encodeURIComponent(getPlayer().id)}`, { cache: 'no-store' });
+        if (res.status === 503) throw new Error('soon');
+        if (!res.ok) throw new Error('down');
+        render((await res.json()) as Data);
+      } catch (err) {
+        rows.hidden = true;
+        me.hidden = true;
+        status.hidden = false;
+        status.textContent = (err as Error).message === 'soon' ? 'The leaderboard is coming soon.' : 'Scores could not be loaded right now.';
+      } finally {
+        busy = false;
+      }
+    }
+
+    function render(data: Data) {
+      const top = data.top.slice(0, limit);
+      rows.replaceChildren(
+        ...top.map((r) => {
+          const li = (tpl.content.firstElementChild as HTMLLIElement).cloneNode(true) as HTMLLIElement;
+          li.querySelector('.rank')!.textContent = `#${r.rank}`;
+          li.querySelector('.name')!.textContent = r.name;
+          li.querySelector('.score')!.textContent = fmt.format(r.score);
+          if (r.you) li.classList.add('is-you');
+          return li;
+        }),
+      );
+      rows.hidden = top.length === 0;
+      status.hidden = top.length > 0;
+      status.textContent = 'No scores yet. Play a round and be the first!';
+      const inTop = top.some((r) => r.you);
+      if (data.me && !inTop) {
+        me.textContent = `You are #${data.me.rank} of ${fmt.format(data.total)} with ${fmt.format(data.me.score)}.`;
+        me.hidden = false;
+      } else {
+        me.hidden = true;
+      }
+    }
+
+    showName();
+    load();
+    window.addEventListener(PLAYER_EVENT, () => {
+      showName();
+      setTimeout(load, 400); // give the rename a moment to land
+    });
+    window.addEventListener('message', (e) => {
+      if (e.origin === location.origin && e.data?.type === 'indie24:score' && e.data.game === game) load();
+    });
+    // Back from playing full screen on a phone: fetch fresh scores.
+    window.addEventListener('pageshow', (e) => e.persisted && load());
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-board]').forEach(init);
+</script>

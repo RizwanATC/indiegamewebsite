@@ -2415,6 +2415,8 @@
     progress.unlocked = Math.max(progress.unlocked, Math.min(LEVELS.length, world.index + 2));
     saveProgress();
     LeaderboardService.submit({ gameId: 'forest-liar', levelId: L.id, durationMs: Math.round(secs * 1000), deathCount: world.deaths, score: sc, buildVersion: VERSION }).catch(() => {});
+    // Online board: the sum of your best score on every level, so clearing more levels ranks higher.
+    window.Indie24Scores?.submit('forest-liar', Object.values(progress.best).reduce((t, b) => t + (b.score || 0), 0));
     setState('complete');
   }
 

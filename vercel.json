@@ -4,6 +4,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "trailingSlash": true,
+  "regions": ["sin1"],
   "redirects": [
     {
       "source": "/genres",

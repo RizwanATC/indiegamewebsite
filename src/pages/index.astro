@@ -6,12 +6,14 @@ import GenreNav from '../components/GenreNav.astro';
 import SearchForm from '../components/SearchForm.astro';
 import AdSlot from '../components/AdSlot.astro';
 import Icon from '../components/Icon.astro';
-import { SITE } from '../config';
-import { allGenres, allPlatforms, getVisibleGames, pickDailyGame, platformLabel } from '../lib/games';
+import Leaderboard from '../components/Leaderboard.astro';
+import { LEADERBOARDS, SITE } from '../config';
+import { allGenres, allPlatforms, gameSlug, gameUrl, getVisibleGames, pickDailyGame, platformLabel } from '../lib/games';
 
 const games = await getVisibleGames();
 const pick = pickDailyGame(games);
 const recent = games.filter((g) => g.id !== pick?.game.id).slice(0, SITE.recentCount);
+const boards = games.filter((g) => LEADERBOARDS[gameSlug(g)]);
 const genres = allGenres(games);
 const platforms = allPlatforms(games);
 
@@ -25,6 +27,25 @@ const jsonLd = {
 ---
 
 <BaseLayout jsonLd={jsonLd}>
+  {
+    boards.length > 0 && (
+      <section class="section boards-section" aria-labelledby="boards-heading">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Hall of fame</p>
+              <h2 id="boards-heading">Leaderboard</h2>
+            </div>
+            <a class="btn btn-sm btn-ghost" href="/leaderboard/">Full leaderboard <Icon name="arrow" /></a>
+          </div>
+          <div class="boards">
+            {boards.map((g) => <Leaderboard game={gameSlug(g)} title={g.data.title} href={gameUrl(g)} headingLevel={3} limit={5} />)}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   <FeaturedGame pick={pick} />
 
   <section class="section browse" aria-labelledby="browse-heading">
@@ -85,6 +106,18 @@ const jsonLd = {
 </BaseLayout>
 
 <style>
+  .boards-section {
+    border-bottom: 1px solid var(--border);
+  }
+  .boards {
+    display: grid;
+    gap: 20px;
+  }
+  @media (min-width: 760px) {
+    .boards {
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+  }
   .browse {
     border-bottom: 1px solid var(--border);
   }
