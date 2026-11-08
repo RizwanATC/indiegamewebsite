@@ -5,15 +5,18 @@
  *   POST /api/scores  { game, player, name, score }   -> saves your best score
  *   POST /api/scores  { player, name }                -> renames you everywhere
  *
- * Storage is Upstash Redis (free plan), added from the Vercel dashboard:
- * Storage > Upstash for Redis > connect to this project. That sets the
- * KV_REST_API_URL / KV_REST_API_TOKEN env vars read below. Without them the
- * API answers 503 and the site shows "leaderboard coming soon".
+ * Storage is Supabase. One-time setup:
+ *   1. Run supabase/leaderboard.sql in the Supabase SQL Editor.
+ *   2. In Vercel > Settings > Environment Variables add SUPABASE_URL
+ *      (Project URL) and SUPABASE_SECRET_KEY (the secret / service_role key
+ *      from Supabase > Project Settings > API Keys), then redeploy.
+ * Without them the API answers 503 and the site shows "leaderboard coming soon".
+ * The secret key stays on the server; it is never sent to browsers.
  *
  * Scores come from the browser, so they can't be fully trusted. The checks
  * here (known games, score caps, name rules, a rate limit) stop casual abuse;
- * a determined cheater could still post a fake score. Remove one with
- * ZREM lb:<game> <playerId> in the Upstash console.
+ * a determined cheater could still post a fake score. Delete one in Supabase
+ * > Table Editor > leaderboard_scores.
  */
 
 /** Games with a leaderboard and the highest score a real run can reach. */
@@ -26,8 +29,9 @@ const TOP = 10;
 const NAME_MAX = 16;
 const RATE_PER_MINUTE = 30;
 
-const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/+$/, '');
+const KEY = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const configured = () => Boolean(SUPABASE_URL && KEY);
 
 const json = (body, status = 200, extra = {}) =>
   new Response(JSON.stringify(body), {
@@ -35,22 +39,19 @@ const json = (body, status = 200, extra = {}) =>
     headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...extra },
   });
 
-/** Run several Redis commands in one round trip. */
-async function redis(commands) {
-  const res = await fetch(`${URL_}/pipeline`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(commands),
-  });
-  if (!res.ok) throw new Error(`redis ${res.status}`);
-  const out = await res.json();
-  return out.map((r) => {
-    if (r.error) throw new Error(r.error);
-    return r.result;
-  });
+/** Call one of the leaderboard_* SQL functions from supabase/leaderboard.sql. */
+async function rpc(fn, args) {
+  const headers = { apikey: KEY, 'Content-Type': 'application/json' };
+  // Legacy service_role keys are JWTs and also go in Authorization; new sb_secret_ keys don't.
+  if (KEY.startsWith('eyJ')) headers.Authorization = `Bearer ${KEY}`;
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, { method: 'POST', headers, body: JSON.stringify(args) });
+  const text = await res.text();
+  if (!res.ok) throw new Error(`supabase ${fn} ${res.status}: ${text.slice(0, 200)}`);
+  return text ? JSON.parse(text) : null;
 }
 
-const validPlayer = (id) => typeof id === 'string' && /^[a-z0-9-]{16,40}$/i.test(id);
+// A UUID, with or without dashes (what crypto.randomUUID or the fallback in the games make).
+const validPlayer = (id) => typeof id === 'string' && /^([0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12})$/i.test(id);
 
 /** Tidy a display name, or return '' if it isn't usable. */
 export function cleanName(raw) {
@@ -71,25 +72,15 @@ function clientIp(request) {
 }
 
 export async function GET(request) {
-  if (!URL_ || !TOKEN) return json({ error: 'not_configured' }, 503);
+  if (!configured()) return json({ error: 'not_configured' }, 503);
   const params = new URL(request.url).searchParams;
   const game = params.get('game') || '';
   if (!GAMES[game]) return json({ error: 'unknown_game' }, 400);
   const player = params.get('player');
-  const key = `lb:${game}`;
 
   try {
-    const cmds = [['ZREVRANGE', key, 0, TOP - 1, 'WITHSCORES'], ['ZCARD', key]];
-    if (validPlayer(player)) cmds.push(['ZREVRANK', key, player], ['ZSCORE', key, player]);
-    const [flat, total, rank, myScore] = await redis(cmds);
-
-    const ids = [];
-    for (let i = 0; i < flat.length; i += 2) ids.push({ id: flat[i], score: Number(flat[i + 1]) });
-    const names = ids.length ? await redis([['HMGET', 'lb:names', ...ids.map((r) => r.id)]]).then((r) => r[0]) : [];
-
-    const top = ids.map((r, i) => ({ rank: i + 1, name: names[i] || 'Player', score: r.score, you: r.id === player }));
-    const me = rank === null || rank === undefined ? null : { rank: Number(rank) + 1, score: Number(myScore) };
-    return json({ game, total: Number(total), top, me });
+    const data = await rpc('leaderboard_top', { p_game: game, p_player: validPlayer(player) ? player : null, p_limit: TOP });
+    return json({ game, total: Number(data.total), top: data.top.map((r) => ({ ...r, score: Number(r.score), rank: Number(r.rank) })), me: data.me && { rank: Number(data.me.rank), score: Number(data.me.score) } });
   } catch (err) {
     console.error(err);
     return json({ error: 'storage_error' }, 502);
@@ -97,7 +88,7 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-  if (!URL_ || !TOKEN) return json({ error: 'not_configured' }, 503);
+  if (!configured()) return json({ error: 'not_configured' }, 503);
   let body;
   try {
     body = await request.json();
@@ -117,26 +108,15 @@ export async function POST(request) {
   }
 
   try {
-    const rl = `rl:${clientIp(request)}`;
-    const [count] = await redis([['INCR', rl], ['EXPIRE', rl, 60, 'NX']]);
-    if (count > RATE_PER_MINUTE) return json({ error: 'slow_down' }, 429, { 'Retry-After': '60' });
+    const allowed = await rpc('leaderboard_allow', { p_ip: clientIp(request), p_limit: RATE_PER_MINUTE });
+    if (!allowed) return json({ error: 'slow_down' }, 429, { 'Retry-After': '60' });
 
     if (!hasScore) {
-      // Rename only players who already have a score, so the table stays small.
-      const [known] = await redis([['HEXISTS', 'lb:names', player]]);
-      if (known) await redis([['HSET', 'lb:names', player, name]]);
+      await rpc('leaderboard_rename', { p_player: player, p_name: name });
       return json({ ok: true, name });
     }
-
-    const key = `lb:${game}`;
-    // GT: only replace the stored score when the new one is higher.
-    const [, , rank, best] = await redis([
-      ['HSET', 'lb:names', player, name],
-      ['ZADD', key, 'GT', score, player],
-      ['ZREVRANK', key, player],
-      ['ZSCORE', key, player],
-    ]);
-    return json({ ok: true, rank: Number(rank) + 1, best: Number(best), newBest: Number(best) === score });
+    const r = await rpc('leaderboard_submit', { p_game: game, p_player: player, p_name: name, p_score: score });
+    return json({ ok: true, rank: Number(r.rank), best: Number(r.best), newBest: r.newBest });
   } catch (err) {
     console.error(err);
     return json({ error: 'storage_error' }, 502);
