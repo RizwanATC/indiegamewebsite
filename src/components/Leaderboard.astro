@@ -10,16 +10,18 @@ interface Props {
   title?: string;
   href?: string;
   headingLevel?: 2 | 3;
+  /** How many rows to show (the server sends up to 10). */
+  limit?: number;
 }
-const { game, title = 'Leaderboard', href, headingLevel = 2 } = Astro.props;
+const { game, title = 'Leaderboard', href, headingLevel = 2, limit = 10 } = Astro.props;
 const board = LEADERBOARDS[game];
 const H = `h${headingLevel}` as 'h2' | 'h3';
-const id = `lb-${game}`;
+const id = `lb-${game}-${limit}`;
 ---
 
 {
   board && (
-    <section class="board panel" data-board={game} aria-labelledby={id}>
+    <section class="board panel" data-board={game} data-limit={limit} aria-labelledby={id}>
       <div class="head">
         <H id={id} class="title">
           {href ? <a href={href}>{title}</a> : title}
@@ -157,6 +159,7 @@ const id = `lb-${game}`;
 
   function init(el: HTMLElement) {
     const game = el.dataset.board!;
+    const limit = Number(el.dataset.limit) || 10;
     const status = el.querySelector<HTMLElement>('[data-board-status]')!;
     const rows = el.querySelector<HTMLOListElement>('[data-board-rows]')!;
     const me = el.querySelector<HTMLElement>('[data-board-me]')!;
@@ -185,8 +188,9 @@ const id = `lb-${game}`;
     }
 
     function render(data: Data) {
+      const top = data.top.slice(0, limit);
       rows.replaceChildren(
-        ...data.top.map((r) => {
+        ...top.map((r) => {
           const li = (tpl.content.firstElementChild as HTMLLIElement).cloneNode(true) as HTMLLIElement;
           li.querySelector('.rank')!.textContent = `#${r.rank}`;
           li.querySelector('.name')!.textContent = r.name;
@@ -195,10 +199,10 @@ const id = `lb-${game}`;
           return li;
         }),
       );
-      rows.hidden = data.top.length === 0;
-      status.hidden = data.top.length > 0;
+      rows.hidden = top.length === 0;
+      status.hidden = top.length > 0;
       status.textContent = 'No scores yet. Play a round and be the first!';
-      const inTop = data.top.some((r) => r.you);
+      const inTop = top.some((r) => r.you);
       if (data.me && !inTop) {
         me.textContent = `You are #${data.me.rank} of ${fmt.format(data.total)} with ${fmt.format(data.me.score)}.`;
         me.hidden = false;
