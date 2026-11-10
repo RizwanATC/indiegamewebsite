@@ -92,4 +92,27 @@ const games = defineCollection({
       }),
 });
 
-export const collections = { games };
+/**
+ * Guides, devlogs and help articles. The file name (without .md) becomes the
+ * URL: /blog/<file-name>/. Written by hand for INDIE/24, never copied.
+ */
+const posts = defineCollection({
+  loader: glob({ pattern: '**/[^_]*.md', base: './src/content/posts' }),
+  schema: z.object({
+    title: z.string().min(1).max(100),
+    /** One or two sentences. Used on cards and as the meta description. */
+    description: z.string().min(50).max(200),
+    /** "guide": how to play better. "devlog": how a game was made. "help": site and app help. */
+    kind: z.enum(['guide', 'devlog', 'help']),
+    /** Publish date. Posts dated after the build date stay hidden until then. */
+    date: calendarDate,
+    /** Last meaningful update, if any. */
+    updated: calendarDate.optional(),
+    /** Slug of the game this post is about, if any. Its cover is used as the post image. */
+    game: slug.optional(),
+    author: z.string().default('INDIE/24'),
+    published: z.boolean().default(true),
+  }),
+});
+
+export const collections = { games, posts };

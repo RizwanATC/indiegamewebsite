@@ -22,7 +22,10 @@ export default defineConfig({
   },
   integrations: [
     sitemap({
-      filter: (page) => !page.includes('/404'),
+      // Genre pages are left out while the catalog is small: with one or two
+      // games each they add little, and most are marked noindex anyway (see
+      // src/pages/genres/[genre].astro). Remove that check once genres fill up.
+      filter: (page) => !page.includes('/404') && !page.includes('/genres/'),
     }),
   ],
   image: {

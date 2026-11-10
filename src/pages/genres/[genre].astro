@@ -23,7 +23,9 @@ const { games, genres } = Astro.props;
 const label = genreLabel(genre!);
 ---
 
-<BaseLayout title={`${label} games`} description={`${games.length} ${label.toLowerCase()} indie ${games.length === 1 ? 'game' : 'games'} featured on ${SITE.name}.`}>
+<BaseLayout
+  noindex={games.length < 3}
+  title={`${label} games`} description={`${games.length} ${label.toLowerCase()} indie ${games.length === 1 ? 'game' : 'games'} featured on ${SITE.name}.`}>
   <section class="section">
     <div class="container">
       <nav aria-label="Breadcrumb" class="crumbs">

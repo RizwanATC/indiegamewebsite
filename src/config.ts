@@ -6,7 +6,7 @@ export const SITE = {
   name: 'INDIE/24',
   tagline: 'One Indie Game a Day',
   description:
-    'INDIE/24 features one hand-picked indie game every day. Play in your browser, find official downloads, and browse every game we have featured.',
+    'INDIE/24 is a tiny independent studio making small original games you can play free in your browser, with strategy guides and devlogs for every game.',
   /**
    * Timezone used to decide which calendar day it is when picking the
    * Game of the Day. `featuredDate` values in content files are calendar

@@ -9,10 +9,11 @@ import GamePlayer from '../../components/GamePlayer.astro';
 import DownloadPanel from '../../components/DownloadPanel.astro';
 import ScreenshotGallery from '../../components/ScreenshotGallery.astro';
 import AdSlot from '../../components/AdSlot.astro';
+import PostList from '../../components/PostList.astro';
 import Leaderboard from '../../components/Leaderboard.astro';
 import Icon from '../../components/Icon.astro';
 import { LEADERBOARDS, SITE } from '../../config';
-import { formatDate, gameSlug, gameUrl, genreLabel, getVisibleGames, hostname, isExternal, platformLabel, relatedGames, type Game } from '../../lib/games';
+import { formatDate, gameSlug, gameUrl, genreLabel, getVisibleGames, getVisiblePosts, hostname, isExternal, platformLabel, relatedGames, type Game } from '../../lib/games';
 
 export async function getStaticPaths() {
   const games = await getVisibleGames();
@@ -27,6 +28,7 @@ const { game, games } = Astro.props;
 const d = game.data;
 const { Content } = await render(game);
 const related = relatedGames(game, games);
+const posts = (await getVisiblePosts()).filter((p) => p.data.game === gameSlug(game));
 const og = await getImage({ src: d.coverImage, width: 1200, format: 'png' });
 const pageUrl = new URL(gameUrl(game), Astro.site).href;
 
@@ -148,6 +150,15 @@ const videoGame = !d.sample && {
           <h2 id="about-heading">About this game</h2>
           <div class="prose"><Content /></div>
         </section>
+
+        {
+          posts.length > 0 && (
+            <section aria-labelledby="posts-heading" class="block">
+              <h2 id="posts-heading">Guides &amp; devlog</h2>
+              <PostList posts={posts} />
+            </section>
+          )
+        }
 
         {
           d.screenshots.length > 0 && (
