@@ -67,6 +67,12 @@ export function cleanName(raw) {
   return name.length >= 2 ? name : '';
 }
 
+/** Remember the player for a year in a first-party cookie the site and games read. */
+function playerCookie(player, name, request) {
+  const secure = new URL(request.url).protocol === 'https:' ? '; Secure' : '';
+  return { 'Set-Cookie': `indie24_player=${encodeURIComponent(JSON.stringify({ id: player, name }))}; Max-Age=31536000; Path=/; SameSite=Lax${secure}` };
+}
+
 function clientIp(request) {
   const fwd = request.headers.get('x-forwarded-for') || '';
   return fwd.split(',')[0].trim() || request.headers.get('x-real-ip') || 'unknown';
@@ -114,10 +120,10 @@ export async function POST(request) {
 
     if (!hasScore) {
       await rpc('leaderboard_rename', { p_player: player, p_name: name });
-      return json({ ok: true, name });
+      return json({ ok: true, name }, 200, playerCookie(player, name, request));
     }
     const r = await rpc('leaderboard_submit', { p_game: game, p_player: player, p_name: name, p_score: score });
-    return json({ ok: true, rank: Number(r.rank), best: Number(r.best), newBest: r.newBest });
+    return json({ ok: true, rank: Number(r.rank), best: Number(r.best), newBest: r.newBest }, 200, playerCookie(player, name, request));
   } catch (err) {
     console.error(err);
     return json({ error: 'storage_error' }, 502);

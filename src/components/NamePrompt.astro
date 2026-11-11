@@ -100,25 +100,26 @@ import { NAME_MAX } from '../lib/player';
     setName(name);
     dialog.close();
   });
-  dialog.querySelector('[data-name-later]')!.addEventListener('click', () => {
+  // "Later" means later: don't ask again for a week (not just this tab).
+  const skip = () => {
     try {
-      sessionStorage.setItem(SKIP, '1');
+      localStorage.setItem(SKIP, String(Date.now()));
     } catch {}
+  };
+  dialog.querySelector('[data-name-later]')!.addEventListener('click', () => {
+    skip();
     dialog.close();
   });
-  dialog.addEventListener('cancel', () => {
-    try {
-      sessionStorage.setItem(SKIP, '1');
-    } catch {}
-  });
+  dialog.addEventListener('cancel', skip);
 
   document.addEventListener('click', (e) => {
     if ((e.target as Element | null)?.closest?.('[data-name-open]')) open();
   });
 
+  const WEEK = 7 * 24 * 60 * 60 * 1000;
   let skipped = false;
   try {
-    skipped = sessionStorage.getItem(SKIP) === '1';
+    skipped = Date.now() - Number(localStorage.getItem(SKIP) || 0) < WEEK || sessionStorage.getItem(SKIP) === '1';
   } catch {}
   if (!getPlayer().name && !skipped) open();
 </script>

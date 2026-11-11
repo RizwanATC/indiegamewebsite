@@ -17,22 +17,46 @@ function newId(): string {
   return Array.from(crypto.getRandomValues(new Uint8Array(16)), (x) => x.toString(16).padStart(2, '0')).join('');
 }
 
-export function getPlayer(): Player {
-  let p: Player | null = null;
+// The player is also kept in a one-year cookie. Some browsers (in-app
+// browsers, Safari after a while) drop localStorage; the cookie brings the
+// name back so visitors aren't asked again. The server refreshes it too.
+const COOKIE = 'indie24_player';
+
+const valid = (p: unknown): p is Player => Boolean(p) && typeof (p as Player).id === 'string' && typeof (p as Player).name === 'string';
+
+function readCookie(): Player | null {
   try {
-    p = JSON.parse(localStorage.getItem(KEY) || 'null');
-  } catch {}
-  if (!p || typeof p.id !== 'string') {
-    p = { id: newId(), name: '' };
-    save(p);
+    const m = document.cookie.match(/(?:^|;\s*)indie24_player=([^;]*)/);
+    return m ? JSON.parse(decodeURIComponent(m[1])) : null;
+  } catch {
+    return null;
   }
+}
+
+export function getPlayer(): Player {
+  let stored: Player | null = null;
+  try {
+    stored = JSON.parse(localStorage.getItem(KEY) || 'null');
+  } catch {}
+  const found = [stored, readCookie()].filter(valid);
+  const p = found.find((c) => c.name) || found[0] || { id: newId(), name: '' };
+  if (!valid(stored) || stored.id !== p.id || stored.name !== p.name) save(p);
+  else writeCookie(p);
   return p;
+}
+
+function writeCookie(p: Player) {
+  try {
+    const secure = location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = `${COOKIE}=${encodeURIComponent(JSON.stringify({ id: p.id, name: p.name }))}; Max-Age=31536000; Path=/; SameSite=Lax${secure}`;
+  } catch {}
 }
 
 function save(p: Player) {
   try {
     localStorage.setItem(KEY, JSON.stringify(p));
   } catch {}
+  writeCookie(p);
 }
 
 /** Same rules as the server (api/scores.js). Returns '' when not usable. */
