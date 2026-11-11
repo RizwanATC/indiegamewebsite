@@ -24,6 +24,7 @@ const GAMES = {
   'slime-siege': { max: 5_000_000 },
   'forest-liar': { max: 120_000 }, // 12 levels x 10,000 at most
   'bumble-dash': { max: 100_000 },
+  'little-mayor': { max: 1_000 }, // 44 free squares x 12 people at most
 };
 const TOP = 10;
 const NAME_MAX = 16;
