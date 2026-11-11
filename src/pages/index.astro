@@ -6,7 +6,7 @@ import GenreNav from '../components/GenreNav.astro';
 import SearchForm from '../components/SearchForm.astro';
 import AdSlot from '../components/AdSlot.astro';
 import Icon from '../components/Icon.astro';
-import Leaderboard from '../components/Leaderboard.astro';
+import TopPlayers from '../components/TopPlayers.astro';
 import PostList from '../components/PostList.astro';
 import { LEADERBOARDS, SITE } from '../config';
 import { allGenres, allPlatforms, gameSlug, gameUrl, getVisibleGames, getVisiblePosts, pickDailyGame, platformLabel } from '../lib/games';
@@ -29,25 +29,8 @@ const jsonLd = {
 ---
 
 <BaseLayout jsonLd={jsonLd}>
-  {
-    boards.length > 0 && (
-      <section class="section boards-section" aria-labelledby="boards-heading">
-        <div class="container">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">Hall of fame</p>
-              <h2 id="boards-heading">Leaderboard</h2>
-            </div>
-            <a class="btn btn-sm btn-ghost" href="/leaderboard/">Full leaderboard <Icon name="arrow" /></a>
-          </div>
-          <div class="boards">
-            {boards.map((g) => <Leaderboard game={gameSlug(g)} title={g.data.title} href={gameUrl(g)} cover={g.data.coverImage} headingLevel={3} limit={5} />)}
-          </div>
-        </div>
-      </section>
-    )
-  }
   <FeaturedGame pick={pick} />
+  <TopPlayers games={boards.map((g) => ({ slug: gameSlug(g), title: g.data.title, href: gameUrl(g) }))} initial={pick ? gameSlug(pick.game) : undefined} />
 
   <section class="section browse" aria-labelledby="browse-heading">
     <div class="container">
@@ -150,18 +133,6 @@ const jsonLd = {
   }
   .studio-text p {
     color: var(--text-muted);
-  }
-  .boards-section {
-    border-bottom: 1px solid var(--border);
-  }
-  .boards {
-    display: grid;
-    gap: 20px;
-  }
-  @media (min-width: 760px) {
-    .boards {
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    }
   }
   .browse {
     border-bottom: 1px solid var(--border);
