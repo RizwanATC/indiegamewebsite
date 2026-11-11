@@ -29,25 +29,22 @@ const jsonLd = {
 ---
 
 <BaseLayout jsonLd={jsonLd}>
+  <FeaturedGame pick={pick} />
   {
     boards.length > 0 && (
-      <section class="section boards-section" aria-labelledby="boards-heading">
+      <section class="boards-section" aria-labelledby="boards-heading">
         <div class="container">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">Hall of fame</p>
-              <h2 id="boards-heading">Leaderboard</h2>
-            </div>
+          <div class="boards-head">
+            <h2 id="boards-heading"><span aria-hidden="true">🏆</span> Top players</h2>
             <a class="btn btn-sm btn-ghost" href="/leaderboard/">Full leaderboard <Icon name="arrow" /></a>
           </div>
           <div class="boards">
-            {boards.map((g) => <Leaderboard game={gameSlug(g)} title={g.data.title} href={gameUrl(g)} cover={g.data.coverImage} headingLevel={3} limit={5} />)}
+            {boards.map((g) => <Leaderboard game={gameSlug(g)} title={g.data.title} href={gameUrl(g)} cover={g.data.coverImage} headingLevel={3} limit={3} compact />)}
           </div>
         </div>
       </section>
     )
   }
-  <FeaturedGame pick={pick} />
 
   <section class="section browse" aria-labelledby="browse-heading">
     <div class="container">
@@ -152,15 +149,43 @@ const jsonLd = {
     color: var(--text-muted);
   }
   .boards-section {
+    padding: 28px 0 32px;
     border-bottom: 1px solid var(--border);
   }
+  .boards-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .boards-head h2 {
+    margin: 0;
+    font-size: 1.15rem;
+  }
+  /* Phones: one swipeable row, so the cards don't stack into a tall column. */
   .boards {
     display: grid;
-    gap: 20px;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(250px, 82%);
+    gap: 14px;
+    margin: 0 calc(-1 * var(--gutter));
+    padding: 4px var(--gutter) 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding: 0 var(--gutter);
+    scrollbar-width: thin;
   }
-  @media (min-width: 760px) {
+  .boards > :global(*) {
+    scroll-snap-align: start;
+  }
+  @media (min-width: 900px) {
     .boards {
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-auto-flow: row;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin: 0;
+      padding: 0;
+      overflow: visible;
     }
   }
   .browse {

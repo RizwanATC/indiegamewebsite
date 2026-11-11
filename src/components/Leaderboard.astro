@@ -17,8 +17,10 @@ interface Props {
   limit?: number;
   /** Game cover, shown small next to the title. */
   cover?: ImageMetadata;
+  /** Small card for the home page: plain rows, no podium, name button or note. */
+  compact?: boolean;
 }
-const { game, title = 'Leaderboard', href, headingLevel = 2, limit = 10, cover } = Astro.props;
+const { game, title = 'Leaderboard', href, headingLevel = 2, limit = 10, cover, compact = false } = Astro.props;
 const board = LEADERBOARDS[game];
 const H = `h${headingLevel}` as 'h2' | 'h3';
 const id = `lb-${game}-${limit}`;
@@ -28,7 +30,7 @@ const slots = [0, 1, 2];
 
 {
   board && (
-    <section class="board" data-board={game} data-limit={limit} aria-labelledby={id}>
+    <section class:list={['board', { compact }]} data-board={game} data-limit={limit} aria-labelledby={id}>
       <div class="marquee">
         {cover && <Image src={cover} alt="" width={56} height={56} class="cover pixelated" />}
         <div class="titles">
@@ -40,14 +42,17 @@ const slots = [0, 1, 2];
           </H>
         </div>
       </div>
+      {!compact && (
       <button type="button" class="you" data-name-open>
         <span class="you-label">Player</span>
         <strong data-board-name>…</strong>
         <span class="you-edit" aria-hidden="true">✎</span>
       </button>
+      )}
       <p class="status" data-board-status role="status">
         Loading scores…
       </p>
+      {!compact && (
       <ol class="podium" data-board-podium hidden>
         {slots.map((i) => (
           <li class={`spot spot-${i + 1}`} data-slot={i}>
@@ -65,9 +70,10 @@ const slots = [0, 1, 2];
           </li>
         ))}
       </ol>
+      )}
       <ol class="rows" data-board-rows hidden />
       <p class="me" data-board-me hidden />
-      {board.note && <p class="note">{board.note}</p>}
+      {!compact && board.note && <p class="note">{board.note}</p>}
       <template data-board-row>
         <li>
           <span class="rank" />
@@ -409,6 +415,55 @@ const slots = [0, 1, 2];
     color: var(--accent-strong);
   }
 
+  /* --- Compact card (home page) ------------------------------------------ */
+  .board.compact {
+    gap: 10px;
+    padding: 14px;
+    box-shadow:
+      4px 4px 0 0 #2e1065,
+      0 0 24px -10px rgb(167 139 250 / 0.45);
+  }
+  .compact .marquee {
+    gap: 10px;
+  }
+  .compact .cover {
+    width: 36px;
+    height: 36px;
+  }
+  .compact .kicker {
+    margin-bottom: 4px;
+    font-size: 0.5rem;
+  }
+  .compact .title {
+    font-size: 0.72rem;
+  }
+  .compact .status {
+    padding: 10px 6px;
+    font-size: 0.8rem;
+  }
+  .compact .rows {
+    gap: 3px;
+  }
+  .compact .rows :global(li) {
+    grid-template-columns: 2.2em minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 5px 10px;
+    font-size: 0.875rem;
+  }
+  .compact .rows :global(li:nth-child(1) .rank) {
+    color: var(--gold);
+  }
+  .compact .rows :global(li:nth-child(2) .rank) {
+    color: var(--silver);
+  }
+  .compact .rows :global(li:nth-child(3) .rank) {
+    color: var(--bronze);
+  }
+  .compact .me {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+
   @keyframes sweep {
     to {
       background-position: 300% 0;
@@ -475,15 +530,16 @@ const slots = [0, 1, 2];
     const game = el.dataset.board!;
     const limit = Number(el.dataset.limit) || 10;
     const status = el.querySelector<HTMLElement>('[data-board-status]')!;
-    const podium = el.querySelector<HTMLOListElement>('[data-board-podium]')!;
-    const spots = [...podium.querySelectorAll<HTMLElement>('[data-slot]')].sort((a, b) => Number(a.dataset.slot) - Number(b.dataset.slot));
+    // Compact cards have no podium: every row is a plain row.
+    const podium = el.querySelector<HTMLOListElement>('[data-board-podium]');
+    const spots = podium ? [...podium.querySelectorAll<HTMLElement>('[data-slot]')].sort((a, b) => Number(a.dataset.slot) - Number(b.dataset.slot)) : [];
     const rows = el.querySelector<HTMLOListElement>('[data-board-rows]')!;
     const me = el.querySelector<HTMLElement>('[data-board-me]')!;
     const tpl = el.querySelector<HTMLTemplateElement>('[data-board-row]')!;
-    const nameEl = el.querySelector<HTMLElement>('[data-board-name]')!;
+    const nameEl = el.querySelector<HTMLElement>('[data-board-name]');
     let busy = false;
 
-    const showName = () => (nameEl.textContent = getPlayer().name || 'Guest (set a name)');
+    const showName = () => nameEl && (nameEl.textContent = getPlayer().name || 'Guest (set a name)');
 
     async function load() {
       if (busy) return;
@@ -494,7 +550,7 @@ const slots = [0, 1, 2];
         if (!res.ok) throw new Error('down');
         render((await res.json()) as Data);
       } catch (err) {
-        podium.hidden = true;
+        if (podium) podium.hidden = true;
         rows.hidden = true;
         me.hidden = true;
         status.hidden = false;
@@ -515,7 +571,7 @@ const slots = [0, 1, 2];
         spot.querySelector('.name')!.textContent = r ? r.name : '???';
         spot.querySelector('.score')!.textContent = r ? fmt.format(r.score) : '---';
       });
-      const rest = top.slice(3);
+      const rest = top.slice(spots.length);
       rows.replaceChildren(
         ...rest.map((r) => {
           const li = (tpl.content.firstElementChild as HTMLLIElement).cloneNode(true) as HTMLLIElement;
@@ -526,7 +582,7 @@ const slots = [0, 1, 2];
           return li;
         }),
       );
-      podium.hidden = top.length === 0;
+      if (podium) podium.hidden = top.length === 0;
       rows.hidden = rest.length === 0;
       status.hidden = top.length > 0;
       status.textContent = 'No scores yet. Play a round and be the first!';
