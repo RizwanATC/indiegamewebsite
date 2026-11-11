@@ -80,6 +80,7 @@ export const LEADERBOARDS: Record<string, { scoreLabel: string; note?: string }>
   'slime-siege': { scoreLabel: 'Score', note: 'Best score in one run.' },
   'forest-liar': { scoreLabel: 'Total', note: 'Your best score on each level, added up. Faster runs with fewer deaths score more.' },
   'bumble-dash': { scoreLabel: 'Score', note: 'Best score in one flight.' },
+  'pond-guard': { scoreLabel: 'Score', note: 'Best score in one game. Every bug eaten and every wave cleared adds points.' },
 };
 
 export const PLATFORM_LABELS = {
