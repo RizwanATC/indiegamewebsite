@@ -1,0 +1,103 @@
+---
+/** A plain list of posts: kind, title, date and summary. */
+import { POST_KIND_LABELS, formatDate, postUrl, type Post } from '../lib/games';
+
+interface Props {
+  posts: Post[];
+  headingLevel?: 'h2' | 'h3';
+}
+const { posts, headingLevel: H = 'h3' } = Astro.props;
+---
+
+<ul class="post-list">
+  {
+    posts.map((post) => (
+      <li class="post">
+        <p class="meta">
+          <span class={`kind kind-${post.data.kind}`}>{POST_KIND_LABELS[post.data.kind]}</span>
+          <time datetime={post.data.date}>{formatDate(post.data.date)}</time>
+        </p>
+        <H class="title">
+          <a href={postUrl(post)} class="stretched">
+            {post.data.title}
+          </a>
+        </H>
+        <p class="desc">{post.data.description}</p>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .post-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+  }
+  @media (min-width: 760px) {
+    .post-list {
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    }
+  }
+  .post {
+    position: relative;
+    padding: 18px 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg-raised);
+    transition:
+      border-color 0.15s,
+      transform 0.2s var(--ease);
+  }
+  .post:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .meta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin: 0 0 8px;
+    font-size: 0.8rem;
+    color: var(--text-faint);
+  }
+  .kind {
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.7rem;
+  }
+  .kind-devlog {
+    background: var(--warn-soft);
+    color: var(--warn);
+  }
+  .kind-help {
+    background: rgb(110 231 183 / 0.12);
+    color: var(--ok);
+  }
+  .title {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+    line-height: 1.35;
+  }
+  .title a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  .stretched::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .desc {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.925rem;
+  }
+</style>

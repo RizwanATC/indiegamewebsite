@@ -7,14 +7,16 @@ import SearchForm from '../components/SearchForm.astro';
 import AdSlot from '../components/AdSlot.astro';
 import Icon from '../components/Icon.astro';
 import Leaderboard from '../components/Leaderboard.astro';
+import PostList from '../components/PostList.astro';
 import { LEADERBOARDS, SITE } from '../config';
-import { allGenres, allPlatforms, gameSlug, gameUrl, getVisibleGames, pickDailyGame, platformLabel } from '../lib/games';
+import { allGenres, allPlatforms, gameSlug, gameUrl, getVisibleGames, getVisiblePosts, pickDailyGame, platformLabel } from '../lib/games';
 
 const games = await getVisibleGames();
 const pick = pickDailyGame(games);
 const recent = games.filter((g) => g.id !== pick?.game.id).slice(0, SITE.recentCount);
 const boards = games.filter((g) => LEADERBOARDS[gameSlug(g)]);
 const genres = allGenres(games);
+const posts = (await getVisiblePosts()).slice(0, 3);
 const platforms = allPlatforms(games);
 
 const jsonLd = {
@@ -45,7 +47,6 @@ const jsonLd = {
       </section>
     )
   }
-
   <FeaturedGame pick={pick} />
 
   <section class="section browse" aria-labelledby="browse-heading">
@@ -103,9 +104,53 @@ const jsonLd = {
       }
     </div>
   </section>
+
+  {
+    posts.length > 0 && (
+      <section class="section posts" aria-labelledby="posts-heading">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Read</p>
+              <h2 id="posts-heading">Guides &amp; devlog</h2>
+            </div>
+            <a class="btn btn-sm btn-ghost" href="/blog/">All posts <Icon name="arrow" /></a>
+          </div>
+          <PostList posts={posts} />
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section studio" aria-labelledby="studio-heading">
+    <div class="container">
+      <div class="studio-text">
+        <p class="eyebrow">Who we are</p>
+        <h2 id="studio-heading">Small games, made here</h2>
+        <p>
+          {SITE.name} is a tiny independent game studio. Every game on this site is designed and coded by us, with its own chiptune music, and you can play all of
+          them free in your browser, on a computer or a phone, with no account and no download. Each one also has a free Android app with no ads.
+        </p>
+        <p>
+          Alongside the games we write <a href="/blog/">strategy guides and devlogs</a>: how to beat each game, and how each one was made. Read more{' '}
+          <a href="/about/">about us</a>, or <a href="/contact/">get in touch</a>.
+        </p>
+      </div>
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
+  .posts,
+  .studio {
+    border-top: 1px solid var(--border);
+  }
+  .studio-text {
+    max-width: 68ch;
+  }
+  .studio-text p {
+    color: var(--text-muted);
+  }
   .boards-section {
     border-bottom: 1px solid var(--border);
   }

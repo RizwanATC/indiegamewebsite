@@ -155,3 +155,27 @@ export function hostname(url: string): string {
     return url;
   }
 }
+
+export type Post = CollectionEntry<'posts'>;
+
+export const POST_KIND_LABELS: Record<Post['data']['kind'], string> = {
+  guide: 'Guide',
+  devlog: 'Devlog',
+  help: 'Help',
+};
+
+export function postUrl(post: Post): string {
+  return `/blog/${post.id}/`;
+}
+
+/** Published posts dated on or before today, newest first. */
+export async function getVisiblePosts(today = todayInSiteTz()): Promise<Post[]> {
+  const all = await getCollection('posts', (p) => p.data.published && p.data.date <= today);
+  return all.sort((a, b) => b.data.date.localeCompare(a.data.date) || a.data.title.localeCompare(b.data.title));
+}
+
+/** Rough reading time in minutes for a Markdown body. */
+export function readingMinutes(body: string | undefined): number {
+  const words = (body ?? '').split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 220));
+}

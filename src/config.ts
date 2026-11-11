@@ -6,7 +6,7 @@ export const SITE = {
   name: 'INDIE/24',
   tagline: 'One Indie Game a Day',
   description:
-    'INDIE/24 features one hand-picked indie game every day. Play in your browser, find official downloads, and browse every game we have featured.',
+    'INDIE/24 is a tiny independent studio making small original games you can play free in your browser, with strategy guides and devlogs for every game.',
   /**
    * Timezone used to decide which calendar day it is when picking the
    * Game of the Day. `featuredDate` values in content files are calendar
@@ -14,10 +14,10 @@ export const SITE = {
    * "Asia/Kuala_Lumpur" or "America/New_York".
    */
   timezone: 'UTC',
-  /** Public contact address. Replace before launch. */
-  contactEmail: 'hello@example.com',
-  /** Address for broken-link, copyright and safety reports. Replace before launch. */
-  reportEmail: 'reports@example.com',
+  /** Public contact address (shown on the Contact page). */
+  contactEmail: 'rizwanmatnawi00@gmail.com',
+  /** Address for broken-link, copyright and safety reports. */
+  reportEmail: 'rizwanmatnawi00@gmail.com',
   /** Games per "page" in the archive before the Load More button. */
   archivePageSize: 6,
   /** Number of recently featured games shown on the home page. */

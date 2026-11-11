@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostList from '../../components/PostList.astro';
+import { SITE } from '../../config';
+import { getVisiblePosts } from '../../lib/games';
+
+const posts = await getVisiblePosts();
+const sections = [
+  { kind: 'guide', title: 'Game guides', intro: 'How to play our games better: strategies, level walkthroughs and the numbers behind each mechanic.' },
+  { kind: 'devlog', title: 'Devlog', intro: 'How the games on this site were designed and built, including the parts that went wrong.' },
+  { kind: 'help', title: 'Help', intro: 'Installing the Android apps, saving progress and other practical questions.' },
+] as const;
+---
+
+<BaseLayout title="Guides & Devlog" description={`Strategy guides, level walkthroughs and behind-the-scenes devlogs for every game made by ${SITE.name}.`}>
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Read</p>
+      <h1>Guides &amp; Devlog</h1>
+      <p class="lead muted">
+        Every game on {SITE.name} is designed, coded and drawn here. These are our notes on how to play them well and how they were made, written by the
+        person who made them.
+      </p>
+      {
+        sections.map((s) => {
+          const list = posts.filter((p) => p.data.kind === s.kind);
+          return (
+            list.length > 0 && (
+              <section class="group" aria-labelledby={`h-${s.kind}`}>
+                <h2 id={`h-${s.kind}`}>{s.title}</h2>
+                <p class="muted">{s.intro}</p>
+                <PostList posts={list} />
+              </section>
+            )
+          );
+        })
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .lead {
+    max-width: 62ch;
+    font-size: 1.05rem;
+  }
+  .group {
+    margin-top: 40px;
+  }
+  .group h2 {
+    margin-bottom: 4px;
+  }
+  .group > p {
+    margin: 0 0 16px;
+  }
+</style>

@@ -6,6 +6,7 @@ const path = Astro.url.pathname;
 const nav = [
   { href: '/', label: 'Today', match: (p: string) => p === '/' },
   { href: '/games/', label: 'All games', match: (p: string) => p.startsWith('/games') || p.startsWith('/genres') },
+  { href: '/blog/', label: 'Guides', match: (p: string) => p.startsWith('/blog') },
   { href: '/leaderboard/', label: 'Leaderboard', match: (p: string) => p.startsWith('/leaderboard') },
   { href: '/about/', label: 'About', match: (p: string) => p.startsWith('/about') },
 ];

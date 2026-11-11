@@ -1,38 +1,75 @@
 ---
 import PageLayout from '../layouts/PageLayout.astro';
 import { SITE } from '../config';
+import { getVisibleGames, getVisiblePosts, gameUrl } from '../lib/games';
+
+const games = await getVisibleGames();
+const posts = await getVisiblePosts();
 ---
 
-<PageLayout title="About" eyebrow="Our mission" description={`${SITE.name} helps players discover one interesting indie game from around the world every day.`}>
+<PageLayout title="About" eyebrow="Who we are" description={`${SITE.name} is a tiny independent studio making small original games you can play free in your browser, with guides and devlogs for each.`}>
   <p class="lead">
-    {SITE.name} exists for one reason: to help players discover interesting indie games from around the world, one game a day.
+    {SITE.name} is a tiny independent game studio. We make small, original games that you can play for free in your browser, on a computer or a phone,
+    with no account and nothing to install.
   </p>
 
   <p>
-    Thousands of small games are released every year by solo developers, students and tiny studios. Many of them are wonderful, and most of them
-    are never seen by the people who would love them. Store front pages reward big budgets. We'd rather reward good ideas.
+    Every game on this site is made here: the design, the code, the levels and the chiptune music, and most of the pixel art. There are no asset
+    flips and no copies of other people's games. When a game uses art we didn't draw ourselves, its page says so in the credits.
   </p>
 
-  <h2>How it works</h2>
+  <h2>Our games</h2>
   <ul>
-    <li><strong>One game a day.</strong> Each day we feature a single game, so it gets proper attention instead of being one tile in a wall of hundreds.</li>
-    <li><strong>Play first.</strong> When a game has a browser version that the developer allows us to show, you can play it right here.</li>
-    <li><strong>Official sources.</strong> Downloads point to the developer's own page or store listing. We only host a file ourselves when the developer has given us written permission.</li>
-    <li><strong>Our own words.</strong> Game descriptions are written for {SITE.name}. We don't publish ratings, reviews or popularity numbers we haven't earned.</li>
-    <li><strong>The archive stays.</strong> Every featured game remains in the <a href="/games/">archive</a>, searchable by title, genre and platform.</li>
+    {
+      games.map((g) => (
+        <li>
+          <a href={gameUrl(g)}>
+            <strong>{g.data.title}</strong>
+          </a>
+          : {g.data.shortDescription}
+        </li>
+      ))
+    }
   </ul>
-
-  <h2>For developers</h2>
   <p>
-    Made something you'd like us to look at? Send us a link through the <a href="/contact/">contact page</a>. Being featured is free. If we ever add
-    paid placements, they will always be clearly labelled as sponsored and kept separate from our daily pick.
+    Each game also has a free Android app with no ads and no in-app purchases. They're downloaded straight from this site; our guide on <a
+      href="/blog/install-android-apk-safely/">installing them safely</a
+    > explains how.
   </p>
-  <p>If you'd like your game changed or removed from {SITE.name}, <a href="/report/">let us know</a> and we'll take care of it.</p>
+
+  <h2>Why "INDIE/24"?</h2>
+  <p>
+    The name comes from the idea we started with: one game in the spotlight at a time, so it gets proper attention instead of being one tile in a
+    wall of hundreds. The <strong>Game of the Day</strong> on the home page is always our newest release, and every game we've made stays in the <a
+      href="/games/">archive</a
+    >. We add new games as they're finished. Quality comes first, so we'd rather release a good game every week or two than a rushed one every day.
+  </p>
+
+  <h2>Guides and devlogs</h2>
+  <p>
+    We write about our games too: strategy guides and walkthroughs, written with the real numbers from each game's code, and devlogs about how each
+    game was built, including what went wrong. There are {posts.length} posts so far in <a href="/blog/">Guides &amp; Devlog</a>.
+  </p>
+
+  <h2>How we make games</h2>
+  <ul>
+    <li><strong>Play first.</strong> Every game runs in a browser and starts in a second or two. No sign-ups, no downloads, no loading screens.</li>
+    <li><strong>Phones count.</strong> Every game works with touch, and every level is tested to be beatable with on-screen controls.</li>
+    <li><strong>Fair, even when it's mean.</strong> Our games can be hard, but they're never random in a way that cheats you. We test them with programs that prove every level and every gap can be beaten.</li>
+    <li><strong>Small and fast.</strong> Art is drawn with code and music is generated live, so a whole game is smaller than one photo.</li>
+    <li><strong>Your data stays yours.</strong> Progress is saved on your device. The only thing we ever ask for is an optional nickname for the leaderboard. See our <a href="/privacy/">privacy policy</a>.</li>
+  </ul>
 
   <h2>Keeping the lights on</h2>
   <p>
-    {SITE.name} is a small, independent project. In the future we may add clearly marked advertising, affiliate links or sponsored features to cover
-    hosting and time. The site will always be fully usable without them, and editorial picks will never be for sale.
+    {SITE.name} is free to play. To pay for hosting and development, the website shows a small number of clearly marked ads <em>around</em> the
+    pages. There are never ads inside the games themselves, and the Android apps have none at all.
+  </p>
+
+  <h2>Get in touch</h2>
+  <p>
+    Found a bug, got an idea for a game, or want to say hello? We'd love to hear from you on the <a href="/contact/">contact page</a>. If something on
+    the site looks wrong or unsafe, please use the <a href="/report/">Report a Game</a> page.
   </p>
 </PageLayout>
 
