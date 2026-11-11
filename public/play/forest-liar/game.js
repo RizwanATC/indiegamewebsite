@@ -2337,10 +2337,12 @@
       );
     } else if (state === 'complete') {
       const last = world.index >= LEVELS.length - 1;
+      // With the online board on the right, the result panel moves left.
+      const [a, b, c] = boardOnline() ? [[18, 84], [110, 112], [230, 66]] : [[70, 100], [180, 120], [310, 100]];
       menu = [
-        { label: 'RETRY', x: 70, y: 196, w: 100, h: 26, act: () => startLevel(world.index) },
-        { label: last ? 'THE END' : 'NEXT LEVEL', x: 180, y: 196, w: 120, h: 26, act: () => (last ? ((endT = 0), setState('ending')) : startLevel(world.index + 1)), primary: true },
-        { label: 'LEVELS', x: 310, y: 196, w: 100, h: 26, act: () => setState('levels'), back: true },
+        { label: 'RETRY', x: a[0], y: 196, w: a[1], h: 26, act: () => startLevel(world.index) },
+        { label: last ? 'THE END' : 'NEXT LEVEL', x: b[0], y: 196, w: b[1], h: 26, act: () => (last ? ((endT = 0), setState('ending')) : startLevel(world.index + 1)), primary: true },
+        { label: 'LEVELS', x: c[0], y: 196, w: c[1], h: 26, act: () => setState('levels'), back: true },
       ];
     } else if (state === 'ending') {
       menu =
@@ -2573,6 +2575,7 @@
     text('AN INDIE/24 GAME', W / 2, 94, { align: 'center', color: '#13202a', outline: '#d7f1f9' });
     text(`V${VERSION}`, W - 4, H - 10, { align: 'right', color: '#fff6c2' });
     if (progress.totalDeaths) text(`TOTAL DEATHS ${progress.totalDeaths}`, 4, H - 10, { color: '#fff6c2' });
+    drawBoard(336, 118, 136, 5);
   }
 
   function drawPanel(x, y, w, h) {
@@ -2659,20 +2662,47 @@
 
   function drawComplete() {
     drawWorld();
-    drawPanel(60, 34, 360, 200);
+    const online = boardOnline();
+    // Result panel: centred, or on the left with the high score table beside it.
+    const [px, pw] = online ? [8, 298] : [60, 360];
+    const cx = px + pw / 2;
+    drawPanel(px, 34, pw, 200);
     const L = LEVELS[world.index];
-    text('DELIVERED!', W / 2, 46, { align: 'center', scale: 3, color: '#f7c948' });
-    text(L.name, W / 2, 74, { align: 'center', color: '#fff6c2' });
+    text('DELIVERED!', cx, 46, { align: 'center', scale: 3, color: '#f7c948' });
+    text(L.name, cx, 74, { align: 'center', color: '#fff6c2' });
     const row = (label, value, y) => {
-      text(label, 150, y, { color: '#cfe8d0', scale: 2 });
-      text(value, 330, y, { align: 'right', color: '#fff6c2', scale: 2 });
+      text(label, cx - 90, y, { color: '#cfe8d0', scale: 2 });
+      text(value, cx + 90, y, { align: 'right', color: '#fff6c2', scale: 2 });
     };
     row('TIME', fmtTime(result.secs), 92);
     row('DEATHS', String(result.deaths), 112);
     row('SCORE', String(result.score), 132);
-    text(result.newBest ? 'NEW BEST!' : `BEST ${result.best.score}  ${fmtTime(result.best.time)}  ${result.best.deaths} DEATHS`, W / 2, 158, { align: 'center', color: result.newBest ? '#f7c948' : '#cfe8d0' });
-    text(L.outro || '', W / 2, 174, { align: 'center', color: '#f4ecd2' });
+    text(result.newBest ? 'NEW BEST!' : `BEST ${result.best.score}  ${fmtTime(result.best.time)}  ${result.best.deaths} DEATHS`, cx, 158, { align: 'center', color: result.newBest ? '#f7c948' : '#cfe8d0' });
+    wrap(L.outro || '', Math.floor((pw - 16) / 4))
+      .slice(0, 2)
+      .forEach((l, i) => text(l, cx, 172 + i * 8, { align: 'center', color: '#f4ecd2' }));
+    if (online) drawBoard(314, 34, W - 322, 10);
     drawMenuItems();
+  }
+
+  const boardOnline = () => Boolean(window.Indie24Scores) && window.Indie24Scores.board('forest-liar').status !== 'off';
+
+  /** The site's high score table (leaderboard.js): total score over all levels. */
+  function drawBoard(x, y, w, rows) {
+    return (
+      window.Indie24Scores?.draw('forest-liar', {
+        text,
+        rect: (rx, ry, rw, rh, color) => {
+          ctx.fillStyle = color;
+          ctx.fillRect(rx, ry, rw, rh);
+        },
+        x,
+        y,
+        w,
+        rows,
+        colors: { panel: 'rgba(19, 32, 42, 0.88)', edge: '#f7c948', title: '#f7c948', text: '#f4ecd2', dim: '#cfe8d0', you: '#8cc63e', youBar: 'rgba(140, 198, 62, 0.25)', medals: ['#f7c948', '#e6eef2', '#f39a3d'] },
+      }) || 0
+    );
   }
 
   function drawEnding() {

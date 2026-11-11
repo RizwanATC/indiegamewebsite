@@ -1299,15 +1299,38 @@
       banner([{ text: 'PAUSED', scale: 2 }, { text: 'TAP OR PRESS P TO RESUME', scale: 1 }, { text: 'M SOUND   F AUTO ATTACK', scale: 1, color: '#e8c07a' }]);
     else if (state === 'clear' && t > 40) banner([{ text: 'STAGE CLEAR!', scale: 2 }, { text: `SCORE ${score}`, scale: 1, color: '#e8c07a' }]);
     else if (state === 'over') {
-      banner([
-        { text: 'GAME OVER', scale: 2 },
-        { text: `SCORE ${score}`, scale: 1 },
-        { text: score >= hiScore && score > 0 ? 'NEW BEST!' : `BEST ${hiScore}`, scale: 1, color: '#e8c07a' },
-        { text: t > 60 && (t >> 5) % 2 ? 'TAP TO CONTINUE' : '', scale: 1 },
-      ]);
+      const online = window.Indie24Scores?.board('slime-siege').status !== 'off';
+      banner(
+        [
+          { text: 'GAME OVER', scale: 2 },
+          { text: `SCORE ${score}`, scale: 1 },
+          { text: score >= hiScore && score > 0 ? 'NEW BEST!' : `BEST ${hiScore}`, scale: 1, color: '#e8c07a' },
+          { text: t > 60 && (t >> 5) % 2 ? 'TAP TO CONTINUE' : '', scale: 1 },
+        ],
+        online ? 60 : 120,
+      );
+      if (online && t > 20) drawBoard(140, 5);
     }
     if (boss && boss.y < 20 && (t >> 4) % 2) text('WARNING!', W / 2, 150, { align: 'center', scale: 2, color: '#ff6b81' });
     drawToast();
+  }
+
+  /** The site's high score table (leaderboard.js); returns 0 when offline. */
+  function drawBoard(y, rows) {
+    return (
+      window.Indie24Scores?.draw('slime-siege', {
+        text,
+        rect: (x, ry, w, h, color) => {
+          ctx.fillStyle = color;
+          ctx.fillRect(x, ry, w, h);
+        },
+        x: 10,
+        y,
+        w: W - 20,
+        rows,
+        colors: { panel: 'rgba(43, 29, 20, 0.84)', edge: '#e8c07a', title: '#8fdc5a', text: '#fff6c2', dim: '#c8b49a', you: '#8fdc5a', youBar: 'rgba(143, 220, 90, 0.22)', medals: ['#ffd23f', '#f2efe6', '#e8a060'] },
+      }) || 0
+    );
   }
 
   function drawTitle() {
@@ -1316,9 +1339,12 @@
     const bob = Math.round(Math.sin(t / 25) * 2);
     text('SLIME', W / 2, 46 + bob, { align: 'center', scale: 4, color: '#8fdc5a' });
     text('SIEGE', W / 2, 72 + bob, { align: 'center', scale: 4, color: '#e8c07a' });
-    cell(IMG.slime, 64, ((t / 8) | 0) % 4, 0, 30, 110, { scale: 0.75 });
-    cell(IMG.slime, 64, ((t / 9) | 0) % 4, 0, 98, 104, { scale: 0.75 });
-    cell(IMG.skeleton, 32, ((t / 8) | 0) % 6, 0, 72, 118);
+    // Online: the high score table. In the app (no server): the slimes line up instead.
+    if (!drawBoard(100, 5)) {
+      cell(IMG.slime, 64, ((t / 8) | 0) % 4, 0, 30, 110, { scale: 0.75 });
+      cell(IMG.slime, 64, ((t / 9) | 0) % 4, 0, 98, 104, { scale: 0.75 });
+      cell(IMG.skeleton, 32, ((t / 8) | 0) % 6, 0, 72, 118);
+    }
     cell(IMG.player, 32, ((t / 6) | 0) % 6, 2, W / 2 - 16, 190);
     cell(IMG.chicken, 32, ((t / 12) | 0) % 2, 0, 30, 205);
     text('SLASH THE SLIMES', W / 2, 238, { align: 'center' });

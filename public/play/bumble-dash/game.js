@@ -1220,9 +1220,11 @@
     text('BUMBLE', W / 2, 40 + bob, { align: 'center', scale: 4, color: '#ffcc33', outline: '#2b1d14' });
     text('DASH', W / 2, 66 + bob, { align: 'center', scale: 4, color: '#ff7aa8', outline: '#2b1d14' });
     text('FLAP THROUGH THE BRAMBLES', W / 2, 96, { align: 'center', color: '#2b1d14', outline: null });
-    // A honey trail behind the bee.
-    for (let i = 0; i < 3; i++) ctx.drawImage(SPR.honey, 74 + i * 18, 145 + Math.round(Math.sin(t / 10 + i) * 2));
-    drawBee(BX + 10, S.by, Math.sin(t / 30) * 0.1, 1);
+    // Online: the high score table. In the app (no server): a honey trail behind the bee.
+    if (!drawBoard(104, 5)) {
+      for (let i = 0; i < 3; i++) ctx.drawImage(SPR.honey, 74 + i * 18, 145 + Math.round(Math.sin(t / 10 + i) * 2));
+      drawBee(BX + 10, S.by, Math.sin(t / 30) * 0.1, 1);
+    }
     const touch = matchMedia('(pointer: coarse)').matches;
     if ((t >> 5) % 2 === 0) text(touch ? 'TAP TO START' : 'CLICK OR SPACE TO START', W / 2, 182, { align: 'center', color: '#fff8e0' });
     text(`BEST ${best}`, W / 2, 196, { align: 'center', color: '#ffe066' });
@@ -1291,7 +1293,26 @@
       text(touch ? 'TAP TO FLY AGAIN' : 'SPACE TO FLY AGAIN', W / 2, y0 + 96, { align: 'center', color: '#fff8e0' });
     }
     if (S.honey) text(`HONEY DROPS ${S.honey}`, W / 2, y0 + 110, { align: 'center', color: '#ffe066' });
+    if (stateT > 24) drawBoard(182, 3);
     if (stateT > 36) drawSpeaker(5, H - 16);
+  }
+
+  /** The site's high score table (leaderboard.js); returns 0 when offline. */
+  function drawBoard(y, rows) {
+    return (
+      window.Indie24Scores?.draw('bumble-dash', {
+        text,
+        rect: (x, ry, w, h, color) => {
+          ctx.fillStyle = color;
+          ctx.fillRect(x, ry, w, h);
+        },
+        x: 8,
+        y,
+        w: W - 16,
+        rows,
+        colors: { panel: 'rgba(43, 29, 20, 0.8)', edge: '#ffcc33', title: '#ffcc33', text: '#fff8e0', dim: '#ffe2b0', you: '#8fd3ff', youBar: 'rgba(143, 211, 255, 0.25)', medals: ['#ffcc33', '#f4fbff', '#ffb37a'] },
+      }) || 0
+    );
   }
 
   function drawPaused() {
