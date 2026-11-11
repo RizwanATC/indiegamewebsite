@@ -13,7 +13,7 @@ const games = (await getVisibleGames()).filter((g) => LEADERBOARDS[gameSlug(g)])
     <button type="button" class="btn btn-sm" data-name-open>Change my player name</button>
   </p>
   <div class="boards">
-    {games.map((g) => <Leaderboard game={gameSlug(g)} title={g.data.title} href={gameUrl(g)} headingLevel={2} />)}
+    {games.map((g) => <Leaderboard game={gameSlug(g)} title={g.data.title} href={gameUrl(g)} cover={g.data.coverImage} headingLevel={2} />)}
   </div>
 </PageLayout>
 

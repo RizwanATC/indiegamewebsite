@@ -1,8 +1,11 @@
 ---
 /**
- * Top 10 for one game, loaded in the browser from /api/scores. Refreshes when
- * the embedded game posts a score or the player changes their name.
+ * Arcade-style top 10 for one game, loaded in the browser from /api/scores:
+ * a podium for the top 3, then the rest as rows. Refreshes when the embedded
+ * game posts a score or the player changes their name.
  */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import { LEADERBOARDS } from '../config';
 
 interface Props {
@@ -12,30 +15,59 @@ interface Props {
   headingLevel?: 2 | 3;
   /** How many rows to show (the server sends up to 10). */
   limit?: number;
+  /** Game cover, shown small next to the title. */
+  cover?: ImageMetadata;
 }
-const { game, title = 'Leaderboard', href, headingLevel = 2, limit = 10 } = Astro.props;
+const { game, title = 'Leaderboard', href, headingLevel = 2, limit = 10, cover } = Astro.props;
 const board = LEADERBOARDS[game];
 const H = `h${headingLevel}` as 'h2' | 'h3';
 const id = `lb-${game}-${limit}`;
+// Podium slots in rank order; CSS draws them 2nd, 1st, 3rd.
+const slots = [0, 1, 2];
 ---
 
 {
   board && (
-    <section class="board panel" data-board={game} data-limit={limit} aria-labelledby={id}>
-      <div class="head">
-        <H id={id} class="title">
-          {href ? <a href={href}>{title}</a> : title}
-        </H>
-        <button type="button" class="you" data-name-open>
-          Playing as <strong data-board-name>…</strong>
-        </button>
+    <section class="board" data-board={game} data-limit={limit} aria-labelledby={id}>
+      <div class="marquee">
+        {cover && <Image src={cover} alt="" width={56} height={56} class="cover pixelated" />}
+        <div class="titles">
+          <p class="kicker" aria-hidden="true">
+            <span class="star">★</span> High scores <span class="star">★</span>
+          </p>
+          <H id={id} class="title">
+            {href ? <a href={href}>{title}</a> : title}
+          </H>
+        </div>
       </div>
-      {board.note && <p class="note">{board.note}</p>}
+      <button type="button" class="you" data-name-open>
+        <span class="you-label">Player</span>
+        <strong data-board-name>…</strong>
+        <span class="you-edit" aria-hidden="true">✎</span>
+      </button>
       <p class="status" data-board-status role="status">
         Loading scores…
       </p>
+      <ol class="podium" data-board-podium hidden>
+        {slots.map((i) => (
+          <li class={`spot spot-${i + 1}`} data-slot={i}>
+            {i === 0 && (
+              <svg class="crown" viewBox="0 0 11 8" shape-rendering="crispEdges" aria-hidden="true">
+                <path fill="#f7c948" d="M5 0h1v1H5zM0 1h1v1H0zm4 0h3v1H4zm6 0h1v1h-1zM0 2h2v1H0zm3 0h5v1H3zm6 0h2v1H9zM0 3h11v3H0zm0 4h11v1H0z" />
+                <path fill="#fb7185" d="M2 4h1v1H2zm6 0h1v1H8z" />
+                <path fill="#60a5fa" d="M5 4h1v1H5z" />
+              </svg>
+            )}
+            <span class="medal" />
+            <span class="name" />
+            <span class="score" />
+            <span class="step" aria-hidden="true" />
+          </li>
+        ))}
+      </ol>
       <ol class="rows" data-board-rows hidden />
       <p class="me" data-board-me hidden />
+      {board.note && <p class="note">{board.note}</p>}
       <template data-board-row>
         <li>
           <span class="rank" />
@@ -50,83 +82,320 @@ const id = `lb-${game}-${limit}`;
 
 <style>
   .board {
+    --gold: #f7c948;
+    --silver: #d6d3e8;
+    --bronze: #e3a06b;
+    --pink: #f472b6;
+    position: relative;
     display: grid;
-    gap: 10px;
+    align-content: start;
+    gap: 14px;
+    min-width: 0;
+    padding: 18px;
+    border: 2px solid transparent;
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(120% 60% at 50% 0%, rgb(167 139 250 / 0.22), transparent 60%) padding-box,
+      linear-gradient(180deg, #1b1538, #0f0c20) padding-box,
+      linear-gradient(135deg, var(--accent), var(--pink) 45%, var(--gold)) border-box;
+    box-shadow:
+      6px 6px 0 0 #2e1065,
+      0 0 32px -8px rgb(167 139 250 / 0.45);
+    overflow: hidden;
   }
-  .head {
+  /* Scanlines, like an old arcade screen. */
+  .board::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(180deg, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 3px);
+  }
+
+  .marquee {
     display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 4px 12px;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+  .cover {
+    flex: none;
+    width: 48px;
+    height: 48px;
+    border: 2px solid var(--border-strong);
+    border-radius: var(--radius);
+    object-fit: cover;
+    box-shadow: 3px 3px 0 0 var(--accent-ink);
+  }
+  .titles {
+    min-width: 0;
+  }
+  .kicker {
+    margin: 0 0 6px;
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, var(--gold), var(--pink), var(--accent-strong), var(--gold));
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: sweep 6s linear infinite;
+  }
+  .star {
+    color: var(--gold);
+    -webkit-text-fill-color: var(--gold);
   }
   .title {
     margin: 0;
-    font-size: 1.1rem;
+    font-family: var(--font-display);
+    font-size: clamp(0.8rem, 2.6vw, 0.95rem);
+    line-height: 1.5;
+    text-shadow: 2px 2px 0 var(--accent-ink);
+    overflow-wrap: anywhere;
   }
   .title a {
     color: inherit;
+    text-decoration: none;
   }
-  .you {
-    padding: 0;
-    border: 0;
-    background: none;
-    color: var(--text-muted);
-    font: inherit;
-    font-size: 0.85rem;
-    cursor: pointer;
-    text-decoration: underline dotted;
-    text-underline-offset: 3px;
-  }
-  .you strong {
+  .title a:hover {
     color: var(--accent-strong);
   }
+
+  .you {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 100%;
+    padding: 5px 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: rgb(12 10 22 / 0.6);
+    color: var(--text-muted);
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+  .you:hover {
+    border-color: var(--accent);
+  }
+  .you-label {
+    font-family: var(--font-display);
+    font-size: 0.5rem;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .you strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--accent-strong);
+  }
+
   .note,
   .status,
   .me {
     margin: 0;
-    font-size: 0.875rem;
+    font-size: 0.85rem;
     color: var(--text-muted);
   }
-  .rows {
-    display: grid;
-    gap: 2px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    counter-reset: none;
+  .status {
+    padding: 18px 8px;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius);
+    text-align: center;
   }
+  .note {
+    font-size: 0.78rem;
+    color: var(--text-faint);
+  }
+  .me {
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    font-weight: 600;
+  }
+  .status[hidden],
+  .podium[hidden],
   .rows[hidden],
   .me[hidden] {
     display: none;
   }
-  .rows :global(li) {
+
+  /* --- Podium: 2nd, 1st, 3rd ------------------------------------------- */
+  .podium {
     display: grid;
-    grid-template-columns: 2.5em minmax(0, 1fr) auto;
-    gap: 10px;
-    align-items: center;
-    padding: 7px 10px;
-    border-radius: var(--radius);
-    background: var(--surface);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: end;
+    gap: 8px;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .spot {
+    --c: var(--silver);
+    --h: 46px;
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    min-width: 0;
+    text-align: center;
+    animation: rise 0.6s var(--ease) both;
+  }
+  .spot-2 {
+    order: 1;
+  }
+  .spot-1 {
+    --c: var(--gold);
+    --h: 70px;
+    order: 2;
+    animation-delay: 0.15s;
+  }
+  .spot-3 {
+    order: 3;
+    --c: var(--bronze);
+    --h: 32px;
+    animation-delay: 0.3s;
+  }
+  .crown {
+    width: 30px;
+    height: auto;
+    margin-bottom: -2px;
+    filter: drop-shadow(0 0 6px rgb(247 201 72 / 0.7));
+    animation: bob 2.4s ease-in-out infinite;
+  }
+  .medal {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 3px solid var(--accent-ink);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff8, transparent 45%), var(--c);
+    color: var(--accent-ink);
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    box-shadow: 0 0 0 2px var(--c), 0 0 18px -2px var(--c);
+  }
+  .spot-1 .medal {
+    width: 42px;
+    height: 42px;
+    font-size: 0.85rem;
+  }
+  .spot .name {
+    max-width: 100%;
+    margin-top: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+  .spot .score {
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    color: var(--c);
     font-variant-numeric: tabular-nums;
   }
+  .spot-1 .score {
+    font-size: 0.7rem;
+  }
+  .step {
+    position: relative;
+    width: 100%;
+    height: var(--h);
+    margin-top: 6px;
+    border-radius: 4px 4px 0 0;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--c) 55%, transparent), color-mix(in srgb, var(--c) 12%, transparent));
+    box-shadow: inset 0 3px 0 0 var(--c);
+    overflow: hidden;
+  }
+  /* A light glint that passes over the winner's step. */
+  .spot-1 .step::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.45) 50%, transparent 70%);
+    transform: translateX(-120%);
+    animation: glint 3.2s ease-in-out 1s infinite;
+  }
+  .spot.is-empty .medal {
+    background: var(--surface);
+    color: var(--text-faint);
+    box-shadow: 0 0 0 2px var(--border-strong);
+  }
+  .spot.is-empty .name,
+  .spot.is-empty .score {
+    color: var(--text-faint);
+  }
+  .spot.is-empty .crown {
+    opacity: 0.35;
+    filter: none;
+  }
+  .spot.is-you .name::after,
+  .rows :global(li.is-you .name::after) {
+    content: 'YOU';
+    margin-left: 6px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-family: var(--font-display);
+    font-size: 0.45rem;
+    vertical-align: middle;
+  }
+  .spot.is-you .medal {
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+
+  /* --- Rows 4 and down ---------------------------------------------------- */
+  .rows {
+    display: grid;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .rows :global(li) {
+    display: grid;
+    grid-template-columns: 2.6em minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: rgb(26 22 51 / 0.85);
+    font-variant-numeric: tabular-nums;
+    animation: slide 0.45s var(--ease) both;
+  }
+  .rows :global(li:nth-child(2)) {
+    animation-delay: 0.05s;
+  }
+  .rows :global(li:nth-child(3)) {
+    animation-delay: 0.1s;
+  }
+  .rows :global(li:nth-child(4)) {
+    animation-delay: 0.15s;
+  }
+  .rows :global(li:nth-child(n + 5)) {
+    animation-delay: 0.2s;
+  }
+  .rows :global(li:nth-child(even)) {
+    background: rgb(20 17 42 / 0.85);
+  }
   .rows :global(li.is-you) {
-    outline: 2px solid var(--accent);
-    outline-offset: -2px;
+    border-color: var(--accent);
+    background: linear-gradient(90deg, rgb(167 139 250 / 0.28), rgb(26 22 51 / 0.85));
+    box-shadow: 0 0 16px -4px var(--accent);
   }
   .rows :global(.rank) {
     font-family: var(--font-display);
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     color: var(--text-faint);
-  }
-  .rows :global(li:nth-child(1) .rank) {
-    color: #f7c948;
-  }
-  .rows :global(li:nth-child(2) .rank) {
-    color: #d6d3e8;
-  }
-  .rows :global(li:nth-child(3) .rank) {
-    color: #e3a06b;
   }
   .rows :global(.name) {
     overflow: hidden;
@@ -135,8 +404,53 @@ const id = `lb-${game}-${limit}`;
     font-weight: 600;
   }
   .rows :global(.score) {
-    font-weight: 700;
+    font-family: var(--font-display);
+    font-size: 0.6rem;
     color: var(--accent-strong);
+  }
+
+  @keyframes sweep {
+    to {
+      background-position: 300% 0;
+    }
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+  }
+  @keyframes slide {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+  }
+  @keyframes bob {
+    50% {
+      transform: translateY(-3px) rotate(-4deg);
+    }
+  }
+  @keyframes glint {
+    40%,
+    100% {
+      transform: translateX(120%);
+    }
+  }
+  @keyframes pulse {
+    50% {
+      box-shadow: 0 0 0 2px var(--c), 0 0 0 6px rgb(167 139 250 / 0.5);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .kicker,
+    .spot,
+    .crown,
+    .spot-1 .step::after,
+    .spot.is-you .medal,
+    .rows :global(li) {
+      animation: none;
+    }
   }
 </style>
 
@@ -161,6 +475,8 @@ const id = `lb-${game}-${limit}`;
     const game = el.dataset.board!;
     const limit = Number(el.dataset.limit) || 10;
     const status = el.querySelector<HTMLElement>('[data-board-status]')!;
+    const podium = el.querySelector<HTMLOListElement>('[data-board-podium]')!;
+    const spots = [...podium.querySelectorAll<HTMLElement>('[data-slot]')].sort((a, b) => Number(a.dataset.slot) - Number(b.dataset.slot));
     const rows = el.querySelector<HTMLOListElement>('[data-board-rows]')!;
     const me = el.querySelector<HTMLElement>('[data-board-me]')!;
     const tpl = el.querySelector<HTMLTemplateElement>('[data-board-row]')!;
@@ -178,6 +494,7 @@ const id = `lb-${game}-${limit}`;
         if (!res.ok) throw new Error('down');
         render((await res.json()) as Data);
       } catch (err) {
+        podium.hidden = true;
         rows.hidden = true;
         me.hidden = true;
         status.hidden = false;
@@ -189,8 +506,18 @@ const id = `lb-${game}-${limit}`;
 
     function render(data: Data) {
       const top = data.top.slice(0, limit);
+      // Top 3 stand on the podium; empty steps wait for challengers.
+      spots.forEach((spot, i) => {
+        const r = top[i];
+        spot.classList.toggle('is-empty', !r);
+        spot.classList.toggle('is-you', Boolean(r?.you));
+        spot.querySelector('.medal')!.textContent = String(r ? r.rank : i + 1);
+        spot.querySelector('.name')!.textContent = r ? r.name : '???';
+        spot.querySelector('.score')!.textContent = r ? fmt.format(r.score) : '---';
+      });
+      const rest = top.slice(3);
       rows.replaceChildren(
-        ...top.map((r) => {
+        ...rest.map((r) => {
           const li = (tpl.content.firstElementChild as HTMLLIElement).cloneNode(true) as HTMLLIElement;
           li.querySelector('.rank')!.textContent = `#${r.rank}`;
           li.querySelector('.name')!.textContent = r.name;
@@ -199,7 +526,8 @@ const id = `lb-${game}-${limit}`;
           return li;
         }),
       );
-      rows.hidden = top.length === 0;
+      podium.hidden = top.length === 0;
+      rows.hidden = rest.length === 0;
       status.hidden = top.length > 0;
       status.textContent = 'No scores yet. Play a round and be the first!';
       const inTop = top.some((r) => r.you);
