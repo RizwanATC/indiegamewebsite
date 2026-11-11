@@ -41,7 +41,7 @@ const jsonLd = {
             <a class="btn btn-sm btn-ghost" href="/leaderboard/">Full leaderboard <Icon name="arrow" /></a>
           </div>
           <div class="boards">
-            {boards.map((g) => <Leaderboard game={gameSlug(g)} title={g.data.title} href={gameUrl(g)} headingLevel={3} limit={5} />)}
+            {boards.map((g) => <Leaderboard game={gameSlug(g)} title={g.data.title} href={gameUrl(g)} cover={g.data.coverImage} headingLevel={3} limit={5} />)}
           </div>
         </div>
       </section>

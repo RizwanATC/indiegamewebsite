@@ -142,7 +142,7 @@ const videoGame = !d.sample && {
         {
           LEADERBOARDS[gameSlug(game)] && (
             <div class="block">
-              <Leaderboard game={gameSlug(game)} title={`${d.title} leaderboard`} />
+              <Leaderboard game={gameSlug(game)} title={`${d.title} leaderboard`} cover={d.coverImage} />
             </div>
           )
         }
