@@ -26,15 +26,36 @@
     return Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
   }
 
-  function player() {
-    let p = null;
+  // Also kept in a one-year cookie (shared with the website), because some
+  // browsers drop localStorage; whichever copy has a name wins.
+  const COOKIE = 'indie24_player';
+  const valid = (p) => Boolean(p) && typeof p.id === 'string' && typeof p.name === 'string';
+
+  function readCookie() {
     try {
-      p = JSON.parse(localStorage.getItem(KEY) || 'null');
+      const m = document.cookie.match(/(?:^|;\s*)indie24_player=([^;]*)/);
+      return m ? JSON.parse(decodeURIComponent(m[1])) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function player() {
+    let stored = null;
+    try {
+      stored = JSON.parse(localStorage.getItem(KEY) || 'null');
     } catch {}
-    if (!p || typeof p.id !== 'string') {
-      p = { id: newId(), name: '' };
+    const found = [stored, online ? readCookie() : null].filter(valid);
+    const p = found.find((c) => c.name) || found[0] || { id: newId(), name: '' };
+    if (!valid(stored) || stored.id !== p.id || stored.name !== p.name) {
       try {
         localStorage.setItem(KEY, JSON.stringify(p));
+      } catch {}
+    }
+    if (online) {
+      try {
+        const secure = location.protocol === 'https:' ? '; Secure' : '';
+        document.cookie = `${COOKIE}=${encodeURIComponent(JSON.stringify({ id: p.id, name: p.name }))}; Max-Age=31536000; Path=/; SameSite=Lax${secure}`;
       } catch {}
     }
     return p;
