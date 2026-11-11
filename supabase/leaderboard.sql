@@ -46,6 +46,8 @@ begin
 end $$;
 
 -- Save a score, keeping only the player's best. Returns rank and best.
+-- Rank and best are per NAME (case-insensitive): the same name on a phone and a
+-- computer counts as one player, so the board never shows a name twice.
 create or replace function public.leaderboard_submit(p_game text, p_player uuid, p_name text, p_score bigint)
 returns json language plpgsql set search_path = public as $$
 declare best bigint; rnk bigint;
@@ -58,8 +60,17 @@ begin
     set score = excluded.score, updated_at = now()
     where excluded.score > s.score;
 
-  select score into best from leaderboard_scores where game = p_game and player_id = p_player;
-  select count(*) + 1 into rnk from leaderboard_scores where game = p_game and score > best;
+  select max(s.score) into best
+  from leaderboard_scores s join leaderboard_players p on p.id = s.player_id
+  where s.game = p_game and lower(p.name) = lower(p_name);
+
+  select count(*) + 1 into rnk from (
+    select max(s.score) as top
+    from leaderboard_scores s join leaderboard_players p on p.id = s.player_id
+    where s.game = p_game and lower(p.name) <> lower(p_name)
+    group by lower(p.name)
+  ) others where top > best;
+
   return json_build_object('rank', rnk, 'best', best, 'newBest', best = p_score);
 end $$;
 
@@ -69,21 +80,30 @@ returns void language sql set search_path = public as $$
   update leaderboard_players set name = p_name, updated_at = now() where id = p_player;
 $$;
 
--- Top N for a game, plus the given player's own rank.
+-- Top N for a game, one row per name (case-insensitive, best score wins),
+-- plus the given player's own rank.
 create or replace function public.leaderboard_top(p_game text, p_player uuid, p_limit int)
 returns json language sql stable set search_path = public as $$
-  with ranked as (
-    select s.player_id, p.name, s.score,
-           rank() over (order by s.score desc) as rnk,
-           row_number() over (order by s.score desc, s.updated_at) as pos
+  with by_name as (
+    select distinct on (lower(p.name))
+           lower(p.name) as key, p.name, s.score, s.updated_at
     from leaderboard_scores s join leaderboard_players p on p.id = s.player_id
     where s.game = p_game
-  )
+    order by lower(p.name), s.score desc, s.updated_at
+  ),
+  ranked as (
+    select key, name, score,
+           rank() over (order by score desc) as rnk,
+           row_number() over (order by score desc, updated_at) as pos
+    from by_name
+  ),
+  mine as (select lower(name) as key from leaderboard_players where id = p_player)
   select json_build_object(
     'total', (select count(*) from ranked),
-    'top', coalesce((select json_agg(json_build_object('rank', rnk, 'name', name, 'score', score, 'you', player_id = p_player) order by pos)
+    'top', coalesce((select json_agg(json_build_object('rank', rnk, 'name', name, 'score', score,
+                                                       'you', coalesce(key = (select key from mine), false)) order by pos)
                      from ranked where pos <= p_limit), '[]'::json),
-    'me', (select json_build_object('rank', rnk, 'score', score) from ranked where player_id = p_player)
+    'me', (select json_build_object('rank', rnk, 'score', score) from ranked where key = (select key from mine))
   );
 $$;
 
