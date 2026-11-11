@@ -11,6 +11,7 @@ interface Props {
 const { pick } = Astro.props;
 const game = pick?.game;
 const d = game?.data;
+const hasAside = Astro.slots.has('aside');
 ---
 
 <section class="featured" aria-labelledby="featured-heading">
@@ -23,7 +24,8 @@ const d = game?.data;
   </div>
   {
     game && d ? (
-      <div class="container grid">
+      <div class:list={['container', 'grid', { 'has-aside': hasAside }]}>
+        <div class="main">
         <a class="art" href={gameUrl(game)} tabindex="-1" aria-hidden="true">
           <Image
             src={d.coverImage}
@@ -74,6 +76,12 @@ const d = game?.data;
           <GameActions game={game} context="hero" />
           {!pick.isToday && <p class="fallback muted">No new game is scheduled for today yet, so here is our most recent pick.</p>}
         </div>
+        </div>
+        {hasAside && (
+          <aside class="aside" aria-label="Leaderboard">
+            <slot name="aside" />
+          </aside>
+        )}
       </div>
     ) : (
       <div class="container empty">
@@ -124,10 +132,31 @@ const d = game?.data;
     gap: clamp(24px, 4vw, 48px);
     align-items: center;
   }
+  .main {
+    display: grid;
+    gap: clamp(24px, 4vw, 48px);
+    align-items: center;
+    min-width: 0;
+  }
   @media (min-width: 900px) {
-    .grid {
+    .main {
       grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
     }
+    /* With a leaderboard beside it: art on top, details right below. */
+    .has-aside {
+      grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr);
+      align-items: start;
+    }
+    .has-aside .main {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+  .has-aside .title {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+  }
+  .has-aside .lede {
+    max-width: none;
   }
   .art {
     position: relative;

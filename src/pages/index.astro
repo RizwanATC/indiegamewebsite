@@ -6,7 +6,7 @@ import GenreNav from '../components/GenreNav.astro';
 import SearchForm from '../components/SearchForm.astro';
 import AdSlot from '../components/AdSlot.astro';
 import Icon from '../components/Icon.astro';
-import TopPlayers from '../components/TopPlayers.astro';
+import BoardTabs from '../components/BoardTabs.astro';
 import PostList from '../components/PostList.astro';
 import { LEADERBOARDS, SITE } from '../config';
 import { allGenres, allPlatforms, gameSlug, gameUrl, getVisibleGames, getVisiblePosts, pickDailyGame, platformLabel } from '../lib/games';
@@ -29,8 +29,17 @@ const jsonLd = {
 ---
 
 <BaseLayout jsonLd={jsonLd}>
-  <FeaturedGame pick={pick} />
-  <TopPlayers games={boards.map((g) => ({ slug: gameSlug(g), title: g.data.title, href: gameUrl(g) }))} initial={pick ? gameSlug(pick.game) : undefined} />
+  <FeaturedGame pick={pick}>
+    {
+      boards.length > 0 && (
+        <BoardTabs
+          slot="aside"
+          games={boards.map((g) => ({ slug: gameSlug(g), title: g.data.title, href: gameUrl(g), cover: g.data.coverImage }))}
+          initial={pick ? gameSlug(pick.game) : undefined}
+        />
+      )
+    }
+  </FeaturedGame>
 
   <section class="section browse" aria-labelledby="browse-heading">
     <div class="container">
