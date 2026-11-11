@@ -1,0 +1,360 @@
+---
+/**
+ * Home page hero: the INDIE/24 title with a tab per game on the same row,
+ * then the selected game's screenshot with its details below on the left and
+ * its arcade leaderboard on the right. Today's pick opens first; picking a tab
+ * swaps the screenshot, details and leaderboard together.
+ */
+import { Image } from 'astro:assets';
+import GameActions from './GameActions.astro';
+import GameLabels from './GameLabels.astro';
+import Leaderboard from './Leaderboard.astro';
+import Icon from './Icon.astro';
+import { LEADERBOARDS, SITE } from '../config';
+import { formatDate, gameSlug, gameUrl, genreLabel, platformLabel, type DailyPick, type Game } from '../lib/games';
+
+interface Props {
+  pick: DailyPick | undefined;
+  /** Every visible game, newest first. */
+  games: Game[];
+}
+const { pick, games } = Astro.props;
+// Today's pick first, then the rest newest first.
+const list = pick ? [pick.game, ...games.filter((g) => g.id !== pick.game.id)] : games;
+const first = list[0];
+---
+
+<section class="hero" aria-labelledby="hero-heading">
+  <div class="container intro">
+    <h1 class="brand" id="hero-heading">
+      <span class="word" aria-hidden="true">INDIE<span class="slash">/</span>24</span>
+      <span class="visually-hidden">{SITE.name}:</span>
+      <span class="tagline">{SITE.tagline}</span>
+    </h1>
+    {
+      list.length > 1 && (
+        <div class="tabs" role="tablist" aria-label="Pick a game" data-hero-tabs>
+          {list.map((g, i) => (
+            <button
+              type="button"
+              role="tab"
+              class="tab"
+              id={`hero-tab-${gameSlug(g)}`}
+              aria-controls={`hero-panel-${gameSlug(g)}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+              data-tab={gameSlug(g)}
+            >
+              {i === 0 && pick?.isToday && <span class="today">Today</span>}
+              {g.data.title}
+            </button>
+          ))}
+        </div>
+      )
+    }
+  </div>
+
+  {
+    first ? (
+      list.map((game, i) => {
+        const d = game.data;
+        const slug = gameSlug(game);
+        const isPick = i === 0 && pick;
+        const hasBoard = Boolean(LEADERBOARDS[slug]);
+        return (
+          <div
+            class:list={['container', 'grid', { 'has-board': hasBoard }]}
+            id={`hero-panel-${slug}`}
+            role={list.length > 1 ? 'tabpanel' : undefined}
+            aria-labelledby={list.length > 1 ? `hero-tab-${slug}` : undefined}
+            data-hero-panel={slug}
+            hidden={i !== 0}
+          >
+            <div class="main">
+              <a class="art" href={gameUrl(game)} tabindex="-1" aria-hidden="true">
+                <Image
+                  src={d.coverImage}
+                  alt=""
+                  widths={[640, 960, 1280, 1600]}
+                  sizes="(min-width: 1200px) 720px, (min-width: 900px) 58vw, 100vw"
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  fetchpriority={i === 0 ? 'high' : undefined}
+                  class="pixelated"
+                />
+                <span class="frame" />
+              </a>
+              <div class="info">
+                <p class="eyebrow">
+                  {isPick && pick.isToday ? 'Game of the Day' : isPick ? 'Latest pick' : 'Featured'} ·{' '}
+                  <time datetime={d.featuredDate}>{formatDate(d.featuredDate, 'long')}</time>
+                </p>
+                <h2 class="title">
+                  <a href={gameUrl(game)}>{d.title}</a>
+                </h2>
+                <p class="by">
+                  by <strong>{d.developer}</strong>
+                  {d.releaseYear && <span class="muted"> · {d.releaseYear}</span>}
+                </p>
+                <div class="labels">
+                  <GameLabels game={game} />
+                </div>
+                <p class="lede">{d.shortDescription}</p>
+                <ul class="badge-list" aria-label="Genres and platforms">
+                  {d.genres.map((g) => (
+                    <li>
+                      <a class="badge badge-accent" href={`/genres/${g}/`}>
+                        {genreLabel(g)}
+                      </a>
+                    </li>
+                  ))}
+                  {d.platforms.map((p) => (
+                    <li class="badge">{platformLabel(p)}</li>
+                  ))}
+                </ul>
+                <GameActions game={game} context="hero" />
+                {isPick && !pick.isToday && <p class="fallback muted">No new game is scheduled for today yet, so here is our most recent pick.</p>}
+              </div>
+            </div>
+            {hasBoard && (
+              <aside class="side" aria-label={`${d.title} leaderboard`}>
+                <Leaderboard game={slug} title={d.title} href={gameUrl(game)} cover={d.coverImage} headingLevel={3} limit={5} />
+                <a class="all" href="/leaderboard/">
+                  Full leaderboard <Icon name="arrow" />
+                </a>
+              </aside>
+            )}
+          </div>
+        );
+      })
+    ) : (
+      <div class="container empty">
+        <p class="eyebrow">Game of the Day</p>
+        <h2>Nothing scheduled yet</h2>
+        <p class="muted">The first featured game is on its way. Check back soon, or browse the archive.</p>
+        <a class="btn" href="/games/">Browse games</a>
+      </div>
+    )
+  }
+</section>
+
+<style>
+  .hero {
+    padding-block: clamp(24px, 5vw, 56px) clamp(32px, 6vw, 64px);
+    border-bottom: 1px solid var(--border);
+    background:
+      radial-gradient(60% 80% at 20% 0%, rgb(124 58 237 / 0.16), transparent 70%),
+      var(--bg);
+  }
+  .intro {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 24px;
+    margin-bottom: clamp(20px, 4vw, 32px);
+  }
+  .brand {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 18px;
+    margin: 0;
+  }
+  .word {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 6vw, 2.6rem);
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    text-shadow: 4px 4px 0 #2e1065;
+  }
+  .slash {
+    color: var(--accent);
+  }
+  .tagline {
+    font-size: clamp(1rem, 2.4vw, 1.25rem);
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 13px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.03);
+    color: var(--text-muted);
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .tab:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+  .tab[aria-selected='true'] {
+    border-color: #f7c948;
+    background: #f7c948;
+    color: #1b1538;
+  }
+  .today {
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 0.55rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .tab[aria-selected='true'] .today {
+    background: #1b1538;
+    color: #f7c948;
+  }
+
+  .grid {
+    display: grid;
+    gap: clamp(24px, 4vw, 40px);
+    align-items: start;
+  }
+  .grid[hidden] {
+    display: none;
+  }
+  .main {
+    display: grid;
+    gap: 24px;
+    min-width: 0;
+  }
+  @media (min-width: 900px) {
+    .grid.has-board {
+      grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr);
+    }
+    .grid:not(.has-board) .main {
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      align-items: center;
+    }
+  }
+  .art {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 2px solid var(--border-strong);
+    box-shadow: 8px 8px 0 0 #2e1065;
+    background: var(--surface);
+    transition:
+      transform 0.25s var(--ease),
+      box-shadow 0.25s var(--ease);
+  }
+  .art:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 11px 11px 0 0 #3b0f85;
+  }
+  .art :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .frame {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+    background: linear-gradient(to top, rgb(12 10 22 / 0.35), transparent 40%);
+  }
+  .title {
+    margin-bottom: 8px;
+    font-size: clamp(2rem, 4vw, 2.75rem);
+  }
+  .title a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  .title a:hover {
+    color: var(--accent-strong);
+  }
+  .by {
+    margin: 0 0 12px;
+    color: var(--text-muted);
+  }
+  .by strong {
+    color: var(--text);
+  }
+  .labels:empty {
+    display: none;
+  }
+  .labels {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .lede {
+    font-size: 1.1rem;
+    color: #d9d4ec;
+  }
+  .badge-list {
+    margin-bottom: 24px;
+  }
+  a.badge {
+    text-decoration: none;
+  }
+  a.badge:hover {
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .fallback {
+    margin: 16px 0 0;
+    font-size: 0.875rem;
+  }
+  .side {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+  }
+  .all {
+    justify-self: end;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .empty {
+    text-align: center;
+    padding-block: 48px;
+  }
+  .empty p {
+    max-width: 48ch;
+    margin-inline: auto;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-hero-tabs]').forEach((bar) => {
+    const tabs = [...bar.querySelectorAll<HTMLButtonElement>('[data-tab]')];
+    const panels = [...document.querySelectorAll<HTMLElement>('[data-hero-panel]')];
+    function select(tab: HTMLButtonElement, focus = false) {
+      for (const t of tabs) {
+        const on = t === tab;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+      }
+      for (const p of panels) p.hidden = p.dataset.heroPanel !== tab.dataset.tab;
+      if (focus) tab.focus();
+    }
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab));
+      tab.addEventListener('keydown', (e) => {
+        const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!d) return;
+        e.preventDefault();
+        select(tabs[(i + d + tabs.length) % tabs.length], true);
+      });
+    });
+  });
+</script>

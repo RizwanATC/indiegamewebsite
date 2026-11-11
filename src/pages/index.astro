@@ -1,20 +1,18 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import FeaturedGame from '../components/FeaturedGame.astro';
+import HomeHero from '../components/HomeHero.astro';
 import GameCard from '../components/GameCard.astro';
 import GenreNav from '../components/GenreNav.astro';
 import SearchForm from '../components/SearchForm.astro';
 import AdSlot from '../components/AdSlot.astro';
 import Icon from '../components/Icon.astro';
-import BoardTabs from '../components/BoardTabs.astro';
 import PostList from '../components/PostList.astro';
-import { LEADERBOARDS, SITE } from '../config';
-import { allGenres, allPlatforms, gameSlug, gameUrl, getVisibleGames, getVisiblePosts, pickDailyGame, platformLabel } from '../lib/games';
+import { SITE } from '../config';
+import { allGenres, allPlatforms, getVisibleGames, getVisiblePosts, pickDailyGame, platformLabel } from '../lib/games';
 
 const games = await getVisibleGames();
 const pick = pickDailyGame(games);
 const recent = games.filter((g) => g.id !== pick?.game.id).slice(0, SITE.recentCount);
-const boards = games.filter((g) => LEADERBOARDS[gameSlug(g)]);
 const genres = allGenres(games);
 const posts = (await getVisiblePosts()).slice(0, 3);
 const platforms = allPlatforms(games);
@@ -29,17 +27,7 @@ const jsonLd = {
 ---
 
 <BaseLayout jsonLd={jsonLd}>
-  <FeaturedGame pick={pick}>
-    {
-      boards.length > 0 && (
-        <BoardTabs
-          slot="aside"
-          games={boards.map((g) => ({ slug: gameSlug(g), title: g.data.title, href: gameUrl(g), cover: g.data.coverImage }))}
-          initial={pick ? gameSlug(pick.game) : undefined}
-        />
-      )
-    }
-  </FeaturedGame>
+  <HomeHero pick={pick} games={games} />
 
   <section class="section browse" aria-labelledby="browse-heading">
     <div class="container">
