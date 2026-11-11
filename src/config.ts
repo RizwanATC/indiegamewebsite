@@ -14,10 +14,10 @@ export const SITE = {
    * "Asia/Kuala_Lumpur" or "America/New_York".
    */
   timezone: 'UTC',
-  /** Public contact address. Replace before launch. */
-  contactEmail: 'hello@example.com',
-  /** Address for broken-link, copyright and safety reports. Replace before launch. */
-  reportEmail: 'reports@example.com',
+  /** Public contact address (shown on the Contact page). */
+  contactEmail: 'rizwanmatnawi00@gmail.com',
+  /** Address for broken-link, copyright and safety reports. */
+  reportEmail: 'rizwanmatnawi00@gmail.com',
   /** Games per "page" in the archive before the Load More button. */
   archivePageSize: 6,
   /** Number of recently featured games shown on the home page. */
