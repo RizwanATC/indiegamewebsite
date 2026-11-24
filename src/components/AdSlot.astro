@@ -67,6 +67,22 @@ const devPreview = import.meta.env.DEV && ADS.showDevPlaceholders;
     max-width: 300px;
     min-height: 250px;
   }
+  /* Until Google fills the slot (before approval, or when no ad is
+     available) the box shows no border, background, label or reserved height,
+     so visitors never see an empty "Advertisement" frame. The <ins> stays
+     full width so AdSense can still measure the slot and request an ad. */
+  .ad:not(:has(ins[data-ad-status='filled'])) {
+    min-height: 0;
+    margin-block: 0;
+    border-color: transparent;
+    background: none;
+  }
+  .ad:not(:has(ins[data-ad-status='filled'])) .ad-label {
+    display: none;
+  }
+  .ad:not(:has(ins[data-ad-status='filled'])) ins {
+    margin-top: 0;
+  }
   .ad ins {
     width: 100%;
     margin-top: 18px;
