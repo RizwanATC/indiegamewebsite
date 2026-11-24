@@ -3,11 +3,12 @@ title: "How to install our Android games (and check the file is genuine)"
 description: "A step-by-step guide to installing an APK on Android outside the Play Store, checking its SHA-256 fingerprint, getting updates, and where your progress is saved."
 kind: help
 date: "2026-11-10"
+updated: "2026-11-24"
 ---
 
-All three of our games ([Slime Siege](/games/slime-siege/), [Forest
-Liar](/games/forest-liar/) and [Bumble Dash](/games/bumble-dash/)) have a free
-Android app. They aren't on the Google Play Store, so you install them
+[Slime Siege](/games/slime-siege/), [Forest Liar](/games/forest-liar/) and
+[Bumble Dash](/games/bumble-dash/) each have a free Android app. (Our newest
+game, [Pond Guard](/games/pond-guard/), is browser-only for now.) They aren't on the Google Play Store, so you install them
 directly from this website as an **APK** file. This page explains how to do
 that safely, step by step.
 
