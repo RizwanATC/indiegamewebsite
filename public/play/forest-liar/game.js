@@ -1,7 +1,7 @@
 // Forest Liar: a comedy trap platformer for INDIE/24. Pip the courier has to
-// deliver a letter through a forest that lies. Sprites come from the supplied
-// Forest Liar asset sheet (cut by scripts/extract-forest-liar-art.py); levels
-// live in levels.js. The same files run on the website and in the Android app.
+// deliver a letter through a forest that lies. Sprites are cartoon art cut
+// into an HD atlas by scripts/build-forest-liar-hd.py (game-pixel rects, drawn
+// at FOREST_LIAR_SCALE); levels live in levels.js. The same files run on the website and in the Android app.
 (function () {
   'use strict';
 
@@ -12,12 +12,29 @@
   const DT = 1 / 60;
   const LEVELS = window.FOREST_LIAR_LEVELS;
   const ATLAS = window.FOREST_LIAR_ATLAS;
+  // The world is 480x270 game pixels; the canvas has S real pixels per game
+  // pixel so the cartoon art stays sharp.
+  const S = window.FOREST_LIAR_SCALE || 1;
+  const SKY = window.FOREST_LIAR_SKY || { top: '#4aa3d8', low: '#67c1e2', ground: '#2f6b5b' };
 
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
-  canvas.width = W;
-  canvas.height = H;
-  ctx.imageSmoothingEnabled = false;
+  canvas.width = W * S;
+  canvas.height = H * S;
+  /** A canvas that is drawn in game pixels (S real pixels each). */
+  function hdCanvas(w, h) {
+    const c = document.createElement('canvas');
+    c.width = Math.ceil(w * S);
+    c.height = Math.ceil(h * S);
+    const g = c.getContext('2d');
+    g.setTransform(S, 0, 0, S, 0, 0);
+    g.imageSmoothingQuality = 'high';
+    return [c, g];
+  }
+  /** drawImage from the atlas, with the source rect in game pixels. */
+  function blit(g, sx, sy, sw, sh, dx, dy, dw, dh) {
+    g.drawImage(sheet, sx * S, sy * S, sw * S, sh * S, dx, dy, dw, dh);
+  }
 
   const $ = (id) => document.getElementById(id);
   const hudEl = $('hud');
@@ -147,7 +164,7 @@
     y -= off.y;
     const [ax, ay, w, h] = r;
     if (!flip && alpha === 1 && sx === 1 && sy === 1 && !rot) {
-      ctx.drawImage(sheet, ax, ay, w, h, Math.round(x), Math.round(y), w, h);
+      blit(ctx, ax, ay, w, h, Math.round(x), Math.round(y), w, h);
       return;
     }
     // Transformed draws pivot on (ox, oy) of the sprite: bottom-centre by default.
@@ -156,9 +173,11 @@
     ctx.translate(Math.round(x + w * ox), Math.round(y + h * oy));
     if (rot) ctx.rotate(rot);
     ctx.scale(flip ? -sx : sx, sy);
-    ctx.drawImage(sheet, ax, ay, w, h, -w * ox, -h * oy, w, h);
+    blit(ctx, ax, ay, w, h, -w * ox, -h * oy, w, h);
     ctx.restore();
   }
+  /** The quarter of a 2x2-tile texture that belongs at an entity's tile. */
+  const tileName = (base, e) => `${base}_${Math.round(e.x / T) % 2}${Math.round(e.y / T) % 2}`;
   const sw = (name) => ATLAS[name][2];
   const sh = (name) => ATLAS[name][3];
   /** Draw a sprite standing on the point (cx, bottom). */
@@ -1192,7 +1211,7 @@
         ctx.fillStyle = '#7a4a24';
         ctx.fillRect(-2, -40, 4, 40);
         const [ax, ay, w, h] = ATLAS.sign;
-        ctx.drawImage(sheet, ax, ay, w, h, -Math.round(w / 2), -40 - h + 6, w, h);
+        blit(ctx, ax, ay, w, h, -Math.round(w / 2), -40 - h + 6, w, h);
         screenSpace(() => text(e.text || 'HI!', 0, -40 - h + 11, { align: 'center', color: '#fff6c2', outline: '#3b2412' }));
         ctx.restore();
       },
@@ -1653,10 +1672,10 @@
       },
       draw(e) {
         if (e.s === 'open') {
-          if (e.t < 0.5) spr('tile_stone', e.x, e.y + e.t * e.t * 200, { alpha: 1 - e.t * 2, ox: 0, oy: 0 });
+          if (e.t < 0.5) spr(tileName('tile_stone', e), e.x, e.y + e.t * e.t * 200, { alpha: 1 - e.t * 2, ox: 0, oy: 0 });
           return;
         }
-        spr('tile_stone', e.x, e.y);
+        spr(tileName('tile_stone', e), e.x, e.y);
       },
     },
     // A stone block that drops out of the sky. Its shadow on the ground is the warning.
@@ -1821,7 +1840,7 @@
         ctx.translate(Math.round(base + jig - cam.x), Math.round(bottom - cam.y));
         ctx.rotate(e.ang * e.fall);
         ctx.scale(1, e.grow);
-        ctx.drawImage(sheet, ax, ay, w, h, -Math.round(w / 2), -h, w, h);
+        blit(ctx, ax, ay, w, h, -Math.round(w / 2), -h, w, h);
         ctx.restore();
         if (e.rumble && (e.s === 'rumble' || e.s === 'grow')) text(e.s === 'grow' ? 'TIMBER!' : '?!', base, Math.max(cam.y + 14, bottom - this.height(e) - 10), { align: 'center', color: '#fff6c2', scale: e.s === 'grow' ? 2 : 1 });
       },
@@ -1849,7 +1868,7 @@
       },
       draw(e) {
         const top = !world.ents.some((o) => o.type === 'fakeground' && o.tx === e.tx && o.ty === e.ty - 1) && !solidTile(e.tx, e.ty - 1);
-        const name = top ? 'tile_grass' : (e.tx + e.ty) % 2 ? 'tile_dirt' : 'tile_dirt2';
+        const name = tileName(top ? 'tile_grass' : 'tile_dirt', e);
         spr(name, e.x, e.y, e.s === 'fall' ? { rot: e.t * (e.tx % 2 ? 2 : -2), ox: 0.5, oy: 0.5 } : undefined);
       },
     },
@@ -1890,7 +1909,7 @@
       draw(e) {
         if (e.s !== 'shown') return;
         const k = Math.max(0, 1 - e.t / 0.12);
-        spr('tile_stone_top', e.x, e.y - Math.round(k * 4), { ox: 0, oy: 0, sx: 1.0001 });
+        spr(tileName('tile_stone_top', e), e.x, e.y - Math.round(k * 4), { ox: 0, oy: 0, sx: 1.0001 });
         if (e.t < 0.6) text('?', e.x + T / 2, e.y + 6, { align: 'center', color: '#13202a' });
       },
     },
@@ -2027,28 +2046,24 @@
     return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
   }
   const CHAPTER = [
-    { sky: ['#4aa3d8', '#67c1e2'], skip: 2, tint: null, song: 'ch0', far: '#2f6b5b' },
-    { sky: ['#f6a35b', '#fde3b0'], skip: 62, tint: 'rgba(255, 170, 80, 0.16)', song: 'ch1', far: '#5b5a3a' },
-    { sky: ['#3b2f68', '#e88a74'], skip: 62, tint: 'rgba(60, 40, 110, 0.28)', song: 'ch2', far: '#2b2d4a' },
+    { sky: [SKY.top, SKY.top], skip: 2, tint: null, song: 'ch0', far: SKY.ground },
+    { sky: ['#f6a35b', '#fde3b0'], skip: 64, tint: 'rgba(255, 170, 80, 0.16)', song: 'ch1', far: '#4f5a32' },
+    { sky: ['#3b2f68', '#e88a74'], skip: 64, tint: 'rgba(60, 40, 110, 0.28)', song: 'ch2', far: '#283046' },
   ];
 
   function bakeTerrain(L) {
-    const c = document.createElement('canvas');
-    c.width = world.cols * T;
-    c.height = world.rows * T;
-    const g = c.getContext('2d');
-    g.imageSmoothingEnabled = false;
+    const [c, g] = hdCanvas(world.cols * T, world.rows * T);
     const rand = rng(world.index * 977 + 13);
     const put = (name, x, y, w, h) => {
       const r = ATLAS[name];
-      g.drawImage(sheet, r[0], r[1], r[2], r[3], x, y, w ?? r[2], h ?? r[3]);
+      blit(g, r[0], r[1], r[2], r[3], x, y, w ?? r[2], h ?? r[3]);
     };
     const putRot = (name, x, y, rot) => {
       const r = ATLAS[name];
       g.save();
       g.translate(x + T / 2, y + T / 2);
       g.rotate(rot);
-      g.drawImage(sheet, r[0], r[1], r[2], r[3], -T / 2, -T / 2 + (T - 17), T, 17);
+      blit(g, r[0], r[1], r[2], r[3], -T / 2, -T / 2 + (T - 17), T, 17);
       g.restore();
     };
     const decoTop = [];
@@ -2059,13 +2074,15 @@
         const py = y * T;
         const above = tileAt(x, y - 1);
         const open = !SOLID.includes(above);
+        // Dirt and stone repeat every 2 tiles: pick the matching quarter.
+        const q = `_${x % 2}${y % 2}`;
         if (ch === '#') {
           if (open) {
-            put('tile_grass', px, py);
+            put('tile_grass' + q, px, py);
             decoTop.push([px, py]);
-          } else put(rand() < 0.5 ? 'tile_dirt' : 'tile_dirt2', px, py);
+          } else put('tile_dirt' + q, px, py);
         } else if (ch === 'S') {
-          put(open ? 'tile_stone_top' : 'tile_stone', px, py);
+          put((open ? 'tile_stone_top' : 'tile_stone') + q, px, py);
           if (open) decoTop.push([px, py]);
         } else if (ch === '=') {
           put('log_plank', px, py - 2);
@@ -2084,22 +2101,19 @@
       }
     }
     // Midground trees behind the terrain, drawn into their own layer.
-    const mid = document.createElement('canvas');
-    mid.width = Math.ceil((world.cols * T) / 2 + W);
-    mid.height = H;
-    const m = mid.getContext('2d');
-    m.imageSmoothingEnabled = false;
+    const midW = Math.ceil((world.cols * T) / 2 + W);
+    const [mid, m] = hdCanvas(midW, H);
     const trees = ['tree_round', 'tree_pine', 'tree_tall', 'pine_small', 'tree_round'];
-    for (let x = -20; x < mid.width; x += 40 + Math.floor(rand() * 60)) {
+    for (let x = -20; x < midW; x += 40 + Math.floor(rand() * 60)) {
       const name = trees[Math.floor(rand() * trees.length)];
       const r = ATLAS[name];
-      m.drawImage(sheet, r[0], r[1], r[2], r[3], x, H - 34 - r[3] + Math.floor(rand() * 10), r[2], r[3]);
+      blit(m, r[0], r[1], r[2], r[3], x, H - 34 - r[3] + Math.floor(rand() * 10), r[2], r[3]);
     }
     // Shade the midground so it reads as further away.
     m.globalCompositeOperation = 'source-atop';
     m.fillStyle = 'rgba(30, 60, 70, 0.45)';
-    m.fillRect(0, 0, mid.width, mid.height);
-    bake = { terrain: c, mid, chapter: CHAPTER[L.chapter] };
+    m.fillRect(0, 0, midW, H);
+    bake = { terrain: c, mid, midW, chapter: CHAPTER[L.chapter], w: world.cols * T, h: world.rows * T };
   }
 
   function drawBackground(chapter) {
@@ -2122,7 +2136,7 @@
       ctx.save();
       ctx.translate(flip ? x + bw : x, by);
       ctx.scale(flip ? -1 : 1, 1);
-      ctx.drawImage(sheet, r[0], r[1] + skip, bw, r[3] - skip, 0, skip, bw, r[3] - skip);
+      blit(ctx, r[0], r[1] + skip, bw, r[3] - skip, 0, skip, bw, r[3] - skip);
       ctx.restore();
     }
     ctx.fillStyle = ch.far;
@@ -2174,7 +2188,7 @@
     const sx = cam.x;
     cam.x += shake;
     drawBackground(bake.chapter);
-    ctx.drawImage(bake.mid, Math.round(-cam.x * 0.5), Math.round(H - bake.mid.height - cam.y * 0.2 + (world.rows * T - H) * 0.2));
+    ctx.drawImage(bake.mid, Math.round(-cam.x * 0.5), Math.round(-cam.y * 0.2 + (world.rows * T - H) * 0.2), bake.midW, H);
     // Water and anything animated sits behind the terrain bake.
     const x0 = Math.max(0, Math.floor(cam.x / T));
     const x1 = Math.min(world.cols - 1, Math.floor((cam.x + W) / T));
@@ -2186,9 +2200,9 @@
         const px = Math.round(x * T - cam.x);
         const py = Math.round(y * T - cam.y);
         const wave = top ? Math.round(Math.sin(world.clock * 3 + x) * 1.5) + 6 : 0;
-        ctx.drawImage(sheet, wr[0], wr[1], T, T - wave, px, py + wave, T, T - wave);
+        blit(ctx, wr[0], wr[1], T, T - wave, px, py + wave, T, T - wave);
       }
-    ctx.drawImage(bake.terrain, Math.round(-cam.x), Math.round(-cam.y));
+    ctx.drawImage(bake.terrain, Math.round(-cam.x), Math.round(-cam.y), bake.w, bake.h);
     off.x = cam.x;
     off.y = cam.y;
     for (const e of world.ents) if (e.type !== 'acorn' && onScreen(e, 160)) KINDS[e.type].draw?.(e);
@@ -2254,9 +2268,9 @@
     const dy = active ? -1 : 0;
     ctx.globalAlpha = disabled ? 0.5 : 1;
     // Three-slice: caps stay, the middle stretches.
-    ctx.drawImage(sheet, r[0], r[1], cap, r[3], x, y + dy, cap, h);
-    ctx.drawImage(sheet, r[0] + cap, r[1], r[2] - cap * 2, r[3], x + cap, y + dy, w - cap * 2, h);
-    ctx.drawImage(sheet, r[0] + r[2] - cap, r[1], cap, r[3], x + w - cap, y + dy, cap, h);
+    blit(ctx, r[0], r[1], cap, r[3], x, y + dy, cap, h);
+    blit(ctx, r[0] + cap, r[1], r[2] - cap * 2, r[3], x + cap, y + dy, w - cap * 2, h);
+    blit(ctx, r[0] + r[2] - cap, r[1], cap, r[3], x + w - cap, y + dy, cap, h);
     if (active) {
       ctx.strokeStyle = '#f7c948';
       ctx.lineWidth = 2;
@@ -2561,8 +2575,10 @@
     cam.y = 0;
     drawBackground(CHAPTER[0]);
     // Ground strip with Pip, a bush and a suspicious sign.
-    const gr = ATLAS.tile_grass;
-    for (let x = 0; x < W; x += T) ctx.drawImage(sheet, gr[0], gr[1], T, T, x, H - T, T, T);
+    for (let x = 0; x < W; x += T) {
+      const gr = ATLAS[`tile_grass_${(x / T) % 2}0`];
+      blit(ctx, gr[0], gr[1], T, T, x, H - T, T, T);
+    }
     const t = performance.now() / 1000;
     stand(Math.floor(t * 1.6) % 2 ? 'pip_idle2' : 'pip_idle', 90, H - T + 1);
     stand('bush', 380, H - T, { sx: 1 + Math.max(0, Math.sin(t * 1.3)) * 0.12, sy: 1 + Math.max(0, Math.sin(t * 1.3)) * 0.2 });
@@ -2708,8 +2724,10 @@
   function drawEnding() {
     endT += 1 / 60;
     drawBackground(CHAPTER[2]);
-    const gr = ATLAS.tile_grass;
-    for (let x = 0; x < W; x += T) ctx.drawImage(sheet, gr[0], gr[1], T, T, x, H - T, T, T);
+    for (let x = 0; x < W; x += T) {
+      const gr = ATLAS[`tile_grass_${(x / T) % 2}0`];
+      blit(ctx, gr[0], gr[1], T, T, x, H - T, T, T);
+    }
     stand('boss_tree', 340, H - T);
     const px = Math.min(260, 40 + endT * 60);
     stand(endT < 3.6 ? ['pip_walk', 'pip_run', 'pip_run2', 'pip_stride'][Math.floor(endT * 10) % 4] : 'pip_idle', px, H - T + 1);
@@ -2772,7 +2790,8 @@
   }
 
   function render() {
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.setTransform(S, 0, 0, S, 0, 0);
+    ctx.imageSmoothingQuality = 'high';
     if (state === 'loading') {
       ctx.fillStyle = '#13202a';
       ctx.fillRect(0, 0, W, H);

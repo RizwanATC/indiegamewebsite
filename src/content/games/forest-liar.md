@@ -8,14 +8,14 @@ genres: ["platformer", "comedy", "puzzle"]
 platforms: ["web", "android"]
 featuredDate: "2026-10-29"
 coverImage: "../../assets/games/forest-liar/cover.png"
-coverAlt: "The Forest Liar logo over a sunny pixel-art forest, with Pip the courier walking towards a sign that says hello"
+coverAlt: "The Forest Liar logo over a sunny cartoon forest, with Pip the raccoon courier and a friendly signpost"
 screenshots:
   - src: "../../assets/games/forest-liar/screenshot-1.png"
-    alt: "Level 1-1: Pip walks along grassy ground towards a friendly sign that says HELLO, which is about to tip over"
+    alt: "Level 1-1: Pip the raccoon walks along grassy ground in a sunny cartoon forest"
   - src: "../../assets/games/forest-liar/screenshot-2.png"
-    alt: "Level 1-4: a bush sneezes a cloud of dust across narrow dirt pillars over spikes while Pip jumps between them"
+    alt: "Level 1-4: Pip passes an angry stone block next to narrow dirt pillars over a row of spikes"
   - src: "../../assets/games/forest-liar/screenshot-3.png"
-    alt: "Level 3-3 at dusk: Pip stands by a checkpoint star while wooden stage platforms hang on ropes over a pit of spikes"
+    alt: "Level 3-3 at dusk: Pip meets a grinning tree stump while wooden stage platforms hang on ropes over a pit of spikes"
 playUrl: "/play/forest-liar/"
 playerAspect: "16/9"
 downloadUrl: "/downloads/forest-liar.apk"
