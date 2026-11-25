@@ -1,3 +1,10 @@
+@font-face {
+  font-family: "Fredoka FL";
+  src: url("assets/fonts/fredoka-600.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+
 html,
 body {
   margin: 0;
@@ -154,7 +161,7 @@ button {
   background: rgb(19 32 42 / 0.9);
   border: 2px solid #4c6170;
   color: #f4ecd2;
-  font: 600 13px/1.2 ui-monospace, Menlo, Consolas, monospace;
+  font: 600 14px/1.2 "Fredoka FL", "Trebuchet MS", sans-serif;
   white-space: nowrap;
 }
 #rotate[hidden] {

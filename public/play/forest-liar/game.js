@@ -184,42 +184,39 @@
   const stand = (name, cx, bottom, opt) => spr(name, cx - sw(name) / 2, bottom - sh(name), opt);
 
   // ----------------------------------------------------------------- font --
-  const FONT = {
-    A: '010101111101101', B: '110101110101110', C: '011100100100011', D: '110101101101110', E: '111100110100111',
-    F: '111100110100100', G: '011100101101011', H: '101101111101101', I: '111010010010111', J: '001001001101010',
-    K: '101101110101101', L: '100100100100111', M: '101111111101101', N: '111101101101101', O: '010101101101010',
-    P: '110101110100100', Q: '010101101110011', R: '110101110101101', S: '011100010001110', T: '111010010010010',
-    U: '101101101101111', V: '101101101101010', W: '101101101111101', X: '101101010101101', Y: '101101010010010',
-    Z: '111001010100111', 0: '111101101101111', 1: '010110010010111', 2: '110001010100111', 3: '110001010001110',
-    4: '101101111001001', 5: '111100110001110', 6: '011100111101111', 7: '111001010010010', 8: '111101111101111',
-    9: '111101111001110', ' ': '000000000000000', ':': '000010000010000', '.': '000000000000010', '!': '010010010000010',
-    '-': '000000111000000', '?': '110001010000010', '/': '001001010100100', '+': '000010111010000', ',': '000000000010100',
-    "'": '010010000000000', '(': '010100100100010', ')': '010001001001010', '<': '001010100010001', '>': '100010001010100',
-    '^': '010101000000000', '&': '010101010101011', '"': '101101000000000', '*': '000101010101000', '#': '101111101111101',
-    '=': '000111000111000', ';': '000010000010100', '%': '101001010100101', _: '000000000000111',
-  };
-  function textWidth(str, scale = 1) {
-    return (String(str).length * 4 - 1) * scale;
+  // Fredoka (SIL Open Font License), a soft rounded cartoon font, self-hosted.
+  // Sizes keep the old pixel-font metrics: caps are 5 game px tall per scale step.
+  const FONT_FAMILY = '"Fredoka FL", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif';
+  const fontLoaded = (window.FontFace
+    ? new FontFace('Fredoka FL', 'url(assets/fonts/fredoka-600.woff2)', { weight: '600' }).load().then((f) => document.fonts.add(f))
+    : Promise.resolve()
+  ).catch(() => {});
+  const fontPx = (scale) => 7.2 * scale;
+  function setFont(g, scale) {
+    g.font = `600 ${fontPx(scale)}px ${FONT_FAMILY}`;
   }
-  /** Outlined pixel text, readable on any background. */
+  function textWidth(str, scale = 1) {
+    setFont(ctx, scale);
+    return Math.ceil(ctx.measureText(String(str).toUpperCase()).width);
+  }
+  /** Outlined cartoon text, readable on any background. */
   function text(str, x, y, { color = '#f4ecd2', scale = 1, align = 'left', outline = '#13202a' } = {}) {
     str = String(str).toUpperCase();
     x -= off.x;
     y -= off.y;
-    const w = textWidth(str, scale);
-    if (align === 'center') x -= Math.floor(w / 2);
-    if (align === 'right') x -= w;
-    x = Math.round(x);
-    y = Math.round(y);
-    const glyphs = (dx, dy, c) => {
-      ctx.fillStyle = c;
-      for (let i = 0; i < str.length; i++) {
-        const g = FONT[str[i]] || FONT['?'];
-        for (let p = 0; p < 15; p++) if (g[p] === '1') ctx.fillRect(x + dx + (i * 4 + (p % 3)) * scale, y + dy + ((p / 3) | 0) * scale, scale, scale);
-      }
-    };
-    if (outline) for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1], [1, 1], [-1, 1], [1, -1], [-1, -1]]) glyphs(dx * Math.max(1, scale >> 1), dy * Math.max(1, scale >> 1), outline);
-    glyphs(0, 0, color);
+    setFont(ctx, scale);
+    ctx.textAlign = align;
+    ctx.textBaseline = 'alphabetic';
+    const by = y + 5 * scale;
+    if (outline) {
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = scale > 1 ? 1.6 + scale * 0.6 : 2;
+      ctx.strokeStyle = outline;
+      ctx.strokeText(str, x, by);
+    }
+    ctx.fillStyle = color;
+    ctx.fillText(str, x, by);
+    ctx.textAlign = 'left';
   }
   /** Split text into lines no wider than maxChars. */
   function wrap(str, maxChars) {
@@ -244,13 +241,18 @@
     let x = Math.round(cx - w / 2);
     x = Math.max(cam.x + 2, Math.min(cam.x + W - w - 2, x)) - Math.round(cam.x);
     const y = Math.round(bottom - h - 4 - cam.y);
-    ctx.fillStyle = '#13202a';
-    ctx.fillRect(x - 1, y - 1, w + 2, h + 2);
-    ctx.fillStyle = '#f4ecd2';
-    ctx.fillRect(x, y, w, h);
     const tx = Math.round(cx - cam.x);
-    ctx.fillRect(tx - 2, y + h, 5, 2);
-    ctx.fillRect(tx - 1, y + h + 2, 3, 2);
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, 4);
+    ctx.moveTo(tx - 3, y + h - 0.5);
+    ctx.lineTo(tx, y + h + 4);
+    ctx.lineTo(tx + 3, y + h - 0.5);
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#13202a';
+    ctx.stroke();
+    ctx.fillStyle = '#f4ecd2';
+    ctx.fill();
     lines.forEach((l, i) => text(l, x + w / 2, y + 4 + i * 7, { align: 'center', color: '#13202a', outline: null }));
   }
 
@@ -2748,7 +2750,7 @@
       text('THANKS FOR PLAYING FOREST LIAR', W / 2, 108, { align: 'center' });
       text(`TOTAL DEATHS: ${progress.totalDeaths}`, W / 2, 122, { align: 'center', color: '#f39a3d' });
       text('A GAME BY INDIE/24', W / 2, 136, { align: 'center', color: '#cfe8d0' });
-      text('MADE WITH THE FOREST LIAR PIXEL ART PACK', W / 2, 150, { align: 'center', color: '#cfe8d0' });
+      text('ART BY MOCKIE, MADE WITH GEMINI', W / 2, 150, { align: 'center', color: '#cfe8d0' });
       if (!menu.length) buildMenu();
     }
     drawMenuItems();
@@ -2834,7 +2836,7 @@
   }
 
   fit();
-  loaded
+  Promise.all([loaded, fontLoaded])
     .then(() => {
       setState('title');
       requestAnimationFrame(frame);
