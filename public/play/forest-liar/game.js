@@ -69,7 +69,7 @@
   // Bump VERSION together with version.json (and upload the new APK) for each
   // Android release. The app runs from file:// and asks the website for the
   // latest version.json, so it can offer the newer APK on the title screen.
-  const VERSION = '1.0.0';
+  const VERSION = '1.1.0';
   const VERSION_URL = 'https://indiegamewebsite.vercel.app/play/forest-liar/version.json';
   let newVersion = null; // { version, apk } once a newer APK is known
   function isNewer(a, b) {
