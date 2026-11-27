@@ -1,7 +1,7 @@
 // Forest Liar: a comedy trap platformer for INDIE/24. Pip the courier has to
-// deliver a letter through a forest that lies. Sprites come from the supplied
-// Forest Liar asset sheet (cut by scripts/extract-forest-liar-art.py); levels
-// live in levels.js. The same files run on the website and in the Android app.
+// deliver a letter through a forest that lies. Sprites are cartoon art cut
+// into an HD atlas by scripts/build-forest-liar-hd.py (game-pixel rects, drawn
+// at FOREST_LIAR_SCALE); levels live in levels.js. The same files run on the website and in the Android app.
 (function () {
   'use strict';
 
@@ -12,12 +12,29 @@
   const DT = 1 / 60;
   const LEVELS = window.FOREST_LIAR_LEVELS;
   const ATLAS = window.FOREST_LIAR_ATLAS;
+  // The world is 480x270 game pixels; the canvas has S real pixels per game
+  // pixel so the cartoon art stays sharp.
+  const S = window.FOREST_LIAR_SCALE || 1;
+  const SKY = window.FOREST_LIAR_SKY || { top: '#4aa3d8', low: '#67c1e2', ground: '#2f6b5b' };
 
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
-  canvas.width = W;
-  canvas.height = H;
-  ctx.imageSmoothingEnabled = false;
+  canvas.width = W * S;
+  canvas.height = H * S;
+  /** A canvas that is drawn in game pixels (S real pixels each). */
+  function hdCanvas(w, h) {
+    const c = document.createElement('canvas');
+    c.width = Math.ceil(w * S);
+    c.height = Math.ceil(h * S);
+    const g = c.getContext('2d');
+    g.setTransform(S, 0, 0, S, 0, 0);
+    g.imageSmoothingQuality = 'high';
+    return [c, g];
+  }
+  /** drawImage from the atlas, with the source rect in game pixels. */
+  function blit(g, sx, sy, sw, sh, dx, dy, dw, dh) {
+    g.drawImage(sheet, sx * S, sy * S, sw * S, sh * S, dx, dy, dw, dh);
+  }
 
   const $ = (id) => document.getElementById(id);
   const hudEl = $('hud');
@@ -52,7 +69,7 @@
   // Bump VERSION together with version.json (and upload the new APK) for each
   // Android release. The app runs from file:// and asks the website for the
   // latest version.json, so it can offer the newer APK on the title screen.
-  const VERSION = '1.0.0';
+  const VERSION = '1.1.0';
   const VERSION_URL = 'https://indiegamewebsite.vercel.app/play/forest-liar/version.json';
   let newVersion = null; // { version, apk } once a newer APK is known
   function isNewer(a, b) {
@@ -147,7 +164,7 @@
     y -= off.y;
     const [ax, ay, w, h] = r;
     if (!flip && alpha === 1 && sx === 1 && sy === 1 && !rot) {
-      ctx.drawImage(sheet, ax, ay, w, h, Math.round(x), Math.round(y), w, h);
+      blit(ctx, ax, ay, w, h, Math.round(x), Math.round(y), w, h);
       return;
     }
     // Transformed draws pivot on (ox, oy) of the sprite: bottom-centre by default.
@@ -156,51 +173,50 @@
     ctx.translate(Math.round(x + w * ox), Math.round(y + h * oy));
     if (rot) ctx.rotate(rot);
     ctx.scale(flip ? -sx : sx, sy);
-    ctx.drawImage(sheet, ax, ay, w, h, -w * ox, -h * oy, w, h);
+    blit(ctx, ax, ay, w, h, -w * ox, -h * oy, w, h);
     ctx.restore();
   }
+  /** The quarter of a 2x2-tile texture that belongs at an entity's tile. */
+  const tileName = (base, e) => `${base}_${Math.round(e.x / T) % 2}${Math.round(e.y / T) % 2}`;
   const sw = (name) => ATLAS[name][2];
   const sh = (name) => ATLAS[name][3];
   /** Draw a sprite standing on the point (cx, bottom). */
   const stand = (name, cx, bottom, opt) => spr(name, cx - sw(name) / 2, bottom - sh(name), opt);
 
   // ----------------------------------------------------------------- font --
-  const FONT = {
-    A: '010101111101101', B: '110101110101110', C: '011100100100011', D: '110101101101110', E: '111100110100111',
-    F: '111100110100100', G: '011100101101011', H: '101101111101101', I: '111010010010111', J: '001001001101010',
-    K: '101101110101101', L: '100100100100111', M: '101111111101101', N: '111101101101101', O: '010101101101010',
-    P: '110101110100100', Q: '010101101110011', R: '110101110101101', S: '011100010001110', T: '111010010010010',
-    U: '101101101101111', V: '101101101101010', W: '101101101111101', X: '101101010101101', Y: '101101010010010',
-    Z: '111001010100111', 0: '111101101101111', 1: '010110010010111', 2: '110001010100111', 3: '110001010001110',
-    4: '101101111001001', 5: '111100110001110', 6: '011100111101111', 7: '111001010010010', 8: '111101111101111',
-    9: '111101111001110', ' ': '000000000000000', ':': '000010000010000', '.': '000000000000010', '!': '010010010000010',
-    '-': '000000111000000', '?': '110001010000010', '/': '001001010100100', '+': '000010111010000', ',': '000000000010100',
-    "'": '010010000000000', '(': '010100100100010', ')': '010001001001010', '<': '001010100010001', '>': '100010001010100',
-    '^': '010101000000000', '&': '010101010101011', '"': '101101000000000', '*': '000101010101000', '#': '101111101111101',
-    '=': '000111000111000', ';': '000010000010100', '%': '101001010100101', _: '000000000000111',
-  };
-  function textWidth(str, scale = 1) {
-    return (String(str).length * 4 - 1) * scale;
+  // Fredoka (SIL Open Font License), a soft rounded cartoon font, self-hosted.
+  // Sizes keep the old pixel-font metrics: caps are 5 game px tall per scale step.
+  const FONT_FAMILY = '"Fredoka FL", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif';
+  const fontLoaded = (window.FontFace
+    ? new FontFace('Fredoka FL', 'url(assets/fonts/fredoka-600.woff2)', { weight: '600' }).load().then((f) => document.fonts.add(f))
+    : Promise.resolve()
+  ).catch(() => {});
+  const fontPx = (scale) => 7.2 * scale;
+  function setFont(g, scale) {
+    g.font = `600 ${fontPx(scale)}px ${FONT_FAMILY}`;
   }
-  /** Outlined pixel text, readable on any background. */
-  function text(str, x, y, { color = '#f4ecd2', scale = 1, align = 'left', outline = '#13202a' } = {}) {
-    str = String(str).toUpperCase();
+  function textWidth(str, scale = 1, upper = true) {
+    setFont(ctx, scale);
+    return Math.ceil(ctx.measureText(upper ? String(str).toUpperCase() : String(str)).width);
+  }
+  /** Outlined cartoon text, readable on any background. */
+  function text(str, x, y, { color = '#f4ecd2', scale = 1, align = 'left', outline = '#13202a', upper = true } = {}) {
+    str = upper ? String(str).toUpperCase() : String(str);
     x -= off.x;
     y -= off.y;
-    const w = textWidth(str, scale);
-    if (align === 'center') x -= Math.floor(w / 2);
-    if (align === 'right') x -= w;
-    x = Math.round(x);
-    y = Math.round(y);
-    const glyphs = (dx, dy, c) => {
-      ctx.fillStyle = c;
-      for (let i = 0; i < str.length; i++) {
-        const g = FONT[str[i]] || FONT['?'];
-        for (let p = 0; p < 15; p++) if (g[p] === '1') ctx.fillRect(x + dx + (i * 4 + (p % 3)) * scale, y + dy + ((p / 3) | 0) * scale, scale, scale);
-      }
-    };
-    if (outline) for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1], [1, 1], [-1, 1], [1, -1], [-1, -1]]) glyphs(dx * Math.max(1, scale >> 1), dy * Math.max(1, scale >> 1), outline);
-    glyphs(0, 0, color);
+    setFont(ctx, scale);
+    ctx.textAlign = align;
+    ctx.textBaseline = 'alphabetic';
+    const by = y + 5 * scale;
+    if (outline) {
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = scale > 1 ? 1.6 + scale * 0.6 : 2;
+      ctx.strokeStyle = outline;
+      ctx.strokeText(str, x, by);
+    }
+    ctx.fillStyle = color;
+    ctx.fillText(str, x, by);
+    ctx.textAlign = 'left';
   }
   /** Split text into lines no wider than maxChars. */
   function wrap(str, maxChars) {
@@ -225,13 +241,18 @@
     let x = Math.round(cx - w / 2);
     x = Math.max(cam.x + 2, Math.min(cam.x + W - w - 2, x)) - Math.round(cam.x);
     const y = Math.round(bottom - h - 4 - cam.y);
-    ctx.fillStyle = '#13202a';
-    ctx.fillRect(x - 1, y - 1, w + 2, h + 2);
-    ctx.fillStyle = '#f4ecd2';
-    ctx.fillRect(x, y, w, h);
     const tx = Math.round(cx - cam.x);
-    ctx.fillRect(tx - 2, y + h, 5, 2);
-    ctx.fillRect(tx - 1, y + h + 2, 3, 2);
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, 4);
+    ctx.moveTo(tx - 3, y + h - 0.5);
+    ctx.lineTo(tx, y + h + 4);
+    ctx.lineTo(tx + 3, y + h - 0.5);
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#13202a';
+    ctx.stroke();
+    ctx.fillStyle = '#f4ecd2';
+    ctx.fill();
     lines.forEach((l, i) => text(l, x + w / 2, y + 4 + i * 7, { align: 'center', color: '#13202a', outline: null }));
   }
 
@@ -1192,7 +1213,7 @@
         ctx.fillStyle = '#7a4a24';
         ctx.fillRect(-2, -40, 4, 40);
         const [ax, ay, w, h] = ATLAS.sign;
-        ctx.drawImage(sheet, ax, ay, w, h, -Math.round(w / 2), -40 - h + 6, w, h);
+        blit(ctx, ax, ay, w, h, -Math.round(w / 2), -40 - h + 6, w, h);
         screenSpace(() => text(e.text || 'HI!', 0, -40 - h + 11, { align: 'center', color: '#fff6c2', outline: '#3b2412' }));
         ctx.restore();
       },
@@ -1653,10 +1674,10 @@
       },
       draw(e) {
         if (e.s === 'open') {
-          if (e.t < 0.5) spr('tile_stone', e.x, e.y + e.t * e.t * 200, { alpha: 1 - e.t * 2, ox: 0, oy: 0 });
+          if (e.t < 0.5) spr(tileName('tile_stone', e), e.x, e.y + e.t * e.t * 200, { alpha: 1 - e.t * 2, ox: 0, oy: 0 });
           return;
         }
-        spr('tile_stone', e.x, e.y);
+        spr(tileName('tile_stone', e), e.x, e.y);
       },
     },
     // A stone block that drops out of the sky. Its shadow on the ground is the warning.
@@ -1821,7 +1842,7 @@
         ctx.translate(Math.round(base + jig - cam.x), Math.round(bottom - cam.y));
         ctx.rotate(e.ang * e.fall);
         ctx.scale(1, e.grow);
-        ctx.drawImage(sheet, ax, ay, w, h, -Math.round(w / 2), -h, w, h);
+        blit(ctx, ax, ay, w, h, -Math.round(w / 2), -h, w, h);
         ctx.restore();
         if (e.rumble && (e.s === 'rumble' || e.s === 'grow')) text(e.s === 'grow' ? 'TIMBER!' : '?!', base, Math.max(cam.y + 14, bottom - this.height(e) - 10), { align: 'center', color: '#fff6c2', scale: e.s === 'grow' ? 2 : 1 });
       },
@@ -1849,7 +1870,7 @@
       },
       draw(e) {
         const top = !world.ents.some((o) => o.type === 'fakeground' && o.tx === e.tx && o.ty === e.ty - 1) && !solidTile(e.tx, e.ty - 1);
-        const name = top ? 'tile_grass' : (e.tx + e.ty) % 2 ? 'tile_dirt' : 'tile_dirt2';
+        const name = tileName(top ? 'tile_grass' : 'tile_dirt', e);
         spr(name, e.x, e.y, e.s === 'fall' ? { rot: e.t * (e.tx % 2 ? 2 : -2), ox: 0.5, oy: 0.5 } : undefined);
       },
     },
@@ -1890,7 +1911,7 @@
       draw(e) {
         if (e.s !== 'shown') return;
         const k = Math.max(0, 1 - e.t / 0.12);
-        spr('tile_stone_top', e.x, e.y - Math.round(k * 4), { ox: 0, oy: 0, sx: 1.0001 });
+        spr(tileName('tile_stone_top', e), e.x, e.y - Math.round(k * 4), { ox: 0, oy: 0, sx: 1.0001 });
         if (e.t < 0.6) text('?', e.x + T / 2, e.y + 6, { align: 'center', color: '#13202a' });
       },
     },
@@ -2027,28 +2048,24 @@
     return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
   }
   const CHAPTER = [
-    { sky: ['#4aa3d8', '#67c1e2'], skip: 2, tint: null, song: 'ch0', far: '#2f6b5b' },
-    { sky: ['#f6a35b', '#fde3b0'], skip: 62, tint: 'rgba(255, 170, 80, 0.16)', song: 'ch1', far: '#5b5a3a' },
-    { sky: ['#3b2f68', '#e88a74'], skip: 62, tint: 'rgba(60, 40, 110, 0.28)', song: 'ch2', far: '#2b2d4a' },
+    { sky: [SKY.top, SKY.top], skip: 2, tint: null, song: 'ch0', far: SKY.ground },
+    { sky: ['#f6a35b', '#fde3b0'], skip: 64, tint: 'rgba(255, 170, 80, 0.16)', song: 'ch1', far: '#4f5a32' },
+    { sky: ['#3b2f68', '#e88a74'], skip: 64, tint: 'rgba(60, 40, 110, 0.28)', song: 'ch2', far: '#283046' },
   ];
 
   function bakeTerrain(L) {
-    const c = document.createElement('canvas');
-    c.width = world.cols * T;
-    c.height = world.rows * T;
-    const g = c.getContext('2d');
-    g.imageSmoothingEnabled = false;
+    const [c, g] = hdCanvas(world.cols * T, world.rows * T);
     const rand = rng(world.index * 977 + 13);
     const put = (name, x, y, w, h) => {
       const r = ATLAS[name];
-      g.drawImage(sheet, r[0], r[1], r[2], r[3], x, y, w ?? r[2], h ?? r[3]);
+      blit(g, r[0], r[1], r[2], r[3], x, y, w ?? r[2], h ?? r[3]);
     };
     const putRot = (name, x, y, rot) => {
       const r = ATLAS[name];
       g.save();
       g.translate(x + T / 2, y + T / 2);
       g.rotate(rot);
-      g.drawImage(sheet, r[0], r[1], r[2], r[3], -T / 2, -T / 2 + (T - 17), T, 17);
+      blit(g, r[0], r[1], r[2], r[3], -T / 2, -T / 2 + (T - 17), T, 17);
       g.restore();
     };
     const decoTop = [];
@@ -2059,13 +2076,15 @@
         const py = y * T;
         const above = tileAt(x, y - 1);
         const open = !SOLID.includes(above);
+        // Dirt and stone repeat every 2 tiles: pick the matching quarter.
+        const q = `_${x % 2}${y % 2}`;
         if (ch === '#') {
           if (open) {
-            put('tile_grass', px, py);
+            put('tile_grass' + q, px, py);
             decoTop.push([px, py]);
-          } else put(rand() < 0.5 ? 'tile_dirt' : 'tile_dirt2', px, py);
+          } else put('tile_dirt' + q, px, py);
         } else if (ch === 'S') {
-          put(open ? 'tile_stone_top' : 'tile_stone', px, py);
+          put((open ? 'tile_stone_top' : 'tile_stone') + q, px, py);
           if (open) decoTop.push([px, py]);
         } else if (ch === '=') {
           put('log_plank', px, py - 2);
@@ -2084,22 +2103,19 @@
       }
     }
     // Midground trees behind the terrain, drawn into their own layer.
-    const mid = document.createElement('canvas');
-    mid.width = Math.ceil((world.cols * T) / 2 + W);
-    mid.height = H;
-    const m = mid.getContext('2d');
-    m.imageSmoothingEnabled = false;
+    const midW = Math.ceil((world.cols * T) / 2 + W);
+    const [mid, m] = hdCanvas(midW, H);
     const trees = ['tree_round', 'tree_pine', 'tree_tall', 'pine_small', 'tree_round'];
-    for (let x = -20; x < mid.width; x += 40 + Math.floor(rand() * 60)) {
+    for (let x = -20; x < midW; x += 40 + Math.floor(rand() * 60)) {
       const name = trees[Math.floor(rand() * trees.length)];
       const r = ATLAS[name];
-      m.drawImage(sheet, r[0], r[1], r[2], r[3], x, H - 34 - r[3] + Math.floor(rand() * 10), r[2], r[3]);
+      blit(m, r[0], r[1], r[2], r[3], x, H - 34 - r[3] + Math.floor(rand() * 10), r[2], r[3]);
     }
     // Shade the midground so it reads as further away.
     m.globalCompositeOperation = 'source-atop';
     m.fillStyle = 'rgba(30, 60, 70, 0.45)';
-    m.fillRect(0, 0, mid.width, mid.height);
-    bake = { terrain: c, mid, chapter: CHAPTER[L.chapter] };
+    m.fillRect(0, 0, midW, H);
+    bake = { terrain: c, mid, midW, chapter: CHAPTER[L.chapter], w: world.cols * T, h: world.rows * T };
   }
 
   function drawBackground(chapter) {
@@ -2122,7 +2138,7 @@
       ctx.save();
       ctx.translate(flip ? x + bw : x, by);
       ctx.scale(flip ? -1 : 1, 1);
-      ctx.drawImage(sheet, r[0], r[1] + skip, bw, r[3] - skip, 0, skip, bw, r[3] - skip);
+      blit(ctx, r[0], r[1] + skip, bw, r[3] - skip, 0, skip, bw, r[3] - skip);
       ctx.restore();
     }
     ctx.fillStyle = ch.far;
@@ -2174,7 +2190,7 @@
     const sx = cam.x;
     cam.x += shake;
     drawBackground(bake.chapter);
-    ctx.drawImage(bake.mid, Math.round(-cam.x * 0.5), Math.round(H - bake.mid.height - cam.y * 0.2 + (world.rows * T - H) * 0.2));
+    ctx.drawImage(bake.mid, Math.round(-cam.x * 0.5), Math.round(-cam.y * 0.2 + (world.rows * T - H) * 0.2), bake.midW, H);
     // Water and anything animated sits behind the terrain bake.
     const x0 = Math.max(0, Math.floor(cam.x / T));
     const x1 = Math.min(world.cols - 1, Math.floor((cam.x + W) / T));
@@ -2186,9 +2202,9 @@
         const px = Math.round(x * T - cam.x);
         const py = Math.round(y * T - cam.y);
         const wave = top ? Math.round(Math.sin(world.clock * 3 + x) * 1.5) + 6 : 0;
-        ctx.drawImage(sheet, wr[0], wr[1], T, T - wave, px, py + wave, T, T - wave);
+        blit(ctx, wr[0], wr[1], T, T - wave, px, py + wave, T, T - wave);
       }
-    ctx.drawImage(bake.terrain, Math.round(-cam.x), Math.round(-cam.y));
+    ctx.drawImage(bake.terrain, Math.round(-cam.x), Math.round(-cam.y), bake.w, bake.h);
     off.x = cam.x;
     off.y = cam.y;
     for (const e of world.ents) if (e.type !== 'acorn' && onScreen(e, 160)) KINDS[e.type].draw?.(e);
@@ -2254,9 +2270,9 @@
     const dy = active ? -1 : 0;
     ctx.globalAlpha = disabled ? 0.5 : 1;
     // Three-slice: caps stay, the middle stretches.
-    ctx.drawImage(sheet, r[0], r[1], cap, r[3], x, y + dy, cap, h);
-    ctx.drawImage(sheet, r[0] + cap, r[1], r[2] - cap * 2, r[3], x + cap, y + dy, w - cap * 2, h);
-    ctx.drawImage(sheet, r[0] + r[2] - cap, r[1], cap, r[3], x + w - cap, y + dy, cap, h);
+    blit(ctx, r[0], r[1], cap, r[3], x, y + dy, cap, h);
+    blit(ctx, r[0] + cap, r[1], r[2] - cap * 2, r[3], x + cap, y + dy, w - cap * 2, h);
+    blit(ctx, r[0] + r[2] - cap, r[1], cap, r[3], x + w - cap, y + dy, cap, h);
     if (active) {
       ctx.strokeStyle = '#f7c948';
       ctx.lineWidth = 2;
@@ -2275,7 +2291,7 @@
     if (state === 'title') {
       menu = column(
         [
-          { label: progress.unlocked > 1 ? 'CONTINUE' : 'PLAY', act: () => startLevel(Math.min(progress.unlocked, LEVELS.length) - 1) },
+          { label: progress.unlocked > 1 ? 'CONTINUE' : 'PLAY', act: () => playOn(Math.min(progress.unlocked, LEVELS.length) - 1) },
           { label: 'LEVELS', act: () => setState('levels') },
           { label: 'SETTINGS', act: () => setState('settings') },
           { label: 'CREDITS', act: () => ((creditsFrom = 'title'), setState('credits')) },
@@ -2341,7 +2357,7 @@
       const [a, b, c] = boardOnline() ? [[18, 84], [110, 112], [230, 66]] : [[70, 100], [180, 120], [310, 100]];
       menu = [
         { label: 'RETRY', x: a[0], y: 196, w: a[1], h: 26, act: () => startLevel(world.index) },
-        { label: last ? 'THE END' : 'NEXT LEVEL', x: b[0], y: 196, w: b[1], h: 26, act: () => (last ? ((endT = 0), setState('ending')) : startLevel(world.index + 1)), primary: true },
+        { label: last ? 'THE END' : 'NEXT LEVEL', x: b[0], y: 196, w: b[1], h: 26, act: () => playOn(last ? 'ending' : world.index + 1), primary: true },
         { label: 'LEVELS', x: c[0], y: 196, w: c[1], h: 26, act: () => setState('levels'), back: true },
       ];
     } else if (state === 'ending') {
@@ -2371,6 +2387,108 @@
     }
     clearInput();
     updateChrome();
+  }
+
+  // ---------------------------------------------------------------- story --
+  // Talking scenes from story.js. Each plays once, when you reach its spot by
+  // playing on (PLAY, CONTINUE, NEXT LEVEL, THE END); picking a level from
+  // the levels screen goes straight in. Seen scenes are kept in progress.seen.
+  const STORY = window.FOREST_LIAR_STORY || { cast: {}, scenes: [] };
+  progress.seen = progress.seen || {};
+  let story = null; // { scene, line, t, then }
+  function playOn(target) {
+    const go = () => (target === 'ending' ? ((endT = 0), setState('ending')) : startLevel(target));
+    const scene = STORY.scenes.find((sc) => sc.before === target && !progress.seen[sc.id]);
+    if (!scene) return go();
+    story = { scene, line: 0, t: 0, then: go };
+    setState('story');
+  }
+  function storyNext() {
+    const sc = story.scene;
+    const full = sc.lines[story.line][1].length;
+    if (story.t * 45 < full) return void (story.t = full / 45 + 0.01); // finish the line first
+    sfx.click();
+    story.line++;
+    story.t = 0;
+    if (story.line >= sc.lines.length) storyEnd();
+  }
+  function storyEnd() {
+    progress.seen[story.scene.id] = true;
+    saveProgress();
+    const then = story.then;
+    story = null;
+    then();
+  }
+  const SKIP = { x: W - 66, y: 6, w: 60, h: 18 };
+  function drawStory() {
+    const sc = story.scene;
+    story.t += 1 / 60;
+    cam.x = 0;
+    cam.y = 0;
+    drawBackground(CHAPTER[sc.bg]);
+    for (let x = 0; x < W; x += T) {
+      const gr = ATLAS[`tile_grass_${(x / T) % 2}0`];
+      blit(ctx, gr[0], gr[1], T, T, x, H - T, T, T);
+    }
+    const [who, line] = sc.lines[story.line];
+    // The other speaker is whoever (not Pip) talks nearest to this line.
+    let other = who !== 'PIP' ? who : null;
+    for (let d = 1; !other && d < sc.lines.length; d++) {
+      for (const j of [story.line - d, story.line + d]) {
+        if (!other && sc.lines[j] && sc.lines[j][0] !== 'PIP') other = sc.lines[j][0];
+      }
+    }
+    const portrait = (name, cx, talking) => {
+      const c = STORY.cast[name];
+      if (!c || !ATLAS[c.sprite]) return;
+      const k = Math.min(3, 100 / sh(c.sprite));
+      const bob = talking ? Math.abs(Math.sin(story.t * 9)) * 2 : 0;
+      ctx.save();
+      if (!talking) ctx.filter = 'brightness(0.55) saturate(0.7)';
+      spr(c.sprite, cx - sw(c.sprite) / 2, 206 - sh(c.sprite) - bob, { sx: k, sy: k * (talking ? 1 + Math.sin(story.t * 9) * 0.015 : 1) });
+      ctx.restore();
+    };
+    portrait('PIP', 112, who === 'PIP');
+    if (other) portrait(other, 368, who === other);
+    // Chapter title for the first moments of a scene.
+    if (story.line === 0 && sc.title) {
+      const a = Math.min(1, story.t * 3);
+      ctx.save();
+      ctx.globalAlpha = a;
+      text(sc.title, W / 2, 22, { align: 'center', scale: 2, color: '#fff6c2' });
+      ctx.restore();
+    }
+    // Dialogue box.
+    const bx = 14, by = 200, bw = W - 28, bh = 62;
+    ctx.beginPath();
+    ctx.roundRect(bx, by, bw, bh, 8);
+    ctx.fillStyle = 'rgba(19, 32, 42, 0.92)';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#f4ecd2';
+    ctx.stroke();
+    const col = (STORY.cast[who] && STORY.cast[who].color) || '#f4ecd2';
+    const nw = textWidth(who, 1.2) + 16;
+    ctx.beginPath();
+    ctx.roundRect(bx + 12, by - 9, nw, 17, 6);
+    ctx.fillStyle = col;
+    ctx.fill();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#13202a';
+    ctx.stroke();
+    text(who, bx + 12 + nw / 2, by - 4, { align: 'center', scale: 1.2, color: '#13202a', outline: null });
+    const shown = line.slice(0, Math.floor(story.t * 45));
+    const lines = wrap(line, 54);
+    let left = shown.length;
+    lines.forEach((l, i) => {
+      const part = l.slice(0, Math.max(0, left));
+      left -= l.length + 1;
+      if (part) text(part, bx + 16, by + 14 + i * 14, { scale: 1.45, color: '#f4ecd2', upper: false });
+    });
+    if (shown.length >= line.length && Math.floor(story.t * 2.5) % 2 === 0) {
+      text(story.line + 1 < sc.lines.length ? 'TAP TO CONTINUE >' : 'TAP TO START >', bx + bw - 12, by + bh - 12, { align: 'right', color: '#f7c948' });
+    }
+    woodButton(SKIP.x, SKIP.y, SKIP.w, SKIP.h, 'SKIP', false, { small: true });
   }
 
   function startLevel(i) {
@@ -2430,6 +2548,11 @@
       return;
     }
     if (code === 'KeyM') return toggleSound();
+    if (state === 'story') {
+      if (code === 'Escape') storyEnd();
+      else if (code === 'Enter' || code === 'Space' || code === 'KeyZ' || code === 'ArrowRight' || code === 'KeyD') storyNext();
+      return;
+    }
     if (state === 'loading' || !menu.length) {
       if (state === 'ending' && (code === 'Enter' || code === 'Space' || code === 'Escape')) endT = Math.max(endT, 9);
       return;
@@ -2482,13 +2605,18 @@
     unlockAudio();
     markTouch(e);
     canvas.focus({ preventScroll: true });
+    const r = canvas.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width) * W;
+    const y = ((e.clientY - r.top) / r.height) * H;
+    if (state === 'story') {
+      if (x >= SKIP.x - 4 && x <= SKIP.x + SKIP.w + 4 && y >= SKIP.y - 4 && y <= SKIP.y + SKIP.h + 4) (sfx.click(), storyEnd());
+      else storyNext();
+      return;
+    }
     if (state === 'play' || !menu.length) {
       if (state === 'ending') endT = Math.max(endT, 9);
       return;
     }
-    const r = canvas.getBoundingClientRect();
-    const x = ((e.clientX - r.left) / r.width) * W;
-    const y = ((e.clientY - r.top) / r.height) * H;
     const i = menu.findIndex((m) => x >= m.x - 3 && x <= m.x + m.w + 3 && y >= m.y - 3 && y <= m.y + m.h + 3);
     if (i >= 0) {
       focus = i;
@@ -2561,8 +2689,10 @@
     cam.y = 0;
     drawBackground(CHAPTER[0]);
     // Ground strip with Pip, a bush and a suspicious sign.
-    const gr = ATLAS.tile_grass;
-    for (let x = 0; x < W; x += T) ctx.drawImage(sheet, gr[0], gr[1], T, T, x, H - T, T, T);
+    for (let x = 0; x < W; x += T) {
+      const gr = ATLAS[`tile_grass_${(x / T) % 2}0`];
+      blit(ctx, gr[0], gr[1], T, T, x, H - T, T, T);
+    }
     const t = performance.now() / 1000;
     stand(Math.floor(t * 1.6) % 2 ? 'pip_idle2' : 'pip_idle', 90, H - T + 1);
     stand('bush', 380, H - T, { sx: 1 + Math.max(0, Math.sin(t * 1.3)) * 0.12, sy: 1 + Math.max(0, Math.sin(t * 1.3)) * 0.2 });
@@ -2708,15 +2838,17 @@
   function drawEnding() {
     endT += 1 / 60;
     drawBackground(CHAPTER[2]);
-    const gr = ATLAS.tile_grass;
-    for (let x = 0; x < W; x += T) ctx.drawImage(sheet, gr[0], gr[1], T, T, x, H - T, T, T);
+    for (let x = 0; x < W; x += T) {
+      const gr = ATLAS[`tile_grass_${(x / T) % 2}0`];
+      blit(ctx, gr[0], gr[1], T, T, x, H - T, T, T);
+    }
     stand('boss_tree', 340, H - T);
     const px = Math.min(260, 40 + endT * 60);
     stand(endT < 3.6 ? ['pip_walk', 'pip_run', 'pip_run2', 'pip_stride'][Math.floor(endT * 10) % 4] : 'pip_idle', px, H - T + 1);
     if (endT > 3.6 && endT < 5) spr('letter', 270 + (endT - 3.6) * 30, H - T - 30 - Math.sin((endT - 3.6) * 2.2) * 20);
     const say = [
       [4.5, 'THE OLD OAK OPENS THE LETTER...'],
-      [6, '"DEAR FOREST, PLEASE STOP LYING. LOVE, PIP"'],
+      [6, '"DEAR FOREST, PLEASE STOP LYING TO OUR COURIERS. LOVE, THE POST OFFICE"'],
       [7.5, 'THE OAK LAUGHS SO HARD IT DROPS ALL ITS ACORNS.'],
     ];
     let y = 26;
@@ -2730,7 +2862,7 @@
       text('THANKS FOR PLAYING FOREST LIAR', W / 2, 108, { align: 'center' });
       text(`TOTAL DEATHS: ${progress.totalDeaths}`, W / 2, 122, { align: 'center', color: '#f39a3d' });
       text('A GAME BY INDIE/24', W / 2, 136, { align: 'center', color: '#cfe8d0' });
-      text('MADE WITH THE FOREST LIAR PIXEL ART PACK', W / 2, 150, { align: 'center', color: '#cfe8d0' });
+      text('ART BY MOCKIE, MADE WITH GEMINI', W / 2, 150, { align: 'center', color: '#cfe8d0' });
       if (!menu.length) buildMenu();
     }
     drawMenuItems();
@@ -2768,11 +2900,13 @@
     if (state === 'play' || state === 'paused') return bake.chapter.song;
     if (state === 'complete') return 'clear';
     if (state === 'ending') return 'ending';
+    if (state === 'story' && story) return CHAPTER[story.scene.bg].song;
     return 'title';
   }
 
   function render() {
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.setTransform(S, 0, 0, S, 0, 0);
+    ctx.imageSmoothingQuality = 'high';
     if (state === 'loading') {
       ctx.fillStyle = '#13202a';
       ctx.fillRect(0, 0, W, H);
@@ -2792,6 +2926,7 @@
     } else if (state === 'paused') drawPaused();
     else if (state === 'complete') drawComplete();
     else if (state === 'ending') drawEnding();
+    else if (state === 'story') drawStory();
   }
 
   let last = performance.now();
@@ -2815,7 +2950,7 @@
   }
 
   fit();
-  loaded
+  Promise.all([loaded, fontLoaded])
     .then(() => {
       setState('title');
       requestAnimationFrame(frame);
@@ -2872,6 +3007,13 @@
       setProgress(n) {
         progress.unlocked = n;
         saveProgress();
+      },
+      /** Open a story scene (by its `before` target) at a line, text fully shown. */
+      showStory(target, line = 0, t = 9) {
+        for (const sc of STORY.scenes) if (sc.before === target) delete progress.seen[sc.id];
+        playOn(target);
+        if (story) Object.assign(story, { line, t });
+        return state;
       },
     },
   };

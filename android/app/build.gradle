@@ -16,6 +16,11 @@ def GAMES = [
     'bumble-dash'  : [id: 'com.indie24.bumbledash',   label: 'Bumble Dash',   orientation: 'sensorPortrait'],
 ]
 def game = (project.findProperty('game') ?: 'slime-siege').toString()
+// -Pstore=play builds the Google Play version (bundleRelease -> .aab). Play
+// forbids apps that update themselves outside Play, so that build uses a
+// manifest without INTERNET: the website update check can't run, and the
+// game (which is fully offline) collects and sends nothing.
+def playStore = project.findProperty('store') == 'play'
 def cfg = GAMES[game]
 if (cfg == null) throw new GradleException("Unknown game '${game}'. Pick one of: ${GAMES.keySet().join(', ')}")
 
@@ -29,13 +34,13 @@ if (!file("../../public/play/${game}/game.js").text.contains("const VERSION = '$
 
 android {
     namespace 'com.indie24.game'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId cfg.id
         manifestPlaceholders = [appLabel: cfg.label, orientation: cfg.orientation]
         minSdk 24
-        targetSdk 35
+        targetSdk 36
         versionCode ver.code as int
         versionName ver.version
     }
@@ -63,6 +68,7 @@ android {
         main {
             assets.srcDirs += ["../../public/play/${game}"]
             res.srcDirs += ["src/${game}/res"]
+            if (playStore) manifest.srcFile 'src/play/AndroidManifest.xml'
         }
     }
 

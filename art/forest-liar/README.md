@@ -10,8 +10,8 @@ The game itself is `public/play/forest-liar/` (plain HTML + JS, no build step, s
 | `public/play/forest-liar/assets/atlas.png` + `atlas.js` | Game sprites, generated |
 | `public/play/forest-liar/assets/ui/` | Touch pad and HUD buttons, generated |
 | `public/play/forest-liar/assets/manifest.json` | Sprite name → atlas rect → region of the source sheet |
-| `art/forest-liar/forest_liar_asset_sheet.png` | The original asset sheet (kept here, not shipped) |
-| `scripts/extract-forest-liar-art.py` | Cuts the sheet into the atlas (`python3 scripts/extract-forest-liar-art.py`, needs Pillow + numpy) |
+| `art/forest-liar/hd/*.jpg` | Source art (cartoon style, made with Gemini on a magenta #FF00FF background). Kept here, not shipped |
+| `scripts/build-forest-liar-hd.py` | Keys out the magenta, cuts every sheet into sprites and builds the atlas + UI (`python3 scripts/build-forest-liar-hd.py`, needs Pillow + numpy) |
 
 ## Run it
 
@@ -30,10 +30,16 @@ are defined in that level's `legend` (signs, stage platforms, bush timings).
 During development every level was checked with a search bot built on this hook,
 to make sure all 12 can be finished.
 
-## Assets that had to be drawn
+## Art and resolution
 
-The sheet has no acorn, mailbox, letter, pause, restart or fullscreen icon, so those are
-small pixel drawings in the sheet's palette, marked `reconstructed` in the manifest.
+Pip is a raccoon courier (grey, eye mask, red bandana, satchel). The game world is still
+480x270 game pixels, but the atlas is drawn at 3x (`window.FOREST_LIAR_SCALE` in
+`atlas.js`), the canvas backing store is 3x, and `blit()` in `game.js` maps atlas rects
+(in game pixels) to the 3x sheet. 3x keeps the baked terrain of the widest level
+(110 columns) under the 8192px canvas limit, so don't raise it without checking that.
+
+Dirt and stone repeat every 2 tiles: tiles are named `tile_dirt_XY` where X and Y are the
+column and row modulo 2. Grass tops are a separate overlay composited onto those.
 Pip's second idle frame is a one-pixel squash of the idle frame.
 
 ## Android
