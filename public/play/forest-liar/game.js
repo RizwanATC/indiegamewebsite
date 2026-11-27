@@ -195,13 +195,13 @@
   function setFont(g, scale) {
     g.font = `600 ${fontPx(scale)}px ${FONT_FAMILY}`;
   }
-  function textWidth(str, scale = 1) {
+  function textWidth(str, scale = 1, upper = true) {
     setFont(ctx, scale);
-    return Math.ceil(ctx.measureText(String(str).toUpperCase()).width);
+    return Math.ceil(ctx.measureText(upper ? String(str).toUpperCase() : String(str)).width);
   }
   /** Outlined cartoon text, readable on any background. */
-  function text(str, x, y, { color = '#f4ecd2', scale = 1, align = 'left', outline = '#13202a' } = {}) {
-    str = String(str).toUpperCase();
+  function text(str, x, y, { color = '#f4ecd2', scale = 1, align = 'left', outline = '#13202a', upper = true } = {}) {
+    str = upper ? String(str).toUpperCase() : String(str);
     x -= off.x;
     y -= off.y;
     setFont(ctx, scale);
@@ -2291,7 +2291,7 @@
     if (state === 'title') {
       menu = column(
         [
-          { label: progress.unlocked > 1 ? 'CONTINUE' : 'PLAY', act: () => startLevel(Math.min(progress.unlocked, LEVELS.length) - 1) },
+          { label: progress.unlocked > 1 ? 'CONTINUE' : 'PLAY', act: () => playOn(Math.min(progress.unlocked, LEVELS.length) - 1) },
           { label: 'LEVELS', act: () => setState('levels') },
           { label: 'SETTINGS', act: () => setState('settings') },
           { label: 'CREDITS', act: () => ((creditsFrom = 'title'), setState('credits')) },
@@ -2357,7 +2357,7 @@
       const [a, b, c] = boardOnline() ? [[18, 84], [110, 112], [230, 66]] : [[70, 100], [180, 120], [310, 100]];
       menu = [
         { label: 'RETRY', x: a[0], y: 196, w: a[1], h: 26, act: () => startLevel(world.index) },
-        { label: last ? 'THE END' : 'NEXT LEVEL', x: b[0], y: 196, w: b[1], h: 26, act: () => (last ? ((endT = 0), setState('ending')) : startLevel(world.index + 1)), primary: true },
+        { label: last ? 'THE END' : 'NEXT LEVEL', x: b[0], y: 196, w: b[1], h: 26, act: () => playOn(last ? 'ending' : world.index + 1), primary: true },
         { label: 'LEVELS', x: c[0], y: 196, w: c[1], h: 26, act: () => setState('levels'), back: true },
       ];
     } else if (state === 'ending') {
@@ -2387,6 +2387,108 @@
     }
     clearInput();
     updateChrome();
+  }
+
+  // ---------------------------------------------------------------- story --
+  // Talking scenes from story.js. Each plays once, when you reach its spot by
+  // playing on (PLAY, CONTINUE, NEXT LEVEL, THE END); picking a level from
+  // the levels screen goes straight in. Seen scenes are kept in progress.seen.
+  const STORY = window.FOREST_LIAR_STORY || { cast: {}, scenes: [] };
+  progress.seen = progress.seen || {};
+  let story = null; // { scene, line, t, then }
+  function playOn(target) {
+    const go = () => (target === 'ending' ? ((endT = 0), setState('ending')) : startLevel(target));
+    const scene = STORY.scenes.find((sc) => sc.before === target && !progress.seen[sc.id]);
+    if (!scene) return go();
+    story = { scene, line: 0, t: 0, then: go };
+    setState('story');
+  }
+  function storyNext() {
+    const sc = story.scene;
+    const full = sc.lines[story.line][1].length;
+    if (story.t * 45 < full) return void (story.t = full / 45 + 0.01); // finish the line first
+    sfx.click();
+    story.line++;
+    story.t = 0;
+    if (story.line >= sc.lines.length) storyEnd();
+  }
+  function storyEnd() {
+    progress.seen[story.scene.id] = true;
+    saveProgress();
+    const then = story.then;
+    story = null;
+    then();
+  }
+  const SKIP = { x: W - 66, y: 6, w: 60, h: 18 };
+  function drawStory() {
+    const sc = story.scene;
+    story.t += 1 / 60;
+    cam.x = 0;
+    cam.y = 0;
+    drawBackground(CHAPTER[sc.bg]);
+    for (let x = 0; x < W; x += T) {
+      const gr = ATLAS[`tile_grass_${(x / T) % 2}0`];
+      blit(ctx, gr[0], gr[1], T, T, x, H - T, T, T);
+    }
+    const [who, line] = sc.lines[story.line];
+    // The other speaker is whoever (not Pip) talks nearest to this line.
+    let other = who !== 'PIP' ? who : null;
+    for (let d = 1; !other && d < sc.lines.length; d++) {
+      for (const j of [story.line - d, story.line + d]) {
+        if (!other && sc.lines[j] && sc.lines[j][0] !== 'PIP') other = sc.lines[j][0];
+      }
+    }
+    const portrait = (name, cx, talking) => {
+      const c = STORY.cast[name];
+      if (!c || !ATLAS[c.sprite]) return;
+      const k = Math.min(3, 100 / sh(c.sprite));
+      const bob = talking ? Math.abs(Math.sin(story.t * 9)) * 2 : 0;
+      ctx.save();
+      if (!talking) ctx.filter = 'brightness(0.55) saturate(0.7)';
+      spr(c.sprite, cx - sw(c.sprite) / 2, 206 - sh(c.sprite) - bob, { sx: k, sy: k * (talking ? 1 + Math.sin(story.t * 9) * 0.015 : 1) });
+      ctx.restore();
+    };
+    portrait('PIP', 112, who === 'PIP');
+    if (other) portrait(other, 368, who === other);
+    // Chapter title for the first moments of a scene.
+    if (story.line === 0 && sc.title) {
+      const a = Math.min(1, story.t * 3);
+      ctx.save();
+      ctx.globalAlpha = a;
+      text(sc.title, W / 2, 22, { align: 'center', scale: 2, color: '#fff6c2' });
+      ctx.restore();
+    }
+    // Dialogue box.
+    const bx = 14, by = 200, bw = W - 28, bh = 62;
+    ctx.beginPath();
+    ctx.roundRect(bx, by, bw, bh, 8);
+    ctx.fillStyle = 'rgba(19, 32, 42, 0.92)';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#f4ecd2';
+    ctx.stroke();
+    const col = (STORY.cast[who] && STORY.cast[who].color) || '#f4ecd2';
+    const nw = textWidth(who, 1.2) + 16;
+    ctx.beginPath();
+    ctx.roundRect(bx + 12, by - 9, nw, 17, 6);
+    ctx.fillStyle = col;
+    ctx.fill();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#13202a';
+    ctx.stroke();
+    text(who, bx + 12 + nw / 2, by - 4, { align: 'center', scale: 1.2, color: '#13202a', outline: null });
+    const shown = line.slice(0, Math.floor(story.t * 45));
+    const lines = wrap(line, 54);
+    let left = shown.length;
+    lines.forEach((l, i) => {
+      const part = l.slice(0, Math.max(0, left));
+      left -= l.length + 1;
+      if (part) text(part, bx + 16, by + 14 + i * 14, { scale: 1.45, color: '#f4ecd2', upper: false });
+    });
+    if (shown.length >= line.length && Math.floor(story.t * 2.5) % 2 === 0) {
+      text(story.line + 1 < sc.lines.length ? 'TAP TO CONTINUE >' : 'TAP TO START >', bx + bw - 12, by + bh - 12, { align: 'right', color: '#f7c948' });
+    }
+    woodButton(SKIP.x, SKIP.y, SKIP.w, SKIP.h, 'SKIP', false, { small: true });
   }
 
   function startLevel(i) {
@@ -2446,6 +2548,11 @@
       return;
     }
     if (code === 'KeyM') return toggleSound();
+    if (state === 'story') {
+      if (code === 'Escape') storyEnd();
+      else if (code === 'Enter' || code === 'Space' || code === 'KeyZ' || code === 'ArrowRight' || code === 'KeyD') storyNext();
+      return;
+    }
     if (state === 'loading' || !menu.length) {
       if (state === 'ending' && (code === 'Enter' || code === 'Space' || code === 'Escape')) endT = Math.max(endT, 9);
       return;
@@ -2498,13 +2605,18 @@
     unlockAudio();
     markTouch(e);
     canvas.focus({ preventScroll: true });
+    const r = canvas.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width) * W;
+    const y = ((e.clientY - r.top) / r.height) * H;
+    if (state === 'story') {
+      if (x >= SKIP.x - 4 && x <= SKIP.x + SKIP.w + 4 && y >= SKIP.y - 4 && y <= SKIP.y + SKIP.h + 4) (sfx.click(), storyEnd());
+      else storyNext();
+      return;
+    }
     if (state === 'play' || !menu.length) {
       if (state === 'ending') endT = Math.max(endT, 9);
       return;
     }
-    const r = canvas.getBoundingClientRect();
-    const x = ((e.clientX - r.left) / r.width) * W;
-    const y = ((e.clientY - r.top) / r.height) * H;
     const i = menu.findIndex((m) => x >= m.x - 3 && x <= m.x + m.w + 3 && y >= m.y - 3 && y <= m.y + m.h + 3);
     if (i >= 0) {
       focus = i;
@@ -2736,7 +2848,7 @@
     if (endT > 3.6 && endT < 5) spr('letter', 270 + (endT - 3.6) * 30, H - T - 30 - Math.sin((endT - 3.6) * 2.2) * 20);
     const say = [
       [4.5, 'THE OLD OAK OPENS THE LETTER...'],
-      [6, '"DEAR FOREST, PLEASE STOP LYING. LOVE, PIP"'],
+      [6, '"DEAR FOREST, PLEASE STOP LYING TO OUR COURIERS. LOVE, THE POST OFFICE"'],
       [7.5, 'THE OAK LAUGHS SO HARD IT DROPS ALL ITS ACORNS.'],
     ];
     let y = 26;
@@ -2788,6 +2900,7 @@
     if (state === 'play' || state === 'paused') return bake.chapter.song;
     if (state === 'complete') return 'clear';
     if (state === 'ending') return 'ending';
+    if (state === 'story' && story) return CHAPTER[story.scene.bg].song;
     return 'title';
   }
 
@@ -2813,6 +2926,7 @@
     } else if (state === 'paused') drawPaused();
     else if (state === 'complete') drawComplete();
     else if (state === 'ending') drawEnding();
+    else if (state === 'story') drawStory();
   }
 
   let last = performance.now();
@@ -2893,6 +3007,13 @@
       setProgress(n) {
         progress.unlocked = n;
         saveProgress();
+      },
+      /** Open a story scene (by its `before` target) at a line, text fully shown. */
+      showStory(target, line = 0, t = 9) {
+        for (const sc of STORY.scenes) if (sc.before === target) delete progress.seen[sc.id];
+        playOn(target);
+        if (story) Object.assign(story, { line, t });
+        return state;
       },
     },
   };

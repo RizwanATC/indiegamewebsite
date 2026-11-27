@@ -22,7 +22,7 @@ downloadUrl: "/downloads/forest-liar.apk"
 downloadType: "apk"
 downloadSource: "official"
 apkVersion: "1.1.0"
-apkSha256: "b2c803b3fbecb4f1b79fffc9c7d8ecf0bc395cb60f92e2a161a410ccf78d7337"
+apkSha256: "e0389044a169d4d7f40eabe8ec9bf98532285290521d1fcf46b0dc787f2c7ae2"
 controls:
   - input: "Touch: on-screen pad"
     action: "Left / right on the d-pad, big JUMP button (hold to jump higher)"
